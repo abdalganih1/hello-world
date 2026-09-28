@@ -1,0 +1,22 @@
+{
+  "total": 15.0,
+  "fps": 30,
+  "zoomStart": 3.0,
+  "zoomEnd": 4.75,
+  "asm": { "top": 3.7, "left": 3.86, "right": 4.0 },
+  "glint": 4.9,
+  "beeps": [5.42, 5.57, 5.72],
+  "cursorIn": 5.15,
+  "press": 5.92,
+  "release": 6.1,
+  "ignite": 6.1,
+  "liftoff": 6.65,
+  "cut": 9.35,
+  "settleEnd": 10.6,
+  "earthStart": 9.7,
+  "typeStart": 10.95,
+  "typeStep": 0.085,
+  "text": "Hello world",
+  "emoji": 12.15,
+  "brand": 12.85
+}

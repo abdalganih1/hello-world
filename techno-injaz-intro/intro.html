@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="ar" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Techno Injaz Intro</title>
+<style>
+  @font-face { font-family: Cairo; src: url(assets/cairo-800.ttf); font-weight: 800; }
+  @font-face { font-family: Cairo; src: url(assets/cairo-900.ttf); font-weight: 900; }
+  @font-face { font-family: JB; src: url(assets/jbmono-800.ttf); font-weight: 800; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: clip; background: #02030a; }
+  #stage { position: fixed; top: 0; left: 0; width: 1080px; height: 1920px; overflow: clip; contain: paint; background: #02030a; }
+  #shake { position: absolute; inset: 0; transform-origin: 540px 960px; }
+  canvas { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+
+  /* Logo world: children are laid out in "logo units" (4x source pixels) */
+  #cam { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  .piece, .glint { position: absolute; left: 0; top: 0; display: block; }
+  .glint { -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; mix-blend-mode: screen;
+    background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.9) 50%, transparent 58%); background-size: 320% 100%; background-position: 100% 0; opacity: 0; }
+  #dotSocket, #dotsvg { position: absolute; overflow: visible; }
+  #dotsvg { transform-origin: 50% 50%; }
+
+  #halo { position: absolute; width: 1400px; height: 1400px; margin: -700px 0 0 -700px; border-radius: 50%; opacity: 0;
+    background: radial-gradient(circle, rgba(60,205,190,.55), rgba(74,111,214,.28) 40%, transparent 68%); }
+
+  #cursor { position: absolute; left: 0; top: 0; width: 92px; height: 92px; opacity: 0; transform-origin: 8px 6px; filter: drop-shadow(0 8px 10px rgba(0,0,0,.6)); }
+
+  /* Text layers sit above the shaking world */
+  #caption { position: absolute; left: 0; width: 1080px; top: 300px; text-align: center; direction: rtl; font: 800 66px/1.35 Cairo, sans-serif; color: #fff; opacity: 0; text-shadow: 0 6px 30px rgba(0,0,0,.7); }
+  #caption em { font-style: normal; color: #ffb020; }
+  #hello { position: absolute; left: 0; width: 1080px; top: 930px; text-align: center; direction: ltr; font: 800 96px/1.2 JB, monospace; color: #fff; white-space: pre; opacity: 0; text-shadow: 0 0 40px rgba(60,205,190,.55), 0 8px 30px rgba(0,0,0,.6); }
+  #hello .row { position: relative; display: inline-block; }
+  #hello .prompt { color: #3cc9b6; }
+  #hello .c { opacity: 0; }
+  #caret { position: absolute; top: 12px; width: 44px; height: 90px; background: #3cc9b6; opacity: 0; box-shadow: 0 0 24px rgba(60,205,190,.9); }
+  #emoji { display: inline-block; transform-origin: 50% 60%; opacity: 0; font-family: JB, "Noto Color Emoji", sans-serif; }
+  #brand { position: absolute; left: 0; width: 1080px; top: 1185px; text-align: center; opacity: 0; }
+  #brand .ar { font: 900 84px/1.2 Cairo, sans-serif; color: #fff; direction: rtl; }
+  #brand .en { font: 800 38px/1.4 JB, monospace; color: #6fe6d5; letter-spacing: 15px; margin-top: 4px; padding-left: 14px; }
+  #brand .bar { width: 120px; height: 5px; margin: 18px auto 0; border-radius: 3px; background: linear-gradient(90deg, #4a6fd6, #3cc9b6); }
+  #flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+  #fade { position: absolute; inset: 0; background: #000; opacity: 1; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="shake">
+    <canvas id="bg" width="1080" height="1920"></canvas>
+    <div id="halo"></div>
+    <div id="cam">
+      <img class="piece" id="p-top" src="assets/logo/top.png" alt="">
+      <img class="piece" id="p-left" src="assets/logo/left.png" alt="">
+      <img class="piece" id="p-right" src="assets/logo/right.png" alt="">
+      <div class="glint" id="g-top"></div><div class="glint" id="g-left"></div><div class="glint" id="g-right"></div>
+
+      <svg id="dotSocket" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="98" fill="#050818" stroke="#1d2b6e" stroke-width="5"/>
+      </svg>
+
+      <svg id="dotsvg" viewBox="0 0 200 200">
+        <defs>
+          <linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a76d0"/><stop offset="1" stop-color="#22c8b3"/></linearGradient>
+          <radialGradient id="dshine" cx=".34" cy=".28" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="scrGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#58f0dc" stop-opacity=".6"/><stop offset="1" stop-color="#58f0dc" stop-opacity="0"/></radialGradient>
+          <radialGradient id="roomVig" cx=".5" cy=".5" r=".5"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".6"/></radialGradient>
+          <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c2a6c"/><stop offset="1" stop-color="#10184a"/></linearGradient>
+          <clipPath id="roomClip"><circle cx="100" cy="100" r="88"/></clipPath>
+        </defs>
+        <circle cx="100" cy="100" r="100" fill="url(#dg)"/>
+
+        <g id="roomLayer">
+          <g clip-path="url(#roomClip)">
+            <rect width="200" height="200" fill="url(#wall)"/>
+            <!-- window with night sky -->
+            <g>
+              <rect x="42" y="40" width="48" height="48" rx="3" fill="#060a26"/>
+              <circle cx="72" cy="56" r="8" fill="#ffe9a8"/><circle cx="76" cy="53" r="7.2" fill="#060a26"/>
+              <circle class="st" cx="52" cy="52" r="1.2" fill="#fff"/><circle class="st" cx="60" cy="66" r="1" fill="#fff"/>
+              <circle class="st" cx="82" cy="72" r="1.1" fill="#fff"/><circle class="st" cx="50" cy="74" r="0.9" fill="#fff"/>
+              <path d="M42 88 V78 h6 v-6 h7 v8 h5 v-10 h8 v9 h6 v-4 h8 v14 z" fill="#0f1650"/>
+              <rect x="65" y="40" width="2" height="48" fill="#2b3a86"/><rect x="42" y="63" width="48" height="2" fill="#2b3a86"/>
+              <rect x="42" y="40" width="48" height="48" rx="3" fill="none" stroke="#3b4d9f" stroke-width="3"/>
+            </g>
+            <!-- rocket poster (foreshadowing) -->
+            <g transform="translate(104,44)">
+              <rect width="22" height="30" rx="2" fill="#0d1440" stroke="#3b4d9f" stroke-width="1.5"/>
+              <path d="M11 6 l4 9 v8 h-8 v-8z" fill="#e9eeff"/><path d="M7 19 l-3 5 h3z M15 19 l3 5 h-3z" fill="#3cc9b6"/><circle cx="11" cy="13" r="1.8" fill="#4a76d0"/>
+              <path d="M9 24 h4 l-2 4z" fill="#ffb020"/>
+            </g>
+            <!-- shelf + plant + books -->
+            <rect x="138" y="84" width="40" height="3.5" rx="1.7" fill="#3a4ea8"/>
+            <path d="M150 84 l1.6 -9 h8 l1.6 9z" fill="#e0794d"/>
+            <g fill="#3fbf8a"><ellipse cx="155.6" cy="66" rx="2.6" ry="7" transform="rotate(-20 155.6 66)"/><ellipse cx="155.6" cy="66" rx="2.6" ry="7.5" transform="rotate(22 155.6 66)"/><ellipse cx="155.6" cy="65" rx="2.4" ry="7"/></g>
+            <rect x="164" y="72" width="4" height="12" fill="#ffb020"/><rect x="168.5" y="70" width="4" height="14" fill="#4a76d0"/><rect x="173" y="74" width="3.5" height="10" fill="#e5546b"/>
+            <!-- desk -->
+            <rect x="0" y="130" width="200" height="80" fill="#1a2566"/>
+            <rect x="0" y="128" width="200" height="6" fill="#3a4ea8"/>
+            <!-- monitor -->
+            <rect x="121" y="118" width="7" height="12" fill="#0c1238"/><rect x="110" y="128" width="29" height="3" rx="1.5" fill="#0c1238"/>
+            <rect x="92" y="78" width="66" height="44" rx="4" fill="#0a0f31" stroke="#33449a" stroke-width="2"/>
+            <rect id="scr" x="96" y="82" width="58" height="36" rx="1.5" fill="#0b1a3c"/>
+            <g id="code"></g>
+            <rect id="scrCur" x="98" y="84" width="2.4" height="3.2" fill="#58f0dc"/>
+            <rect id="scrFlash" x="96" y="82" width="58" height="36" rx="1.5" fill="#dffff8" opacity="0"/>
+            <!-- keyboard, mug + steam -->
+            <rect x="98" y="127" width="44" height="3.6" rx="1.8" fill="#0c1238"/><g fill="#33449a"><rect x="101" y="128" width="6" height="1.2"/><rect x="110" y="128" width="6" height="1.2"/><rect x="119" y="128" width="6" height="1.2"/><rect x="128" y="128" width="6" height="1.2"/></g>
+            <rect x="162" y="114" width="12" height="14" rx="2.2" fill="#f3f5ff"/><path d="M174 118 h3 a3.4 3.4 0 0 1 0 8 h-3" stroke="#f3f5ff" fill="none" stroke-width="1.8"/>
+            <path class="steam" d="M165 111 q-3 -4 0 -7 q3 -3 0 -7" fill="none" stroke="#dfe6ff" stroke-width="1.4" stroke-linecap="round" opacity=".5"/>
+            <path class="steam" d="M171 111 q-3 -4 0 -7 q3 -3 0 -7" fill="none" stroke="#dfe6ff" stroke-width="1.4" stroke-linecap="round" opacity=".4"/>
+            <!-- programmer (seen from behind) -->
+            <rect x="40" y="108" width="58" height="90" rx="18" fill="#27358a"/>
+            <g id="person">
+              <path d="M44 200 L44 156 C44 132 54 122 68 122 C82 122 92 132 92 156 L92 200 Z" fill="#2fc4b2"/><path d="M60 200 L60 150 M76 200 L76 150" stroke="#249a8c" stroke-width="1.4" opacity=".6"/>
+              <path d="M92 200 L92 156 C92 136 86 126 78 123" fill="none" stroke="#9af5e6" stroke-width="1.6" stroke-linecap="round"/>
+              <rect x="63" y="112" width="9" height="11" rx="3" fill="#d39c74"/>
+              <circle cx="68" cy="103" r="11" fill="#1a1236"/>
+              <path d="M78 98 a11 11 0 0 1 -2 12" fill="none" stroke="#7ff0e0" stroke-width="1.4" stroke-linecap="round"/>
+              <path d="M57 103 a11 11 0 0 1 22 0" fill="none" stroke="#ffb020" stroke-width="2.6" stroke-linecap="round"/>
+              <rect x="76" y="100" width="5" height="9" rx="2.4" fill="#ffb020"/>
+              <path id="arm" d="M84 132 L99 132" stroke="#2fc4b2" stroke-width="8.5" stroke-linecap="round" fill="none"/>
+              <circle id="hand" cx="100" cy="130" r="3.6" fill="#d39c74"/>
+            </g>
+            <circle cx="124" cy="100" r="70" fill="url(#scrGlow)" opacity=".35"/>
+            <circle cx="100" cy="100" r="88" fill="url(#roomVig)"/>
+          </g>
+        </g>
+
+        <circle cx="100" cy="100" r="96" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="2.4"/>
+        <circle id="dhot" cx="100" cy="100" r="100" fill="#eafffb" opacity="0"/>
+        <circle cx="100" cy="100" r="100" fill="url(#dshine)"/>
+      </svg>
+    </div>
+    <canvas id="fx" width="1080" height="1920"></canvas>
+    <svg id="cursor" viewBox="0 0 24 24"><path d="M3 2 L3 19.5 L7.6 15.4 L10.6 22 L13.6 20.7 L10.7 14.2 L16.8 13.8 Z" fill="#fff" stroke="#0b1030" stroke-width="1.3" stroke-linejoin="round"/></svg>
+  </div>
+  <div id="caption">مبرمج صغير.. <em>بحلم كبير</em></div>
+  <div id="hello"><span class="row"><span class="prompt c">&gt;</span><span class="c"> </span><span id="chars"></span><span id="sp"> </span><span id="emoji">🌍</span><span id="caret"></span></span></div>
+  <div id="brand"><div class="ar">تكنو انجاز</div><div class="en">TECHNO INJAZ</div><div class="bar"></div></div>
+  <div id="flash"></div>
+  <div id="fade"></div>
+</div>
+
+<script>
+const W = 1080, HH = 1920;
+const $ = (id) => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const sm = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
+const lerp = (a, b, x) => a + (b - a) * x;
+const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const eoc = (x) => 1 - Math.pow(1 - x, 3);
+const eob = (x, c = 1.8) => 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2);
+const rnd = (i) => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+
+let LOGO = null, T = null, TICKS = [];
+const Z_FIN_W = 640;          // launch-size logo width in px
+const HELLO = "Hello world";
+
+// ---------- setup ----------
+window.setup = function (logo, tl, ticks) {
+  LOGO = logo; T = tl; TICKS = ticks;
+  const [Wc, Hc] = logo.canvas;
+  const pieces = logo.pieces;
+  const xs = Object.values(pieces).map((p) => [p.bbox[0], p.bbox[0] + p.bbox[2]]);
+  const ys = Object.values(pieces).map((p) => [p.bbox[1], p.bbox[1] + p.bbox[3]]);
+  LOGO.bb = { x0: Math.min(...xs.map((v) => v[0])), x1: Math.max(...xs.map((v) => v[1])), y0: Math.min(...ys.map((v) => v[0])), y1: Math.max(...ys.map((v) => v[1])) };
+  LOGO.bb.cx = (LOGO.bb.x0 + LOGO.bb.x1) / 2; LOGO.bb.cy = (LOGO.bb.y0 + LOGO.bb.y1) / 2;
+  LOGO.Z1 = Z_FIN_W / (LOGO.bb.x1 - LOGO.bb.x0);
+  LOGO.Z2 = 470 / (LOGO.bb.x1 - LOGO.bb.x0);
+  LOGO.Z0 = 700 / (2 * logo.dot.r);
+  $("cam").style.width = Wc + "px"; $("cam").style.height = Hc + "px";
+  for (const n of ["top", "left", "right"]) {
+    const p = pieces[n];
+    for (const id of ["p-" + n, "g-" + n]) {
+      const el = $(id); el.style.width = Wc + "px"; el.style.height = Hc + "px";
+      el.style.transformOrigin = `${p.centroid[0]}px ${p.centroid[1]}px`;
+    }
+    const g = $("g-" + n); g.style.webkitMaskImage = g.style.maskImage = `url(assets/logo/${n}.png)`;
+  }
+  const d = logo.dot, sz = d.r * 2;
+  for (const id of ["dotsvg"]) { const e = $(id); e.style.left = d.cx - d.r + "px"; e.style.top = d.cy - d.r + "px"; e.style.width = sz + "px"; e.style.height = sz + "px"; }
+  const so = $("dotSocket"), sr = d.r * 1.3;
+  so.style.left = d.cx - sr + "px"; so.style.top = d.cy - sr + "px"; so.style.width = sr * 2 + "px"; so.style.height = sr * 2 + "px";
+  so.style.opacity = 0;
+
+  // code lines on the monitor
+  const g = $("code"), cols = ["#58f0dc", "#8aa5ff", "#ffb020", "#e9eeff", "#58f0dc", "#c58bff", "#8aa5ff", "#e9eeff"];
+  const ind = [0, 5, 5, 10, 5, 0, 5, 10];
+  const len = [30, 40, 26, 34, 44, 20, 38, 28];
+  window.CODE = cols.map((c, i) => {
+    const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    r.setAttribute("x", 99 + ind[i]); r.setAttribute("y", 86 + i * 4.1); r.setAttribute("height", 2.2); r.setAttribute("rx", 1.1); r.setAttribute("fill", c);
+    r.setAttribute("width", 0); g.appendChild(r); return { r, len: len[i], ind: ind[i] };
+  });
+  // typed text spans
+  const chars = $("chars");
+  for (const ch of HELLO) { const s = document.createElement("span"); s.className = "c"; s.textContent = ch; chars.appendChild(s); }
+  window.CHARS = [...chars.children];
+  window.PROMPT = document.querySelectorAll("#hello .c");
+
+  // static scenery
+  window.STARS = Array.from({ length: 280 }, (_, i) => ({ x: rnd(i) * W, y: rnd(i + 900) * (HH + 400), r: 0.6 + rnd(i + 1800) * 1.9, p: rnd(i + 2700) * 6.28, s: 0.6 + rnd(i + 3600) * 2.4 }));
+  window.CLOUDS = Array.from({ length: 26 }, (_, i) => ({ x: rnd(i + 50) * 1300 - 110, z: 1150 + rnd(i + 150) * 2300, s: 0.7 + rnd(i + 250) * 0.9, par: 1 + rnd(i + 350) * 0.6, n: 5 + Math.floor(rnd(i + 450) * 4) }));
+  window.BUILD = Array.from({ length: 30 }, (_, i) => ({ x: -40 + i * 40 + rnd(i) * 14, w: 50 + rnd(i + 70) * 70, h: 70 + rnd(i + 140) * 230, far: i % 3 === 0 }));
+  window.SYMS = Array.from({ length: 16 }, (_, i) => ({ t: ["</>", "{ }", "01", "();", "=>", "#", "[]", "&&"][i % 8], x: rnd(i + 11) * W, y: rnd(i + 31) * HH, s: 40 + rnd(i + 61) * 50, v: 14 + rnd(i + 91) * 26 }));
+  window.CONT = [
+    [0, 60, 300, 130, "#38a86b"], [420, 90, 280, 150, "#2f9a63"], [900, 40, 340, 120, "#3aa76d"], [1350, 100, 260, 160, "#44b071"], [1800, 60, 320, 140, "#2f9a63"],
+    [230, 190, 200, 90, "#c4a86a"], [1100, 200, 240, 80, "#c9ae6e"], [1620, 210, 200, 80, "#c4a86a"],
+  ];
+};
+
+// ---------- physics ----------
+const ACC = 950, KD = 1.6;
+function Hf(t) {
+  const tau = t - T.liftoff; if (tau <= 0) return 0;
+  const tc = T.cut - T.liftoff;
+  if (tau <= tc) return 0.5 * ACC * tau * tau;
+  return 0.5 * ACC * tc * tc + ACC * tc * (1 - Math.exp(-KD * (tau - tc))) / KD;
+}
+function Vf(t) {
+  const tau = t - T.liftoff; if (tau <= 0) return 0;
+  const tc = T.cut - T.liftoff;
+  return tau <= tc ? ACC * tau : ACC * tc * Math.exp(-KD * (tau - tc));
+}
+const LMAX = 330, PADY = 1232;
+const powerAt = (t) => sm((t - T.ignite) / 0.3) * (1 - sm((t - T.cut) / 0.18));
+
+// ---------- helpers ----------
+function skyAt(A) {
+  const K = [[0, [8, 12, 40], [24, 36, 96], [240, 130, 90]], [900, [6, 9, 32], [15, 26, 80], [70, 80, 170]], [2200, [3, 5, 20], [6, 10, 40], [14, 22, 80]], [3600, [1, 2, 10], [2, 4, 20], [4, 8, 36]]];
+  let i = 0; while (i < K.length - 2 && A > K[i + 1][0]) i++;
+  const f = clamp((A - K[i][0]) / (K[i + 1][0] - K[i][0]));
+  const mix = (a, b) => `rgb(${a.map((v, j) => Math.round(lerp(v, b[j], f))).join(",")})`;
+  return [mix(K[i][1], K[i + 1][1]), mix(K[i][2], K[i + 1][2]), mix(K[i][3], K[i + 1][3])];
+}
+
+// ---------- main ----------
+window.seek = function (t) {
+  const bg = $("bg").getContext("2d"), fx = $("fx").getContext("2d");
+  const d = LOGO.dot, bb = LOGO.bb;
+  const H = Hf(t), V = Vf(t);
+  const L = LMAX * Math.tanh(H / LMAX);
+  const A = H - L;                                  // camera altitude
+  const P = powerAt(t);
+
+  // ----- zoom / camera -----
+  const zp = eio(clamp((t - T.zoomStart) / (T.zoomEnd - T.zoomStart)));
+  const zStart = LOGO.Z0 * (1 + 0.045 * sm(t / T.zoomStart));
+  let Z = t < T.zoomStart ? zStart : zStart * Math.pow(LOGO.Z1 / zStart, zp);
+  let Fx = lerp(d.cx, bb.cx, zp), Fy = lerp(d.cy, bb.cy, zp);
+  let sx = 540, sy = 880 - L;
+  // settle into the final brand position
+  const sp = eio(clamp((t - (T.cut + 0.12)) / (T.settleEnd - T.cut - 0.12)));
+  Z = lerp(Z, LOGO.Z2, sp); sy = lerp(sy, 600, sp);
+  const floatY = sp >= 1 || t > T.settleEnd ? Math.sin((t - T.settleEnd) * 1.6) * 9 * sm((t - T.settleEnd) / 0.6) : 0;
+  sy += floatY;
+  // rumble
+  let amp = 0;
+  if (t > T.ignite && t < T.cut + 0.25) {
+    const a1 = sm((t - T.ignite) / (T.liftoff - T.ignite));
+    amp = t < T.liftoff ? 2 + 5 * a1 : (t < T.liftoff + 1.6 ? lerp(9, 5, sm((t - T.liftoff) / 1.6)) : 5);
+    amp *= 1 - sm((t - T.cut) / 0.25);
+  }
+  const jf = Math.floor(t * 60);
+  const jx = (rnd(jf) - 0.5) * amp * 0.9, jy = (rnd(jf + 77) - 0.5) * amp * 0.9, jr = (rnd(jf + 33) - 0.5) * amp * 0.06;
+  // landing thumps as pieces snap into place
+  let thump = 0;
+  for (const k of ["top", "left", "right"]) { const a = t - (T.asm[k] + 0.55); if (a > 0) thump += Math.exp(-a / 0.09); }
+  Z *= 1 + 0.018 * thump;
+  const sway = t > T.liftoff && t < T.cut ? Math.sin((t - T.liftoff) * 3.1) * 0.5 * sm((t - T.liftoff) / 0.8) : 0;
+  const cam = { sx: sx + jx, sy: sy + jy, rot: jr + sway, Z, Fx, Fy };
+  const toScreen = (u, v) => {
+    const px = (u - cam.Fx) * cam.Z, py = (v - cam.Fy) * cam.Z, r = cam.rot * Math.PI / 180;
+    return [cam.sx + px * Math.cos(r) - py * Math.sin(r), cam.sy + px * Math.sin(r) + py * Math.cos(r)];
+  };
+  $("cam").style.transform = `translate(${cam.sx}px,${cam.sy}px) rotate(${cam.rot}deg) scale(${cam.Z}) translate(${-cam.Fx}px,${-cam.Fy}px)`;
+
+  // ----- pieces: assemble -----
+  const START = { top: [0, -1500, 18], left: [-1500, 500, -40], right: [1500, 500, 40] };
+  for (const n of ["top", "left", "right"]) {
+    const pp = clamp((t - T.asm[n]) / 0.6), a = eob(pp, 1.4);
+    const [ox, oy, orot] = START[n];
+    const tr = `translate(${(1 - a) * ox}px,${(1 - a) * oy}px) rotate(${(1 - a) * orot}deg) scale(${lerp(0.7, 1, a)})`;
+    const el = $("p-" + n), gl = $("g-" + n);
+    el.style.transform = tr; gl.style.transform = tr;
+    el.style.opacity = clamp(pp * 8);
+    el.style.filter = pp < 1 ? `blur(${(1 - pp) * 14}px)` : "none";
+  }
+  // glints sweep across the logo when assembled and again when it settles
+  let gpos = -1;
+  for (const g0 of [T.glint, T.settleEnd - 0.1]) { const g = (t - g0) / 0.75; if (g >= 0 && g <= 1) gpos = g; }
+  for (const n of ["top", "left", "right"]) {
+    const el = $("g-" + n);
+    el.style.opacity = gpos >= 0 ? 1 : 0;
+    if (gpos >= 0) el.style.backgroundPosition = `${lerp(100, 0, eio(gpos))}% 0`;
+  }
+
+  // ----- dot: room -> logo dot, beeps, press, ignition -----
+  const roomOp = 1 - sm((zp - 0.32) / 0.28);
+  $("roomLayer").style.opacity = roomOp;
+  $("dotSocket").style.opacity = sm((zp - 0.55) / 0.3);
+  let beat = 0;
+  for (const b of T.beeps) { const a = t - b; if (a > 0) beat += Math.exp(-a / 0.09); }
+  const pd = clamp((t - T.press) / 0.09), pr = clamp((t - T.release) / 0.3);
+  let dotScale = 1;
+  if (t >= T.press && t < T.release) dotScale = lerp(1, 0.66, eoc(pd));
+  else if (t >= T.release) dotScale = lerp(0.66, 1, eob(pr, 2.6));
+  const hot = t < T.press ? Math.min(1, beat * 0.5) : Math.min(1, 0.55 + 0.45 * P + beat * 0.2);
+  $("dotsvg").style.transform = `scale(${dotScale})`;
+  $("dhot").setAttribute("opacity", (t >= T.press ? 0.5 * Math.max(P, sm((t - T.press) / 0.05) * (1 - sm((t - T.release - 0.4) / 0.6))) : beat * 0.32).toFixed(3));
+
+  // room life
+  const n = TICKS.filter((x) => x <= t).length;
+  CODE.forEach((c, i) => c.r.setAttribute("width", (clamp((n - i * 3) / 3) * c.len).toFixed(2)));
+  const cl = Math.min(CODE.length - 1, Math.floor(n / 3)), w = clamp((n - cl * 3) / 3) * CODE[cl].len;
+  $("scrCur").setAttribute("x", 99 + CODE[cl].ind + w + 1); $("scrCur").setAttribute("y", 85.4 + cl * 4.1);
+  $("scrCur").setAttribute("opacity", Math.floor(t * 2.6) % 2 ? 0.2 : 1);
+  $("arm").setAttribute("d", `M84 132 L${99 + Math.sin(n * 2.4) * 1.4} ${132 + Math.cos(n * 1.9) * 0.9}`);
+  $("hand").setAttribute("cx", 100 + Math.sin(n * 2.4) * 1.4); $("hand").setAttribute("cy", 130 + Math.cos(n * 1.9) * 0.9);
+  $("person").setAttribute("transform", `translate(0 ${Math.sin(t * 1.7) * 0.5})`);
+  document.querySelectorAll(".st").forEach((s, i) => s.setAttribute("opacity", 0.35 + 0.65 * Math.abs(Math.sin(t * (1.3 + i * 0.4) + i))));
+  document.querySelectorAll(".steam").forEach((s, i) => { s.setAttribute("transform", `translate(${Math.sin(t * 1.4 + i) * 1.2} ${-((t * 5 + i * 4) % 6)})`); s.setAttribute("opacity", (0.5 - ((t * 5 + i * 4) % 6) / 14).toFixed(2)); });
+  const run = clamp((t - (T.zoomStart - 0.42)) / 0.12) * (1 - clamp((t - (T.zoomStart - 0.3)) / 0.35));
+  $("scrFlash").setAttribute("opacity", (run * 0.9).toFixed(3));
+
+  // ----- cursor -----
+  const cu = $("cursor");
+  const dotS = toScreen(d.cx, d.cy);
+  const cin = clamp((t - T.cursorIn) / (T.press - 0.06 - T.cursorIn));
+  if (t >= T.cursorIn && t < T.release + 0.7) {
+    const e = eio(cin), P0 = [1010, 1620], C = [960, 1230];
+    let px = (1 - e) * (1 - e) * P0[0] + 2 * (1 - e) * e * C[0] + e * e * dotS[0];
+    let py = (1 - e) * (1 - e) * P0[1] + 2 * (1 - e) * e * C[1] + e * e * dotS[1];
+    if (cin >= 1) { px += Math.sin(t * 22) * 1.5; py += Math.cos(t * 19) * 1.5; }
+    const away = clamp((t - (T.release + 0.12)) / 0.5);
+    px += away * 90; py += away * 170;
+    const cs = t >= T.press && t < T.release ? 0.84 : 1;
+    cu.style.opacity = clamp((t - T.cursorIn) / 0.18) * (1 - away);
+    cu.style.transform = `translate(${px - 8}px,${py - 6}px) scale(${cs})`;
+  } else cu.style.opacity = 0;
+
+  // ----- background canvas -----
+  bg.clearRect(0, 0, W, HH);
+  const [c0, c1, c2] = skyAt(A);
+  const horizon = Math.max(PADY + A, 900);
+  const gr = bg.createLinearGradient(0, 0, 0, Math.min(horizon, 3400));
+  gr.addColorStop(0, c0); gr.addColorStop(0.55, c1); gr.addColorStop(1, c2);
+  bg.fillStyle = gr; bg.fillRect(0, 0, W, HH);
+
+  // floating code symbols (the programmer's world) before the zoom-out
+  const symA = 1 - sm((t - (T.zoomStart - 0.2)) / 1.0);
+  if (symA > 0.01) {
+    bg.textAlign = "center"; bg.textBaseline = "middle";
+    for (const s of SYMS) {
+      bg.font = `800 ${s.s}px JB, monospace`;
+      bg.fillStyle = `rgba(110,190,255,${0.13 * symA})`;
+      bg.fillText(s.t, s.x + Math.sin(t * 0.5 + s.y) * 14, (((s.y - t * s.v) % (HH + 200)) + HH + 200) % (HH + 200) - 100);
+    }
+  }
+  // stars
+  const starA = Math.max(0.32 * (1 - sm(A / 1200)), sm((A - 500) / 1800));
+  if (starA > 0.01) {
+    for (const s of STARS) {
+      const y = (((s.y + A * 0.05 * s.s) % (HH + 100)) + HH + 100) % (HH + 100) - 50;
+      bg.globalAlpha = starA * (0.35 + 0.65 * Math.abs(Math.sin(t * s.s + s.p)));
+      bg.fillStyle = "#fff"; bg.beginPath(); bg.arc(s.x, y, s.r, 0, 6.283); bg.fill();
+    }
+    bg.globalAlpha = 1;
+  }
+  // horizon glow + spotlights + city
+  const sy0 = PADY + A;
+  if (sy0 < HH + 400) {
+    const glowA = 1 - sm(A / 900);
+    const hg = bg.createRadialGradient(540, sy0, 10, 540, sy0, 900);
+    hg.addColorStop(0, `rgba(255,150,90,${0.55 * glowA})`); hg.addColorStop(1, "rgba(255,150,90,0)");
+    bg.fillStyle = hg; bg.fillRect(0, 0, W, HH);
+    // searchlight beams
+    for (const [bx, dir] of [[110, 1], [970, -1]]) {
+      const ang = dir * (0.28 + 0.16 * Math.sin(t * 0.9 + dir));
+      bg.save(); bg.translate(bx, sy0); bg.rotate(ang);
+      const bgd = bg.createLinearGradient(0, 0, 0, -1500);
+      bgd.addColorStop(0, `rgba(190,215,255,${0.22 * glowA})`); bgd.addColorStop(1, "rgba(190,215,255,0)");
+      bg.fillStyle = bgd; bg.beginPath(); bg.moveTo(-28, 0); bg.lineTo(28, 0); bg.lineTo(150, -1500); bg.lineTo(-150, -1500); bg.fill(); bg.restore();
+    }
+    for (const b of BUILD) {
+      bg.fillStyle = b.far ? "#141b4c" : "#090d2a";
+      const bh = b.far ? b.h * 0.7 : b.h;
+      bg.fillRect(b.x, sy0 - bh, b.w, bh + 400);
+      if (!b.far) {
+        for (let wy = 14; wy < bh - 10; wy += 24) for (let wx = 8; wx < b.w - 8; wx += 18) {
+          const on = rnd(b.x + wy * 3.1 + wx) > 0.55;
+          if (on) { bg.fillStyle = `rgba(255,214,140,${0.55 + 0.35 * Math.sin(t * 0.7 + wx + wy)})`; bg.fillRect(b.x + wx, sy0 - bh + wy, 7, 10); }
+        }
+      }
+    }
+    const gg = bg.createLinearGradient(0, sy0, 0, sy0 + 700);
+    gg.addColorStop(0, "#0a1038"); gg.addColorStop(1, "#03040e");
+    bg.fillStyle = gg; bg.fillRect(0, sy0, W, HH + 500);
+    bg.lineWidth = 2;
+    for (let i = 1; i < 13; i++) {
+      const y = sy0 + 34 + 26 * Math.pow(i, 1.55);
+      bg.strokeStyle = `rgba(60,205,190,${0.05 + 0.14 * (1 - i / 13)})`; bg.beginPath(); bg.moveTo(0, y); bg.lineTo(W, y); bg.stroke();
+    }
+    for (let k = -14; k <= 14; k++) {
+      bg.strokeStyle = `rgba(74,111,214,${0.16 - Math.abs(k) * 0.006})`; bg.beginPath(); bg.moveTo(540 + k * 34, sy0 + 34); bg.lineTo(540 + k * 250, sy0 + 1300); bg.stroke();
+    }
+    bg.fillStyle = "#1a2266"; bg.fillRect(300, sy0 - 4, 480, 8);
+    bg.fillStyle = "#0f1544"; bg.fillRect(300, sy0 + 4, 480, 30);
+    bg.fillStyle = `rgba(255,120,60,${0.4 * P})`; bg.fillRect(300, sy0 - 4, 480, 4);
+    for (const lx of [320, 760]) { bg.fillStyle = Math.floor(t * 2) % 2 ? "#ff4d5e" : "#5a1620"; bg.beginPath(); bg.arc(lx, sy0 + 12, 4.5, 0, 6.283); bg.fill(); }
+  }
+  // clouds
+  for (const c of CLOUDS) {
+    const y = PADY + A * c.par - c.z;
+    if (y < -400 || y > HH + 300) continue;
+    const alpha = 0.3 * (1 - sm((c.z - 3000) / 600)) * sm((c.z - 1000) / 200);
+    if (alpha < 0.01) continue;
+    for (let k = 0; k < c.n; k++) {
+      const px = c.x + (k - c.n / 2) * 70 * c.s + Math.sin(t * 0.3 + k) * 6, py = y + Math.sin(k * 1.7) * 26 * c.s, r = (90 + rnd(k + c.x) * 60) * c.s;
+      const cg = bg.createRadialGradient(px, py, 0, px, py, r);
+      cg.addColorStop(0, `rgba(225,232,255,${alpha})`); cg.addColorStop(1, "rgba(225,232,255,0)");
+      bg.fillStyle = cg; bg.fillRect(px - r, py - r, r * 2, r * 2);
+    }
+  }
+  // Earth
+  const ep = eio(clamp((t - T.earthStart) / 2.2));
+  if (ep > 0) {
+    const R = 1150, cx = 540, cy = 3500 - 950 * ep;
+    const ag = bg.createRadialGradient(cx, cy, R * 0.985, cx, cy, R * 1.075);
+    ag.addColorStop(0, "rgba(120,215,255,.65)"); ag.addColorStop(1, "rgba(120,215,255,0)");
+    bg.fillStyle = ag; bg.beginPath(); bg.arc(cx, cy, R * 1.075, 0, 6.283); bg.fill();
+    bg.save(); bg.beginPath(); bg.arc(cx, cy, R, 0, 6.283); bg.clip();
+    const og = bg.createRadialGradient(cx - 200, cy - R * 0.9, 20, cx, cy - 100, R * 1.05);
+    og.addColorStop(0, "#3aa0f0"); og.addColorStop(0.45, "#1259b8"); og.addColorStop(1, "#040f33");
+    bg.fillStyle = og; bg.fillRect(0, cy - R, W, R * 2);
+    const rot = t * 26;
+    for (const [bx, by, bw, bh, col] of CONT) {
+      const x = ((bx + rot) % 2400) - 700, y = cy - R + by;
+      for (let q = 0; q < 4; q++) {
+        const ox = (rnd(bx + q) - 0.5) * bw * 0.6, oy = (rnd(bx + q + 9) - 0.5) * bh * 0.7, sc = 0.45 + rnd(bx + q + 3) * 0.4;
+        bg.fillStyle = col; bg.beginPath(); bg.ellipse(x + bw / 2 + ox, y + bh / 2 + oy, bw / 2 * sc, bh / 2 * sc * 1.2, rnd(bx + q) * 2 - 1, 0, 6.283); bg.fill();
+        bg.fillStyle = "rgba(0,0,0,.14)"; bg.beginPath(); bg.ellipse(x + bw / 2 + ox + 10, y + bh / 2 + oy + 14, bw / 2 * sc * 0.7, bh / 2 * sc * 0.8, 0, 0, 6.283); bg.fill();
+      }
+    }
+    bg.fillStyle = "rgba(255,255,255,.22)";
+    for (let k = 0; k < 9; k++) { const x = ((k * 330 + rot * 1.4) % 2500) - 700; bg.beginPath(); bg.ellipse(x, cy - R + 60 + rnd(k) * 400, 190 + rnd(k + 5) * 120, 22 + rnd(k + 9) * 16, -0.12, 0, 6.283); bg.fill(); }
+    const sh = bg.createLinearGradient(0, cy - R, 0, cy - R + 900);
+    sh.addColorStop(0, "rgba(255,255,255,.28)"); sh.addColorStop(0.25, "rgba(255,255,255,0)"); sh.addColorStop(1, "rgba(0,0,10,.55)");
+    bg.fillStyle = sh; bg.fillRect(0, cy - R, W, R * 2);
+    bg.restore();
+    bg.strokeStyle = "rgba(190,240,255,.8)"; bg.lineWidth = 3; bg.beginPath(); bg.arc(cx, cy, R, 0, 6.283); bg.stroke();
+  }
+
+  // ----- halo -----
+  const halo = $("halo"), hp = toScreen(bb.cx, bb.cy);
+  halo.style.left = hp[0] + "px"; halo.style.top = hp[1] + "px";
+  const asmDone = sm((t - (T.asm.right + 0.5)) / 0.6);
+  let haloA = 0.22 * asmDone + 0.28 * beat + 0.4 * P * (1 - sm((t - T.liftoff - 1.5) / 1.5)) + 0.25 * sm((t - T.settleEnd + 0.6) / 0.8) * (1 - sm(P * 3));
+  halo.style.opacity = clamp(haloA, 0, 0.9);
+  halo.style.transform = `scale(${lerp(1, 0.55, sp)})`;
+
+  // ----- FX canvas -----
+  fx.clearRect(0, 0, W, HH);
+  fx.globalCompositeOperation = "source-over";
+  // ignition smoke on the pad
+  const padTop = PADY + A;
+  for (let k = 0; k < 64; k++) {
+    const b = T.ignite + k * 0.045, a = t - b; if (a < 0 || a > 3.4) continue;
+    const r0 = rnd(k * 3 + 1), r1 = rnd(k * 3 + 2), r2 = rnd(k * 3 + 3), dir = k % 2 ? 1 : -1;
+    const x = 540 + dir * (30 + r0 * 70) + dir * 330 * (1 - Math.exp(-a * 1.5)) * (0.5 + r1);
+    const y = padTop - 14 - (50 + 170 * r2) * (1 - Math.exp(-a * 0.7));
+    const rad = 46 + 190 * (1 - Math.exp(-a * 0.9)) * (0.6 + 0.8 * r1);
+    const al = 0.6 * Math.pow(1 - a / 3.4, 1.6) * sm(a / 0.12), wm = 1 - sm(a / 0.9);
+    const col = [lerp(205, 255, wm), lerp(212, 195, wm), lerp(235, 140, wm)].map(Math.round).join(",");
+    const g = fx.createRadialGradient(x, y, 0, x, y, rad);
+    g.addColorStop(0, `rgba(${col},${al})`); g.addColorStop(1, `rgba(${col},0)`);
+    fx.fillStyle = g; fx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  }
+  // exhaust trail in the air
+  if (t > T.liftoff) for (let k = 0; k < 110; k++) {
+    const b = T.liftoff + 0.18 + k * 0.026; if (b > T.cut) break;
+    const a = t - b; if (a < 0 || a > 1.5) continue;
+    const zb = Hf(b), r0 = rnd(k + 400), r1 = rnd(k + 800);
+    const x = 540 + (r0 - 0.5) * 60 + (r1 - 0.5) * 90 * a, y = PADY + A - zb + 8 + a * 60 - (Hf(b) > 0 ? 0 : 0);
+    const rad = 30 + 110 * (1 - Math.exp(-a * 1.8)), al = 0.32 * (1 - a / 1.5) * sm(a / 0.1);
+    const g = fx.createRadialGradient(x, y, 0, x, y, rad);
+    g.addColorStop(0, `rgba(235,238,255,${al})`); g.addColorStop(1, "rgba(235,238,255,0)");
+    fx.fillStyle = g; fx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  }
+
+  // flames
+  if (P > 0.01) {
+    fx.save();
+    if (H < 400) { fx.beginPath(); fx.rect(0, 0, W, padTop + 6 + H * 12); fx.clip(); }
+    fx.globalCompositeOperation = "lighter";
+    const jets = [
+      { p: toScreen(d.cx, d.cy + d.r * 0.92), w: 118, l: 1.15, core: [150, 230, 255] },
+      { p: toScreen(LOGO.pieces.left.tip[0], LOGO.pieces.left.tip[1] - 14), w: 70, l: 0.8, core: [255, 255, 235], ang: -0.05 },
+      { p: toScreen(LOGO.pieces.right.tip[0], LOGO.pieces.right.tip[1] - 14), w: 70, l: 0.8, core: [255, 255, 235], ang: 0.05 },
+    ];
+    const len0 = (170 + Math.min(V, 2600) * 0.2) * P * (t < T.liftoff ? 0.75 : 1);
+    jets.forEach((j, i) => {
+      const fl = 1 + 0.09 * Math.sin(t * 61 + i * 2) + 0.06 * Math.sin(t * 37 + i * 5) + 0.04 * (rnd(jf + i) - 0.5);
+      const Lf = len0 * j.l * fl, Wd = j.w * (0.9 + 0.1 * P);
+      fx.save(); fx.translate(j.p[0], j.p[1]); fx.rotate(j.ang || 0);
+      const outer = fx.createLinearGradient(0, 0, 0, Lf);
+      outer.addColorStop(0, "rgba(255,255,255,.95)"); outer.addColorStop(0.16, "rgba(255,236,150,.95)"); outer.addColorStop(0.45, "rgba(255,150,40,.8)"); outer.addColorStop(0.8, "rgba(255,70,20,.3)"); outer.addColorStop(1, "rgba(255,50,20,0)");
+      fx.fillStyle = outer; fx.beginPath(); fx.moveTo(-Wd / 2, 0); fx.quadraticCurveTo(-Wd * 0.62, Lf * 0.5, 0, Lf); fx.quadraticCurveTo(Wd * 0.62, Lf * 0.5, Wd / 2, 0); fx.closePath(); fx.fill();
+      const inner = fx.createLinearGradient(0, 0, 0, Lf * 0.7);
+      inner.addColorStop(0, `rgba(${j.core.join(",")},1)`); inner.addColorStop(0.5, `rgba(${j.core.join(",")},.55)`); inner.addColorStop(1, "rgba(255,255,255,0)");
+      fx.fillStyle = inner; fx.beginPath(); fx.moveTo(-Wd * 0.22, 0); fx.quadraticCurveTo(-Wd * 0.3, Lf * 0.3, 0, Lf * 0.7); fx.quadraticCurveTo(Wd * 0.3, Lf * 0.3, Wd * 0.22, 0); fx.closePath(); fx.fill();
+      const gl = fx.createRadialGradient(0, 8, 0, 0, 8, Wd * 1.3);
+      gl.addColorStop(0, "rgba(255,200,120,.6)"); gl.addColorStop(1, "rgba(255,120,40,0)");
+      fx.fillStyle = gl; fx.fillRect(-Wd * 1.4, -Wd * 1.2, Wd * 2.8, Wd * 2.8);
+      fx.restore();
+      // embers
+      for (let k = 0; k < 26; k++) {
+        const u = ((t * 2.2 + k / 26 + rnd(k + i * 40)) % 1), dx = (rnd(k * 7 + i) - 0.5) * Wd * (1 + u * 2.2);
+        fx.globalAlpha = (1 - u) * P * 0.9; fx.fillStyle = k % 3 ? "#ffd27a" : "#fff";
+        fx.beginPath(); fx.arc(j.p[0] + dx, j.p[1] + u * Lf * 1.15, 2.2 + (1 - u) * 2.2, 0, 6.283); fx.fill();
+      }
+      fx.globalAlpha = 1;
+    });
+    // ground blast: orange wash on the pad while the rocket is still down
+    if (H < 400) {
+      const gb = fx.createRadialGradient(540, padTop, 0, 540, padTop, 520);
+      gb.addColorStop(0, `rgba(255,170,80,${0.65 * P * (1 - H / 400)})`); gb.addColorStop(1, "rgba(255,120,40,0)");
+      fx.fillStyle = gb; fx.fillRect(0, padTop - 320, W, 640);
+    }
+    fx.restore();
+  }
+  fx.globalCompositeOperation = "source-over";
+
+  // speed streaks
+  const spd = clamp((V - 450) / 1500) * (t < T.cut + 1.2 ? 1 : 0);
+  if (spd > 0.01) {
+    for (let k = 0; k < 48; k++) {
+      const x = rnd(k) * W, par = 0.7 + rnd(k + 50) * 1.7, len = 90 + rnd(k + 90) * 260 + V * 0.09;
+      const y = (((rnd(k + 20) * 2600 + H * par) % 2600) + 2600) % 2600 - 320;
+      const g = fx.createLinearGradient(0, y, 0, y + len);
+      g.addColorStop(0, "rgba(220,235,255,0)"); g.addColorStop(1, `rgba(220,235,255,${(0.12 + 0.3 * rnd(k + 5)) * spd})`);
+      fx.strokeStyle = g; fx.lineWidth = 2 + rnd(k + 7) * 3; fx.beginPath(); fx.moveTo(x, y); fx.lineTo(x, y + len); fx.stroke();
+    }
+  }
+
+  // click ripples
+  for (let k = 0; k < 2; k++) {
+    const a = (t - T.press - k * 0.09) / 0.55; if (a < 0 || a > 1) continue;
+    fx.strokeStyle = `rgba(160,255,240,${0.9 * (1 - a)})`; fx.lineWidth = 8 * (1 - a) + 1;
+    fx.beginPath(); fx.arc(dotS[0], dotS[1], 60 + 210 * eoc(a), 0, 6.283); fx.stroke();
+  }
+  // assembly sparks
+  for (const key of ["top", "left", "right"]) {
+    const a = (t - (T.asm[key] + 0.55)) / 0.5; if (a < 0 || a > 1) continue;
+    const pc = LOGO.pieces[key], ctr = toScreen(pc.centroid[0], pc.centroid[1]);
+    for (let k = 0; k < 14; k++) {
+      const ang = rnd(k + key.length * 9) * 6.283, dist = 40 + 180 * eoc(a) * (0.5 + rnd(k + 3));
+      fx.fillStyle = `rgba(190,255,245,${(1 - a) * 0.9})`; fx.beginPath(); fx.arc(ctr[0] + Math.cos(ang) * dist, ctr[1] + Math.sin(ang) * dist, 4 * (1 - a) + 1, 0, 6.283); fx.fill();
+    }
+  }
+  // engine-cut shockwave
+  const sa = (t - T.cut) / 1.0;
+  if (sa > 0 && sa < 1) {
+    const lc = toScreen(bb.cx, bb.cy);
+    for (const [d0, wd] of [[0, 14], [0.12, 6]]) {
+      const a = clamp(sa - d0); if (a <= 0) continue;
+      fx.strokeStyle = `rgba(200,250,255,${0.85 * (1 - a)})`; fx.lineWidth = wd * (1 - a) + 1;
+      fx.beginPath(); fx.arc(lc[0], lc[1], 60 + 1000 * eoc(a), 0, 6.283); fx.stroke();
+    }
+  }
+  // sparkles (four-point stars) around the finished logo / text
+  const spA = sm((t - T.settleEnd + 0.4) / 0.6);
+  if (spA > 0.01) {
+    for (let k = 0; k < 22; k++) {
+      const cxk = k < 9 ? 540 + (rnd(k + 300) - 0.5) * 560 : 540 + (rnd(k + 300) - 0.5) * 900;
+      const cyk = k < 9 ? 600 + (rnd(k + 340) - 0.5) * 520 : 1000 + (rnd(k + 340) - 0.5) * 340;
+      if (k >= 9 && t < T.emoji) continue;
+      const tw = Math.max(0, Math.sin(t * (1.6 + rnd(k) * 2) + k * 2.1)), s = (10 + 20 * rnd(k + 7)) * tw * spA;
+      if (s < 1) continue;
+      fx.fillStyle = "rgba(255,255,255,.95)"; fx.beginPath();
+      fx.moveTo(cxk, cyk - s * 1.6); fx.quadraticCurveTo(cxk, cyk, cxk + s, cyk); fx.quadraticCurveTo(cxk, cyk, cxk, cyk + s * 1.6); fx.quadraticCurveTo(cxk, cyk, cxk - s, cyk); fx.quadraticCurveTo(cxk, cyk, cxk, cyk - s * 1.6); fx.fill();
+    }
+  }
+  // emoji burst
+  const ba = (t - T.emoji) / 1.0;
+  if (ba > 0 && ba < 1) {
+    const ex = window.EMOJI_X || 540 + 400, ey = 985;
+    for (let k = 0; k < 40; k++) {
+      const ang = rnd(k) * 6.283, dist = (90 + 420 * rnd(k + 60)) * eoc(ba);
+      fx.fillStyle = ["rgba(60,205,190,", "rgba(255,176,32,", "rgba(255,255,255,", "rgba(110,150,255,"][k % 4] + (1 - ba) + ")";
+      fx.beginPath(); fx.arc(ex + Math.cos(ang) * dist, ey + Math.sin(ang) * dist, 3 + 6 * (1 - ba) * rnd(k + 9), 0, 6.283); fx.fill();
+    }
+  }
+
+  // ----- text layers -----
+  const cap = $("caption");
+  cap.style.opacity = sm((t - 0.55) / 0.7) * (1 - sm((t - (T.zoomStart - 0.1)) / 0.45));
+  cap.style.transform = `translateY(${(1 - sm((t - 0.55) / 0.7)) * 24}px)`;
+
+  const hello = $("hello");
+  const typed = clamp(Math.floor((t - T.typeStart) / T.typeStep) + 1, 0, HELLO.length);
+  hello.style.opacity = sm((t - (T.typeStart - 0.3)) / 0.2);
+  PROMPT.forEach((e) => (e.style.opacity = t > T.typeStart - 0.3 ? 1 : 0));
+  CHARS.forEach((c, i) => (c.style.opacity = i < typed ? 1 : 0));
+  const caret = $("caret"), row = hello.querySelector(".row");
+  const next = typed < CHARS.length ? CHARS[typed] : $("sp");
+  caret.style.left = next.offsetLeft + "px";
+  caret.style.opacity = t > T.typeStart - 0.3 && t < T.emoji + 0.5 ? (typed < HELLO.length && typed > 0 ? 1 : (Math.floor(t * 2.4) % 2 ? 0.15 : 1)) : 0;
+  const ea = clamp((t - T.emoji) / 0.7), em = $("emoji");
+  em.style.opacity = ea > 0 ? 1 : 0;
+  em.style.transform = `scale(${ea > 0 ? eob(ea, 2.6) : 0}) rotate(${(1 - eoc(ea)) * -30}deg) translateY(${Math.sin(t * 2.2) * 5 * ea}px)`;
+  window.EMOJI_X = hello.getBoundingClientRect().left + em.offsetLeft + em.offsetWidth / 2 + row.offsetLeft * 0;
+  const hs = 1 + 0.03 * Math.exp(-(t - T.emoji) / 0.15) * (t > T.emoji ? 1 : 0);
+  hello.style.transform = `scale(${hs})`;
+
+  const br = $("brand"), ba2 = sm((t - T.brand) / 0.7);
+  br.style.opacity = ba2; br.style.transform = `translateY(${(1 - ba2) * 34}px)`;
+
+  // ----- shake, flash, fades -----
+  const sh = $("shake");
+  sh.style.transform = amp > 0 ? `translate(${(rnd(jf + 5) - 0.5) * amp * 1.6}px,${(rnd(jf + 9) - 0.5) * amp * 1.6}px) scale(1.035)` : "none";
+  let flash = 0;
+  flash = Math.max(flash, 0.9 * Math.exp(-Math.max(0, t - T.ignite) / 0.1) * (t >= T.ignite ? 1 : 0));
+  flash = Math.max(flash, 0.35 * Math.exp(-Math.max(0, t - T.cut) / 0.1) * (t >= T.cut ? 1 : 0));
+  flash = Math.max(flash, 0.5 * Math.exp(-Math.max(0, t - T.emoji) / 0.1) * (t >= T.emoji ? 1 : 0));
+  flash = Math.max(flash, 0.32 * Math.exp(-Math.max(0, t - T.zoomStart) / 0.12) * (t >= T.zoomStart ? 1 : 0));
+  $("flash").style.opacity = flash;
+  $("fade").style.opacity = Math.max(1 - sm(t / 0.7), sm((t - (T.total - 0.55)) / 0.5));
+};
+</script>
+</body>
+</html>
