@@ -1,57 +1,56 @@
-// Renders slides.html into sham-cash-scam-awareness.mp4 (1080x1920, 30 fps).
-// Each slide is a still image; slides change with a plain cross-fade, so nothing moves on screen.
-// Usage: FFMPEG=/path/to/ffmpeg node render.mjs   (needs playwright)
+// Renders slides.html + an original synthesized soundtrack into sham-cash-scam-awareness.mp4 (1080x1920, 30 fps).
+// Slide lengths are whole bars of the music (timeline.json), so every cut lands on a downbeat.
+// Usage: FFMPEG=/path/to/ffmpeg node render.mjs   (needs playwright, python3 + numpy)
 import { chromium } from "playwright";
-import { execFileSync } from "node:child_process";
-import { mkdirSync } from "node:fs";
+import { spawn, execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const FFMPEG = process.env.FFMPEG || "ffmpeg";
-const FADE = 0.5;
+const FPS = 30;
 const OUT = path.join(dir, "sham-cash-scam-awareness.mp4");
-const STILLS = path.join(dir, "stills");
-mkdirSync(STILLS, { recursive: true });
+const BUILD = path.join(dir, "build");
+mkdirSync(BUILD, { recursive: true });
 
-// Time on screen: enough to read the slide's words and glance at its picture.
-const holdFor = (text) => Math.max(4.5, 2.5 + text.replace(/\s+/g, "").length * 0.07);
+const cfg = JSON.parse(readFileSync(path.join(dir, "timeline.json"), "utf8"));
+const beat = 60 / cfg.bpm, bar = 4 * beat;
+const durs = cfg.bars.map((b) => b * bar);
+const starts = durs.map((_, i) => durs.slice(0, i).reduce((a, d) => a + d, 0));
+const total = starts.at(-1) + durs.at(-1);
+const timeline = { beat, starts, durs };
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
-const url = pathToFileURL(path.join(dir, "slides.html")).href;
-await page.goto(url);
-const count = await page.evaluate(() => window.SLIDE_COUNT);
+await page.goto(pathToFileURL(path.join(dir, "slides.html")).href, { waitUntil: "load" });
+await page.evaluate(async (tl) => { window.TIMELINE = tl; await document.fonts.ready; }, timeline);
 
-const slides = [];
-for (let n = 0; n < count; n++) {
-  await page.goto(`${url}?n=${n}`, { waitUntil: "load" });
-  const text = await page.evaluate(async () => { await document.fonts.ready; return window.SLIDE_TEXT; });
-  const file = path.join(STILLS, `slide-${n + 1}.png`);
-  await page.screenshot({ path: file });
-  slides.push({ file, dur: holdFor(text) });
+// Soundtrack: music + transition hits + a sound for each element that lands on screen.
+const sfx = await page.evaluate(() => window.collectSfx());
+const events = path.join(BUILD, "events.json");
+const wav = path.join(BUILD, "soundtrack.wav");
+writeFileSync(events, JSON.stringify({ ...cfg, starts, total, sfx }));
+execFileSync("python3", [path.join(dir, "music.py"), events, wav], { stdio: "inherit" });
+
+const ff = spawn(FFMPEG, [
+  "-y", "-f", "image2pipe", "-framerate", String(FPS), "-i", "-", "-i", wav,
+  "-map", "0:v", "-map", "1:a",
+  "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "19", "-preset", "medium",
+  "-c:a", "aac", "-b:a", "192k", "-t", total.toFixed(3), "-movflags", "+faststart", OUT,
+], { stdio: ["pipe", "inherit", "pipe"] });
+let ffErr = "";
+ff.stderr.on("data", (d) => { ffErr += d; });
+
+const frames = Math.round(total * FPS);
+for (let f = 0; f < frames; f++) {
+  await page.evaluate((t) => window.seek(t), f / FPS);
+  const jpg = await page.screenshot({ type: "jpeg", quality: 92 });
+  if (!ff.stdin.write(jpg)) await new Promise((r) => ff.stdin.once("drain", r));
+  if (f % (FPS * 10) === 0) console.log(`frame ${f}/${frames}`);
 }
+ff.stdin.end();
 await browser.close();
-
-// Chain cross-fades: slide k starts fading in FADE seconds before slide k-1 ends.
-const inputs = [];
-slides.forEach((s) => inputs.push("-loop", "1", "-framerate", "30", "-t", s.dur.toFixed(2), "-i", s.file));
-const filters = [];
-let prev = "[0:v]", offset = 0;
-for (let k = 1; k < slides.length; k++) {
-  offset += slides[k - 1].dur - FADE;
-  const out = k === slides.length - 1 ? "[v]" : `[x${k}]`;
-  filters.push(`${prev}[${k}:v]xfade=transition=fade:duration=${FADE}:offset=${offset.toFixed(2)}${out}`);
-  prev = out;
-}
-const total = offset + slides.at(-1).dur;
-
-execFileSync(FFMPEG, [
-  "-y", "-v", "error", ...inputs,
-  "-f", "lavfi", "-t", total.toFixed(2), "-i", "anullsrc=r=44100:cl=stereo",
-  "-filter_complex", filters.join(";"),
-  "-map", "[v]", "-map", `${slides.length}:a`,
-  "-c:v", "libx264", "-pix_fmt", "yuv420p", "-r", "30", "-crf", "18", "-tune", "stillimage",
-  "-c:a", "aac", "-shortest", "-movflags", "+faststart", OUT,
-], { stdio: "inherit" });
-console.log(`wrote ${OUT} (${total.toFixed(1)}s, ${slides.length} slides)`);
+const code = await new Promise((r) => ff.on("close", r));
+if (code !== 0) { console.error(ffErr.slice(-3000)); process.exit(code); }
+console.log(`wrote ${OUT} (${total.toFixed(1)}s)`);
