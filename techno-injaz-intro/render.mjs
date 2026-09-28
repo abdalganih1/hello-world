@@ -78,7 +78,7 @@ const wav = audio();
 const r = spawnSync(FFMPEG, [
   "-y", "-v", "error", "-framerate", String(FPS), "-i", path.join(FR, "f%05d.jpg"), "-i", wav,
   "-map", "0:v", "-map", "1:a",
-  "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-preset", "slow", "-profile:v", "high", "-level", "4.2",
+  "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "19", "-maxrate", "16M", "-bufsize", "32M", "-preset", "slow", "-tune", "grain", "-profile:v", "high", "-level", "4.2",
   "-c:a", "aac", "-b:a", "256k", "-ar", "44100", "-t", tl.total.toFixed(3), "-movflags", "+faststart", OUT,
 ], { stdio: "inherit" });
 if (r.status !== 0) process.exit(r.status);
