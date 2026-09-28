@@ -1,69 +1,57 @@
-// Renders scenes.html into sham-cash-scam-awareness.mp4 (1080x1920, 25 fps), text-only with a short alarm at the trap.
-// Usage: FFMPEG=/path/to/ffmpeg node render.mjs
+// Renders slides.html into sham-cash-scam-awareness.mp4 (1080x1920, 30 fps).
+// Each slide is a still image; slides change with a plain cross-fade, so nothing moves on screen.
+// Usage: FFMPEG=/path/to/ffmpeg node render.mjs   (needs playwright)
 import { chromium } from "playwright";
-import { spawn } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const FFMPEG = process.env.FFMPEG || "ffmpeg";
-const FPS = 25, LEAD = 0.5, TAIL = 0.6;
+const FADE = 0.5;
 const OUT = path.join(dir, "sham-cash-scam-awareness.mp4");
+const STILLS = path.join(dir, "stills");
+mkdirSync(STILLS, { recursive: true });
 
-// On-screen reading time per caption chunk: a base beat plus time per character.
-const readTime = (text) => Math.max(1.8, 0.9 + text.length * 0.075);
-
-// Build the timeline: each scene shows its caption chunks back to back, with a lead-in and tail.
-const scenes = JSON.parse(readFileSync(path.join(dir, "captions.json"), "utf8"));
-let start = 0;
-const timeline = scenes.map((s) => {
-  let t = LEAD;
-  const cues = s.text.map((chunk) => { const c = [t, t + readTime(chunk)]; t = c[1]; return c; });
-  const sc = { ...s, cues, start, dur: t + TAIL };
-  start += sc.dur;
-  return sc;
-});
-const total = start;
-
-// Alarm beeps land on the "هون الفخ!" caption (otp scene, chunk 1).
-const otp = timeline.find((s) => s.id === "otp");
-const trapAt = otp.start + otp.cues[1][0];
-
-const inputs = ["-f", "image2pipe", "-framerate", String(FPS), "-i", "-"];
-const filters = [];
-[0, 0.22].forEach((off, k) => {
-  inputs.push("-f", "lavfi", "-i", "sine=frequency=990:duration=0.14:sample_rate=44100");
-  const ms = Math.round((trapAt + off) * 1000);
-  filters.push(`[${k + 1}:a]volume=0.35,adelay=${ms}|${ms}[b${k}]`);
-});
-filters.push("[b0][b1]amix=inputs=2:normalize=0,apad[a]");
-
-const ff = spawn(FFMPEG, [
-  "-y", ...inputs,
-  "-filter_complex", filters.join(";"),
-  "-map", "0:v", "-map", "[a]",
-  "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20", "-preset", "medium",
-  "-c:a", "aac", "-b:a", "160k", "-t", total.toFixed(2), "-movflags", "+faststart",
-  OUT,
-], { stdio: ["pipe", "inherit", "pipe"] });
-let ffErr = "";
-ff.stderr.on("data", (d) => { ffErr += d; });
+// Time on screen: enough to read the slide's words and glance at its picture.
+const holdFor = (text) => Math.max(4.5, 2.5 + text.replace(/\s+/g, "").length * 0.07);
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
-await page.goto(pathToFileURL(path.join(dir, "scenes.html")).href, { waitUntil: "load" });
-await page.evaluate(async (tl) => { window.TIMELINE = tl; await document.fonts.ready; }, timeline);
+const url = pathToFileURL(path.join(dir, "slides.html")).href;
+await page.goto(url);
+const count = await page.evaluate(() => window.SLIDE_COUNT);
 
-const frames = Math.ceil(total * FPS);
-for (let f = 0; f < frames; f++) {
-  await page.evaluate((t) => window.seek(t), f / FPS);
-  const jpg = await page.screenshot({ type: "jpeg", quality: 92 });
-  if (!ff.stdin.write(jpg)) await new Promise((r) => ff.stdin.once("drain", r));
-  if (f % (FPS * 5) === 0) console.log(`frame ${f}/${frames}`);
+const slides = [];
+for (let n = 0; n < count; n++) {
+  await page.goto(`${url}?n=${n}`, { waitUntil: "load" });
+  const text = await page.evaluate(async () => { await document.fonts.ready; return window.SLIDE_TEXT; });
+  const file = path.join(STILLS, `slide-${n + 1}.png`);
+  await page.screenshot({ path: file });
+  slides.push({ file, dur: holdFor(text) });
 }
-ff.stdin.end();
 await browser.close();
-const code = await new Promise((r) => ff.on("close", r));
-if (code !== 0) { console.error(ffErr.slice(-3000)); process.exit(code); }
-console.log(`wrote ${OUT} (${total.toFixed(1)}s)`);
+
+// Chain cross-fades: slide k starts fading in FADE seconds before slide k-1 ends.
+const inputs = [];
+slides.forEach((s) => inputs.push("-loop", "1", "-framerate", "30", "-t", s.dur.toFixed(2), "-i", s.file));
+const filters = [];
+let prev = "[0:v]", offset = 0;
+for (let k = 1; k < slides.length; k++) {
+  offset += slides[k - 1].dur - FADE;
+  const out = k === slides.length - 1 ? "[v]" : `[x${k}]`;
+  filters.push(`${prev}[${k}:v]xfade=transition=fade:duration=${FADE}:offset=${offset.toFixed(2)}${out}`);
+  prev = out;
+}
+const total = offset + slides.at(-1).dur;
+
+execFileSync(FFMPEG, [
+  "-y", "-v", "error", ...inputs,
+  "-f", "lavfi", "-t", total.toFixed(2), "-i", "anullsrc=r=44100:cl=stereo",
+  "-filter_complex", filters.join(";"),
+  "-map", "[v]", "-map", `${slides.length}:a`,
+  "-c:v", "libx264", "-pix_fmt", "yuv420p", "-r", "30", "-crf", "18", "-tune", "stillimage",
+  "-c:a", "aac", "-shortest", "-movflags", "+faststart", OUT,
+], { stdio: "inherit" });
+console.log(`wrote ${OUT} (${total.toFixed(1)}s, ${slides.length} slides)`);
