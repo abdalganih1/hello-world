@@ -67,7 +67,11 @@ for cid, name in names.items():
     cv2.imwrite(os.path.join(out, name + ".png"), rgba, [cv2.IMWRITE_PNG_COMPRESSION, 9])
     yy, xx = np.where(m > 0)
     low = yy > yy.max() - 0.03 * (yy.max() - yy.min())
+    cs, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    c = max(cs, key=cv2.contourArea)
+    poly = cv2.approxPolyDP(c, 0.006 * cv2.arcLength(c, True), True)[:, 0, :]
     meta["pieces"][name] = {
+        "poly": [[int(px - x0), int(py - y0)] for px, py in poly],
         "bbox": [int(xx.min() - x0), int(yy.min() - y0), int(xx.max() - xx.min()), int(yy.max() - yy.min())],
         "centroid": [float(xx.mean() - x0), float(yy.mean() - y0)],
         "tip": [float(xx[low].mean() - x0), float(yy.max() - y0)],
