@@ -31,7 +31,7 @@
   .chip-top { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); background: var(--amber); color: var(--navy); font-weight: 900; font-size: 40px; padding: 6px 34px; border-radius: 999px; z-index: 5; white-space: nowrap; }
   .disclaimer { position: absolute; bottom: 44px; left: 0; right: 0; text-align: center; font-size: 30px; font-weight: 600; color: var(--muted); z-index: 5; }
   .caption { position: absolute; left: 60px; right: 60px; bottom: 150px; min-height: 200px; display: flex; align-items: center; justify-content: center; z-index: 6; }
-  .caption span { background: rgba(0,0,0,.72); border-radius: 26px; padding: 18px 34px; font-size: 56px; font-weight: 800; line-height: 1.4; text-align: center; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+  .caption span { background: rgba(0,0,0,.78); border: 3px solid rgba(255,176,32,.55); border-radius: 26px; padding: 18px 34px; font-size: 62px; font-weight: 800; line-height: 1.4; text-align: center; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 
   .scene { position: absolute; inset: 0; opacity: 0; }
   .stage { position: absolute; top: 180px; left: 60px; right: 60px; height: 1180px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
@@ -212,12 +212,8 @@
   const clamp = (x) => Math.max(0, Math.min(1, x));
   const ease = (x) => 1 - Math.pow(1 - x, 3);
 
-  function cueTimes(sc) {
-    // Caption chunks share the scene's narration time in proportion to their length.
-    const total = sc.text.reduce((a, s) => a + s.length, 0);
-    let acc = sc.audioStart;
-    return sc.text.map((s) => { const t0 = acc; acc += sc.audioDur * s.length / total; return [t0, acc]; });
-  }
+  // Caption chunk windows (scene-local seconds) are computed by render.mjs from reading time.
+  const cueTimes = (sc) => sc.cues;
 
   function animate(el, p, kind, since) {
     const e = ease(p);
