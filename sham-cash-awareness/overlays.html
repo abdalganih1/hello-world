@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Scam Video Overlays</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #e5243b;
+    --red-dark: #9e1022;
+    --amber: #ffb020;
+    --ink: #0f1020;
+    --paper: #ffffff;
+    --teal: #3fa89c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: transparent; font-family: "Cairo", sans-serif; }
+  /* Each overlay is one vertical 1080x1920 frame, transparent outside the graphic. */
+  .frame {
+    width: 1080px; height: 1920px; position: relative; overflow: hidden;
+    display: none;
+  }
+  body.preview .frame { display: block; outline: 2px dashed #888; margin: 20px auto; background: #444; }
+  .frame.active { display: block; }
+
+  .card {
+    position: absolute; left: 60px; right: 60px;
+    border-radius: 36px; padding: 44px 52px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  }
+
+  /* 01 — hook title (top of frame) */
+  #title .card { top: 140px; background: var(--ink); color: var(--paper); border: 6px solid var(--amber); text-align: center; }
+  #title .tag { display: inline-block; background: var(--amber); color: var(--ink); font-weight: 900; font-size: 44px; padding: 6px 30px; border-radius: 999px; margin-bottom: 22px; }
+  #title h1 { font-size: 92px; line-height: 1.15; font-weight: 900; }
+  #title p { font-size: 54px; font-weight: 700; margin-top: 18px; color: var(--amber); }
+
+  /* 02 — fake data lower third */
+  #fake-data .card { bottom: 260px; background: rgba(15,16,32,.92); color: var(--paper); border-right: 18px solid var(--teal); padding: 32px 44px; }
+  #fake-data h2 { font-size: 56px; font-weight: 900; }
+  #fake-data p { font-size: 40px; font-weight: 600; opacity: .9; margin-top: 6px; }
+
+  /* 03 / 04 — alerts (center) */
+  .alert .card { top: 50%; transform: translateY(-50%); background: var(--red); color: var(--paper); text-align: center; border: 10px solid var(--paper); padding: 56px 48px; }
+  .alert .icon { font-size: 150px; line-height: 1; }
+  .alert h2 { font-size: 104px; font-weight: 900; line-height: 1.15; margin-top: 18px; }
+  .alert p { font-size: 54px; font-weight: 700; margin-top: 18px; background: var(--red-dark); border-radius: 22px; padding: 14px 20px; }
+  .alert .border { position: absolute; inset: 0; border: 28px solid var(--red); }
+
+  /* 05 — rules end card */
+  #rules .card { top: 50%; transform: translateY(-50%); padding: 64px 52px; background: var(--ink); color: var(--paper); display: flex; flex-direction: column; justify-content: center; gap: 44px; }
+  #rules h2 { font-size: 80px; font-weight: 900; color: var(--amber); text-align: center; }
+  #rules .rule { display: flex; gap: 28px; align-items: flex-start; }
+  #rules .num { flex: 0 0 110px; height: 110px; border-radius: 50%; background: var(--red); font-size: 70px; font-weight: 900; display: grid; place-items: center; }
+  #rules .rule p { font-size: 54px; font-weight: 800; line-height: 1.35; }
+  #rules .share { text-align: center; font-size: 52px; font-weight: 800; background: var(--teal); border-radius: 24px; padding: 20px; }
+</style>
+</head>
+<body>
+
+<section class="frame" id="title">
+  <div class="card">
+    <span class="tag">⚠️ تحذير</span>
+    <h1>إعلانات «شام كاش» الممولة؟<br>انتبه… نصب!</h1>
+    <p>اتصلنا بواحد منهم قدامكن</p>
+  </div>
+</section>
+
+<section class="frame" id="fake-data">
+  <div class="card">
+    <h2>🛡️ كل البيانات بهالمكالمة وهمية</h2>
+    <p>رقم بديل · حساب غير حقيقي · اسم مستعار</p>
+  </div>
+</section>
+
+<section class="frame alert" id="otp-alert">
+  <div class="border"></div>
+  <div class="card">
+    <div class="icon">🚨</div>
+    <h2>هون طلب الكود!</h2>
+    <p>رمز التحقق OTP = مفتاح محفظتك<br>لا تعطيه لحدا أبداً</p>
+  </div>
+</section>
+
+<section class="frame alert" id="link-alert">
+  <div class="border"></div>
+  <div class="card">
+    <div class="icon">⛔</div>
+    <h2>رابط خبيث!</h2>
+    <p>لا تفتح أي رابط بيوصلك<br>من رقم واتساب عادي</p>
+  </div>
+</section>
+
+<section class="frame" id="rules">
+  <div class="card">
+    <h2>تذكّروا دائماً</h2>
+    <div class="rule"><div class="num">1</div><p>الشركات المالية الرسمية ما بتتواصل عبر واتساب عادي أو إعلانات ممولة عشوائية</p></div>
+    <div class="rule"><div class="num">2</div><p>رمز التحقق (OTP) ما بينعطى لأي حدا، حتى لو قال إنه موظف بالشركة</p></div>
+    <div class="share">📢 شاركوا الفيديو مع أهلكن ورفقاتكن</div>
+  </div>
+</section>
+
+<script>
+  // ?frame=<id> shows one overlay for rendering; no param shows all for preview.
+  const id = new URLSearchParams(location.search).get("frame");
+  if (id) document.getElementById(id).classList.add("active");
+  else document.body.classList.add("preview");
+</script>
+</body>
+</html>
