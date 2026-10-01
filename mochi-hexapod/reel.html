@@ -70,7 +70,7 @@ window.setup = async (tl) => {
   scene.add(new THREE.HemisphereLight(0x8fb4ff, 0x101010, 0.22));
 
   // floor: dark lab floor with a faint grid and a light pool under the robot
-  floorMat = new THREE.MeshStandardMaterial({ color: 0x050608, roughness: 0.68, metalness: 0.0, map: gridTexture(), envMapIntensity: 0.6 });
+  floorMat = new THREE.MeshStandardMaterial({ color: 0x8a909a, roughness: 0.68, metalness: 0.0, map: gridTexture(), envMapIntensity: 0.6 });
   floorMat.map.wrapS = floorMat.map.wrapT = THREE.RepeatWrapping; floorMat.map.repeat.set(40, 40); floorMat.map.anisotropy = 4;
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(12000, 12000), floorMat); floor.receiveShadow = true; scene.add(floor);
   const pool = new THREE.Mesh(new THREE.CircleGeometry(900, 64), new THREE.MeshBasicMaterial({ map: radialTexture([255, 236, 210]), transparent: true, opacity: 0.10, depthWrite: false, blending: THREE.AdditiveBlending }));
@@ -138,8 +138,8 @@ function bgTexture() {
 function gridTexture() {
   const c = document.createElement("canvas"); c.width = c.height = 256; const x = c.getContext("2d");
   x.fillStyle = "#0c0f15"; x.fillRect(0, 0, 256, 256);
-  x.strokeStyle = "rgba(120,200,255,0.10)"; x.lineWidth = 2; x.strokeRect(0, 0, 256, 256);
-  x.strokeStyle = "rgba(120,200,255,0.045)"; x.lineWidth = 1;
+  x.strokeStyle = "rgba(120,200,255,0.24)"; x.lineWidth = 3; x.strokeRect(0, 0, 256, 256);
+  x.strokeStyle = "rgba(120,200,255,0.10)"; x.lineWidth = 1.5;
   for (let i = 1; i < 4; i++) { x.beginPath(); x.moveTo(i * 64, 0); x.lineTo(i * 64, 256); x.moveTo(0, i * 64); x.lineTo(256, i * 64); x.stroke(); }
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
@@ -294,10 +294,10 @@ function legAngles(t, B) {
 const CAM = [
   // t, angle (deg, world, 90 = robot's front), radius, height, target z, fov
   [0.0, -205, 2700, 1500, 90, 34],
-  [2.4, -160, 1450, 760, 60, 34],
-  [6.0, -95, 1250, 560, 45, 34],
-  [9.3, -35, 1180, 600, 45, 34],
-  [13.4, 22, 1220, 600, 40, 34],
+  [2.4, -160, 1200, 620, 55, 34],
+  [6.0, -95, 1000, 440, 40, 34],
+  [9.3, -35, 950, 470, 40, 34],
+  [13.4, 22, 990, 470, 35, 34],
   [16.2, 62, 1120, 330, 55, 34],
   [17.3, 80, 1000, 260, 60, 34],
   [18.5, 90, 1020, 130, 75, 34],
@@ -337,9 +337,10 @@ function seek(t) {
   // camera follows the robot during the walk
   const ck = camKey(t);
   const P = B.P;
+  const PL = bodyPlanar(Math.max(0, t - 0.35));   // camera lags the walking robot a little
   const shake = shakeAt(t);
   const ang = ck.ang * D2R;
-  camera.position.set(P.x + Math.cos(ang) * ck.r + shake.x, P.y + Math.sin(ang) * ck.r + shake.y, ck.h + shake.z);
+  camera.position.set(PL.x + Math.cos(ang) * ck.r + shake.x, PL.y + Math.sin(ang) * ck.r + shake.y, ck.h + shake.z);
   camera.fov = ck.fov; camera.updateProjectionMatrix();
   camera.lookAt(P.x, P.y, ck.tz);
   key.position.set(P.x + 350, P.y - 250, 900); key.target.position.set(P.x, P.y, 0);

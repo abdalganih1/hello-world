@@ -152,10 +152,11 @@ def arp(m, t0, g, pan):
 
 
 # hook: drone + riser + reversed swell
-add(lp(saw(midi(26), 2.6, 0.01), 300) * env(int(2.6 * SR), 1.0, 0.2), 0, 0.25)
+add(lp(saw(midi(26), 2.6, 0.01), 300) * env(int(2.6 * SR), 0.3, 0.2), 0, 0.5)
+for k in range(5): add(kick(0.7), 0.1 + k * beat, 0.25 + 0.05 * k)
 n = int(2.5 * SR); x = np.linspace(0, 1, n)
 add(hp(noise(n), 2000) * x ** 3 * 0.18 + np.sin(2 * np.pi * np.cumsum(200 + 1400 * x ** 2) / SR) * x ** 3 * 0.05, 0.05)
-pad([50, 57, 62, 65], 0.2, 2.3, 0.02, 900)
+pad([50, 57, 62, 65], 0.1, 2.4, 0.035, 1200)
 
 # build section: beat from the first slam, layers per stage
 t = STAGES[0]
@@ -234,7 +235,7 @@ mix = hp(mix, 25)
 envl = lp(np.abs(mix).max(0), 10) + 1e-6
 mix *= np.minimum(1, (0.45 / envl) ** 0.35)
 mix = np.tanh(mix * 1.25)
-mix *= 10 ** (-1.2 / 20) / np.max(np.abs(mix))
+mix *= 10 ** (-2.0 / 20) / np.max(np.abs(mix))
 fi, fo = int(0.02 * SR), int(1.2 * SR)
 mix[:, :fi] *= np.linspace(0, 1, fi); mix[:, -fo:] *= np.linspace(1, 0, fo)
 pcm = (mix.T * 32767).astype(np.int16)
