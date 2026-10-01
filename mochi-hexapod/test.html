@@ -1,0 +1,24 @@
+<!doctype html><html><body style="margin:0;background:#fff"><canvas id="c" width="1000" height="1000"></canvas>
+<script type="module">
+import * as THREE from './lib/three.module.js';
+import { loadParts, buildRobot, makeMaterials, legIK, DIM } from './robot.js';
+const r = new THREE.WebGLRenderer({canvas: document.getElementById('c'), antialias:true, preserveDrawingBuffer:true});
+r.setClearColor(0xf4f4f4);
+await loadParts();
+const R = buildRobot(makeMaterials());
+const scene = new THREE.Scene(); scene.add(R.root);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x666666, 1.6));
+const d = new THREE.DirectionalLight(0xffffff, 2.2); d.position.set(200,-300,400); scene.add(d);
+window.view = (cfg) => {
+  const hb = cfg.hb ?? 40;
+  R.root.position.z = hb;
+  const [t2,t3] = legIK(cfg.r ?? 70, -(hb + DIM.coxaZ));
+  R.setPose(Array(6).fill([0, t2, t3]));
+  R.setAssembly(() => cfg.asm ?? 1);
+  const cam = new THREE.PerspectiveCamera(cfg.fov ?? 30, 1, 1, 5000);
+  cam.up.set(0,0,1); cam.position.set(...cfg.pos); cam.lookAt(...(cfg.look ?? [0,0,hb]));
+  r.render(scene, cam);
+  return [t2*57.3, t3*57.3];
+};
+window.ready = true;
+</script></body></html>

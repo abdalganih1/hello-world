@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Hexapod Mochi — Build & Walk</title>
+<style>
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: clip; background: #000; }
+  #stage { position: fixed; top: 0; left: 0; width: 1080px; height: 1920px; overflow: clip; contain: paint; }
+  #stage canvas { position: absolute; top: 0; left: 0; width: 1080px; height: 1920px; }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="gl" width="1080" height="1920"></canvas><canvas id="ui" width="1080" height="1920"></canvas></div>
+<script type="module">
+// Hexapod Mochi build-and-walk reel. Deterministic: seek(t) renders frame t from scratch (no accumulated state).
+// World is z-up, millimetres. Robot parts are the original STLs placed by robot.js.
+import * as THREE from "./lib/three.module.js";
+import { EffectComposer } from "./lib/EffectComposer.js";
+import { RenderPass } from "./lib/RenderPass.js";
+import { UnrealBloomPass } from "./lib/UnrealBloomPass.js";
+import { ShaderPass } from "./lib/ShaderPass.js";
+import { OutputPass } from "./lib/OutputPass.js";
+import { RoomEnvironment } from "./lib/RoomEnvironment.js";
+import { loadParts, buildRobot, makeMaterials, legIK, DIM, LEG_ANGLES } from "./robot.js";
+
+const W = 1080, H = 1920;
+const cl = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const sm = (x) => x * x * (3 - 2 * x);
+const outCubic = (x) => 1 - (1 - x) ** 3, outQuint = (x) => 1 - (1 - x) ** 5, outExpo = (x) => (x >= 1 ? 1 : 1 - 2 ** (-10 * x));
+const inOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2);
+const rnd = (i) => { const s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
+const D2R = Math.PI / 180;
+
+let TL, R, renderer, scene, camera, composer, bloom, finalPass, key, sparks, dust, scanMesh, floorMat, beam, mats;
+const ui = document.getElementById("ui"), g2 = ui.getContext("2d");
+
+// ======================================================================= setup
+window.setup = async (tl) => {
+  TL = tl;
+  for (const [fam, url, w] of [["Cairo", "assets/cairo-900.ttf", "900"], ["Cairo", "assets/cairo-800.ttf", "800"], ["JB", "assets/jbmono-800.ttf", "800"]]) {
+    const f = new FontFace(fam, `url(${url})`, { weight: w }); document.fonts.add(await f.load());
+  }
+  await loadParts();
+  renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("gl"), antialias: true, preserveDrawingBuffer: true, powerPreference: "high-performance" });
+  renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.9;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  scene = new THREE.Scene();
+  const pm = new THREE.PMREMGenerator(renderer);
+  scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environmentIntensity = 0.32;
+  scene.background = bgTexture();
+  scene.fog = new THREE.Fog(0x05070c, 1400, 4200);
+
+  mats = makeMaterials();
+  R = buildRobot(mats);
+  scene.add(R.root);
+  R.parts.forEach((p, i) => { p.idx = i; });
+  tweakAssemblyDirs();
+
+  // lights: warm key with shadows + mint / magenta rims that echo the robot's colours
+  key = new THREE.DirectionalLight(0xfff1e0, 1.8); key.position.set(350, -250, 900); key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048); Object.assign(key.shadow.camera, { left: -420, right: 420, top: 420, bottom: -420, near: 10, far: 2500 });
+  key.shadow.bias = -0.0004; key.shadow.normalBias = 0.6; key.shadow.radius = 4;
+  scene.add(key, key.target);
+  const rimA = new THREE.DirectionalLight(0x6fffd0, 1.1); rimA.position.set(-700, 600, 300); scene.add(rimA);
+  const rimB = new THREE.DirectionalLight(0xff4fa8, 0.9); rimB.position.set(700, 700, 250); scene.add(rimB);
+  scene.add(new THREE.HemisphereLight(0x8fb4ff, 0x101010, 0.22));
+
+  // floor: dark lab floor with a faint grid and a light pool under the robot
+  floorMat = new THREE.MeshStandardMaterial({ color: 0x050608, roughness: 0.68, metalness: 0.0, map: gridTexture(), envMapIntensity: 0.6 });
+  floorMat.map.wrapS = floorMat.map.wrapT = THREE.RepeatWrapping; floorMat.map.repeat.set(40, 40); floorMat.map.anisotropy = 4;
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(12000, 12000), floorMat); floor.receiveShadow = true; scene.add(floor);
+  const pool = new THREE.Mesh(new THREE.CircleGeometry(900, 64), new THREE.MeshBasicMaterial({ map: radialTexture([255, 236, 210]), transparent: true, opacity: 0.10, depthWrite: false, blending: THREE.AdditiveBlending }));
+  pool.position.z = 0.5; scene.add(pool); window._pool = pool;
+
+  // light beam from above (hook + assembly)
+  beam = new THREE.Mesh(new THREE.CylinderGeometry(120, 420, 1800, 48, 1, true), new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+    uniforms: { op: { value: 1 } },
+    vertexShader: "varying vec2 vUv; varying vec3 vN; varying vec3 vV; void main(){ vUv=uv; vec4 wp=modelMatrix*vec4(position,1.); vN=normalize(mat3(modelMatrix)*normal); vV=normalize(cameraPosition-wp.xyz); gl_Position=projectionMatrix*viewMatrix*wp; }",
+    fragmentShader: "uniform float op; varying vec2 vUv; varying vec3 vN; varying vec3 vV; void main(){ float f=pow(1.-abs(dot(vN,vV)),1.6); float a=f*smoothstep(0.,.55,vUv.y)*smoothstep(1.,.75,vUv.y)*0.10*op; gl_FragColor=vec4(vec3(1.,.93,.82)*a,a); }",
+  }));
+  beam.rotation.x = Math.PI / 2; beam.position.z = 900; scene.add(beam);
+
+  // sparks (snap highlights) and dust rings (impacts / footsteps)
+  const SP = 900;
+  sparks = new THREE.Points(new THREE.BufferGeometry(), new THREE.PointsMaterial({ size: 6, map: dotTexture(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, vertexColors: true, sizeAttenuation: true }));
+  sparks.geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(SP * 3), 3));
+  sparks.geometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(SP * 3), 3));
+  sparks.frustumCulled = false; scene.add(sparks);
+  dust = [];
+  for (let i = 0; i < 24; i++) {
+    const m = new THREE.Mesh(new THREE.RingGeometry(0.9, 1, 64), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+    m.position.z = 1; m.visible = false; scene.add(m); dust.push(m);
+  }
+  // power-on scan ring
+  scanMesh = new THREE.Mesh(new THREE.RingGeometry(10, 260, 96, 1), new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, uniforms: { op: { value: 0 } },
+    vertexShader: "varying vec2 vP; void main(){ vP=position.xy; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }",
+    fragmentShader: "uniform float op; varying vec2 vP; void main(){ float r=length(vP); float edge=smoothstep(200.,255.,r)*(1.-smoothstep(255.,260.,r)); float fill=0.12*smoothstep(260.,40.,r); float grid=step(0.92,fract(r/14.)); float a=(edge*1.2+fill+grid*0.08)*op; gl_FragColor=vec4(vec3(.45,1.,.82)*a,a); }",
+  }));
+  scanMesh.visible = false; scene.add(scanMesh);
+
+  camera = new THREE.PerspectiveCamera(32, W / H, 5, 9000); camera.up.set(0, 0, 1);
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  bloom = new UnrealBloomPass(new THREE.Vector2(W / 2, H / 2), 0.3, 0.5, 0.92); composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+  finalPass = new ShaderPass({
+    uniforms: { tDiffuse: { value: null }, uT: { value: 0 }, uCA: { value: 0 }, uFlash: { value: 0 }, uVig: { value: 1 }, uBars: { value: 0 }, uFade: { value: 1 } },
+    vertexShader: "varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.,1.); }",
+    fragmentShader: `uniform sampler2D tDiffuse; uniform float uT,uCA,uFlash,uVig,uBars,uFade; varying vec2 vUv;
+      float h(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }
+      void main(){
+        vec2 d=vUv-.5; float r2=dot(d,d);
+        vec2 o=d*uCA*0.012*(0.4+r2*3.);
+        vec3 c=vec3(texture2D(tDiffuse,vUv+o).r, texture2D(tDiffuse,vUv).g, texture2D(tDiffuse,vUv-o).b);
+        c*=mix(1.,1.-smoothstep(.12,.62,r2*1.6),.75*uVig);
+        c+=(h(vUv*vec2(1080.,1920.)+fract(uT*7.)*91.)-.5)*0.035;
+        c=mix(c,vec3(1.),uFlash);
+        float bar=step(vUv.y,uBars)+step(1.-uBars,vUv.y); c*=1.-bar;
+        gl_FragColor=vec4(c*uFade,1.);
+      }`,
+  });
+  composer.addPass(finalPass);
+  computeSchedule();
+  seek(0);
+};
+
+function bgTexture() {
+  const c = document.createElement("canvas"); c.width = 16; c.height = 512; const x = c.getContext("2d");
+  const g = x.createLinearGradient(0, 0, 0, 512); g.addColorStop(0, "#0d1626"); g.addColorStop(0.55, "#070a12"); g.addColorStop(1, "#020305");
+  x.fillStyle = g; x.fillRect(0, 0, 16, 512); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+function gridTexture() {
+  const c = document.createElement("canvas"); c.width = c.height = 256; const x = c.getContext("2d");
+  x.fillStyle = "#0c0f15"; x.fillRect(0, 0, 256, 256);
+  x.strokeStyle = "rgba(120,200,255,0.10)"; x.lineWidth = 2; x.strokeRect(0, 0, 256, 256);
+  x.strokeStyle = "rgba(120,200,255,0.045)"; x.lineWidth = 1;
+  for (let i = 1; i < 4; i++) { x.beginPath(); x.moveTo(i * 64, 0); x.lineTo(i * 64, 256); x.moveTo(0, i * 64); x.lineTo(256, i * 64); x.stroke(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+function radialTexture(rgb) {
+  const c = document.createElement("canvas"); c.width = c.height = 256; const x = c.getContext("2d");
+  const g = x.createRadialGradient(128, 128, 0, 128, 128, 128); g.addColorStop(0, `rgba(${rgb},1)`); g.addColorStop(0.45, `rgba(${rgb},0.35)`); g.addColorStop(1, `rgba(${rgb},0)`);
+  x.fillStyle = g; x.fillRect(0, 0, 256, 256); return new THREE.CanvasTexture(c);
+}
+function dotTexture() {
+  const c = document.createElement("canvas"); c.width = c.height = 64; const x = c.getContext("2d");
+  const g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(0.3, "rgba(255,255,255,.6)"); g.addColorStop(1, "rgba(255,255,255,0)");
+  x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c);
+}
+
+// exploded directions for the body pieces (robot.js defaults suit the legs)
+function tweakAssemblyDirs() {
+  for (const p of R.parts) {
+    const m = p.meta;
+    if (m.stage === "base") { m.dir = [0, 0, 1]; m.dist = 110; m.spin = 0.5; }
+    if (m.stage === "top") { m.dir = [0, 0, 1]; m.dist = 330; m.spin = 0.8; }
+    if (m.stage === "head") { m.dir = [0, 0, 1]; m.dist = 470; m.spin = 0.6; }
+  }
+}
+
+// ======================================================================= assembly schedule
+// every part gets [t0, t1] (flight) and a landing event; sounds and sparks are derived from the same table
+let SCHED = [];
+function computeSchedule() {
+  SCHED = R.parts.map((p) => {
+    const m = p.meta, i = m.i ?? m.k ?? 0, d = m.delay ?? 0;
+    let t0, dur, kind = "snap";
+    switch (m.stage) {
+      case "base": t0 = 2.55; dur = 0.38; kind = "slam"; break;
+      case "coxaServo": t0 = 3.0 + i * 0.15; dur = 0.34; kind = "servo"; break;
+      case "clamps": t0 = 3.3 + i * 0.12 + (p.mesh.position ? 0 : 0); dur = 0.3; break;
+      case "walls": t0 = 3.95 + i * 0.07; dur = 0.34; break;
+      case "top": t0 = 4.55; dur = 0.36; kind = "slam"; break;
+      case "head": t0 = 5.05; dur = 0.62; kind = "thud"; break;
+      case "joint": t0 = 6.15 + i * 0.36 + d * 1.6; dur = 0.34; break;
+      case "horns": t0 = 6.65 + i * 0.36 + d * 1.6; dur = 0.26; kind = "screw"; break;
+      case "leg": t0 = 9.45 + i * 0.5 + d * 1.5; dur = 0.34; kind = m.dir[2] === 1 && d > 0 && d < 0.2 ? "servo" : "snap"; break;
+      case "foot": t0 = 13.55 + i * 0.36 + d * 1.4; dur = 0.34; break;
+      default: t0 = 3; dur = 0.3;
+    }
+    return { p, t0, t1: t0 + dur, kind, slam: kind === "slam" || kind === "thud" };
+  });
+}
+function explodeScale(t) { return lerp(3.0, 1.0, outCubic(seg(t, 0.0, 2.45))); }
+function assemblyFactor(s, t) {
+  // f: 1 = exploded position, 0 = home. Slams accelerate into place, everything else decelerates (snap).
+  const x = seg(t, s.t0, s.t1);
+  if (x >= 1) return 0;
+  const f = s.slam ? 1 - x * x : 1 - outCubic(x);
+  return f * explodeScale(t);
+}
+
+// ======================================================================= body pose & gait
+const REST_HB = 4, STAND_HB = 50, STAND_R = 72, REST_R = 104;
+function hbAt(t) {
+  const u = inOut(seg(t, 18.55, 19.75));
+  return lerp(REST_HB, STAND_HB, u);
+}
+// body planar motion (integrated deterministically from the walk start)
+const WALK_CACHE = new Map();
+function bodyPlanar(t) {
+  const w = TL.walk, t0 = w.start, t1 = w.stop;
+  if (t <= t0) return { x: 0, y: 0, psi: 0 };
+  const key = Math.round(t * 600);
+  if (WALK_CACHE.has(key)) return WALK_CACHE.get(key);
+  const speed = (2 * w.stride) / w.period;     // mm/s for a tripod gait
+  let x = 0, y = 0, psi = 0;
+  const dt = 1 / 600, tEnd = Math.min(t, t1 + 0.01);
+  for (let s = t0; s < tEnd; s += dt) {
+    const ramp = sm(seg(s, t0, t0 + 0.5)) * (1 - sm(seg(s, t1 - 0.55, t1)));
+    const turn = 0.42 * sm(seg(s, 23.2, 23.8)) * (1 - sm(seg(s, 25.2, 25.8)));
+    psi += turn * ramp * dt;
+    x += -Math.sin(psi) * speed * ramp * dt; y += Math.cos(psi) * speed * ramp * dt;
+  }
+  const r = { x, y, psi }; WALK_CACHE.set(key, r); return r;
+}
+function bodyMatrix(t) {
+  const P = bodyPlanar(t), hb = hbAt(t);
+  const w = TL.walk, ph = (t - w.start) / w.period;
+  const moving = sm(seg(t, w.start, w.start + 0.5)) * (1 - sm(seg(t, w.stop - 0.4, w.stop + 0.3)));
+  const bob = moving * 2.2 * Math.cos(ph * Math.PI * 4);
+  const roll = moving * 0.018 * Math.sin(ph * Math.PI * 2);
+  // end card: lean back a touch while waving
+  const wave = sm(seg(t, 27.9, 28.4)) * (1 - sm(seg(t, 30.2, 30.7)));
+  const pitch = -0.06 * wave + moving * 0.012;
+  const m = new THREE.Matrix4().makeRotationZ(P.psi)
+    .premultiply(new THREE.Matrix4().makeTranslation(P.x, P.y, hb + bob))
+    .multiply(new THREE.Matrix4().makeRotationX(pitch)).multiply(new THREE.Matrix4().makeRotationY(roll));
+  return { m, P, hb };
+}
+const MOUNTS = LEG_ANGLES.map((d) => { const a = d * D2R; return { a, x: DIM.mountR * Math.cos(a), y: DIM.mountR * Math.sin(a) }; });
+const GROUP = [0, 1, 0, 1, 0, 1];   // tripod: FR, RR, CL vs CR, FL, RL
+function neutralTip(i, rr) { const M = MOUNTS[i], k = DIM.mountR + DIM.coxa + rr; return new THREE.Vector3(Math.cos(M.a) * k, Math.sin(M.a) * k, 0); }
+function footprint(i, time) {
+  // where leg i plants its foot when its stance is centred at `time` (world space, on the ground)
+  const tt = Math.min(time, TL.walk.stop + 0.3);
+  const B = bodyMatrix(Math.max(tt, 19.8)).m;
+  const n = neutralTip(i, STAND_R); n.z = 0;
+  const v = n.clone().applyMatrix4(B); v.z = 0; return v;
+}
+function footWorld(i, t) {
+  const w = TL.walk, T = w.period, off = GROUP[i] * T / 2;
+  if (t < 19.8) return null;                                   // before the gait: feet follow the stand-up IK
+  const ph = (t - w.start - off) / T;                          // stance in [0,0.5), swing in [0.5,1)
+  const n = Math.floor(ph), f = ph - n;
+  const cA = w.start + off + n * T + T / 4;                    // centre of the current/previous stance
+  if (f < 0.5) return footprint(i, cA);
+  const a = footprint(i, cA), b = footprint(i, cA + T), s = sm((f - 0.5) / 0.5);
+  const p = a.clone().lerp(b, s);
+  const moveLen = a.distanceTo(b);
+  p.z = Math.sin(Math.PI * s) * w.lift * cl(moveLen / 18);
+  return p;
+}
+function legAngles(t, B) {
+  const inv = B.m.clone().invert();
+  const hb = B.hb;
+  const out = [];
+  for (let i = 0; i < 6; i++) {
+    let tipB;
+    const fw = footWorld(i, t);
+    if (fw) tipB = fw.applyMatrix4(inv);
+    else {
+      // assembly & stand-up: feet slide in from the rest pose to the stance on the ground
+      const u = inOut(seg(t, 18.55, 19.75));
+      tipB = neutralTip(i, lerp(REST_R, STAND_R, u)); tipB.z = -hb;
+    }
+    // end-card wave: front-right leg lifts and waves
+    if (i === 0) {
+      const wv = sm(seg(t, 27.9, 28.35)) * (1 - sm(seg(t, 30.1, 30.6)));
+      if (wv > 0) {
+        const up = new THREE.Vector3(Math.cos(MOUNTS[0].a) * 150, Math.sin(MOUNTS[0].a) * 150, 95);
+        const wig = Math.sin((t - 28.3) * Math.PI * 4) * 0.22 * wv;
+        up.applyAxisAngle(new THREE.Vector3(0, 0, 1), wig);
+        tipB = tipB.clone().lerp(up, wv);
+      }
+    }
+    const M = MOUNTS[i];
+    const v = new THREE.Vector3(tipB.x - M.x, tipB.y - M.y, 0);
+    const t1 = Math.atan2(v.y, v.x) - M.a;
+    const r = Math.hypot(v.x, v.y) - DIM.coxa;
+    const [t2, t3] = legIK(r, tipB.z - DIM.coxaZ);
+    out.push([Math.atan2(Math.sin(t1), Math.cos(t1)), t2, t3]);
+  }
+  return out;
+}
+
+// ======================================================================= camera
+const CAM = [
+  // t, angle (deg, world, 90 = robot's front), radius, height, target z, fov
+  [0.0, -205, 2700, 1500, 90, 34],
+  [2.4, -160, 1450, 760, 60, 34],
+  [6.0, -95, 1250, 560, 45, 34],
+  [9.3, -35, 1180, 600, 45, 34],
+  [13.4, 22, 1220, 600, 40, 34],
+  [16.2, 62, 1120, 330, 55, 34],
+  [17.3, 80, 1000, 260, 60, 34],
+  [18.5, 90, 1020, 130, 75, 34],
+  [19.9, 78, 1180, 290, 65, 34],
+  [23.4, 62, 1150, 290, 60, 34],
+  [26.9, 22, 1060, 200, 60, 34],
+  [27.7, 55, 1250, 320, 95, 34],
+  [31.0, 75, 1150, 340, 105, 34],
+];
+function camKey(t) {
+  let k = 0; while (k < CAM.length - 2 && t > CAM[k + 1][0]) k++;
+  const a = CAM[k], b = CAM[k + 1], p0 = CAM[Math.max(0, k - 1)], p3 = CAM[Math.min(CAM.length - 1, k + 2)];
+  const u = sm(seg(t, a[0], b[0]));
+  const cr = (i) => {   // Catmull-Rom blended with smoothstep for gentle ease in/out per segment
+    const P0 = p0[i], P1 = a[i], P2 = b[i], P3 = p3[i];
+    const uu = u, u2 = uu * uu, u3 = u2 * uu;
+    return 0.5 * (2 * P1 + (-P0 + P2) * uu + (2 * P0 - 5 * P1 + 4 * P2 - P3) * u2 + (-P0 + 3 * P1 - 3 * P2 + P3) * u3);
+  };
+  return { ang: cr(1), r: cr(2), h: cr(3), tz: cr(4), fov: cr(5) };
+}
+
+// ======================================================================= frame
+function seek(t) {
+  window.scrollTo(0, 0);
+  const B = bodyMatrix(t);
+  R.root.matrixAutoUpdate = false; R.root.matrix.copy(B.m); R.root.matrixWorldNeedsUpdate = true;
+  R.setPose(legAngles(t, B));
+  // assembly
+  const facs = new Map(SCHED.map((s) => [s.p, assemblyFactor(s, t)]));
+  for (const s of SCHED) {
+    const f = facs.get(s.p);
+    s.p.mesh.visible = true;
+    if (f > 0) offsetPart(s.p, f); else s.p.mesh.matrix.copy(s.p.home);
+  }
+  scene.updateMatrixWorld(true);
+
+  // camera follows the robot during the walk
+  const ck = camKey(t);
+  const P = B.P;
+  const shake = shakeAt(t);
+  const ang = ck.ang * D2R;
+  camera.position.set(P.x + Math.cos(ang) * ck.r + shake.x, P.y + Math.sin(ang) * ck.r + shake.y, ck.h + shake.z);
+  camera.fov = ck.fov; camera.updateProjectionMatrix();
+  camera.lookAt(P.x, P.y, ck.tz);
+  key.position.set(P.x + 350, P.y - 250, 900); key.target.position.set(P.x, P.y, 0);
+  window._pool.position.set(P.x, P.y, 0.5);
+
+  // atmosphere
+  beam.material.uniforms.op.value = 1 - seg(t, 15.5, 17.0);
+  beam.position.set(0, 0, 900);
+  updateSparks(t);
+  updateDust(t);
+  // power-on scan
+  const sc = seg(t, 17.35, 18.35);
+  scanMesh.visible = sc > 0 && sc < 1;
+  if (scanMesh.visible) { scanMesh.position.set(P.x, P.y, lerp(-5, 115, inOut(sc))); scanMesh.material.uniforms.op.value = Math.sin(Math.PI * sc); }
+  const glow = Math.sin(Math.PI * seg(t, 17.6, 18.6));
+  for (const m of [mats.joint, mats.leg]) m.emissive.setRGB(0.02 * glow, 0.14 * glow, 0.09 * glow);
+  mats.foot.emissive.setRGB(0.14 * glow, 0.0, 0.06 * glow);
+
+  // post
+  const hit = impactAt(t);
+  bloom.strength = 0.28 + 0.45 * hit + 0.25 * glow;
+  finalPass.uniforms.uT.value = t;
+  finalPass.uniforms.uCA.value = 0.25 + 2.2 * hit;
+  finalPass.uniforms.uFlash.value = 0.22 * flashAt(t);
+  finalPass.uniforms.uFade.value = sm(seg(t, 0.0, 0.5)) * (1 - sm(seg(t, 30.55, 31.0)) * 0.0);
+  finalPass.uniforms.uBars.value = 0;
+  composer.render();
+  drawUI(t, B);
+}
+window.seek = seek;
+
+// move a part along its exploded direction (f = distance factor), spinning about its own home
+function offsetPart(p, f) {
+  const d = p.meta.dir, n = Math.hypot(...d) || 1, dist = p.meta.dist * f;
+  const pos = new THREE.Vector3().setFromMatrixPosition(p.home);
+  const spin = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(...d).normalize(), Math.min(f, 1.6) * (p.meta.spin ?? 1.2));
+  const m = new THREE.Matrix4().makeTranslation(d[0] / n * dist, d[1] / n * dist, d[2] / n * dist)
+    .multiply(new THREE.Matrix4().makeTranslation(pos.x, pos.y, pos.z)).multiply(spin).multiply(new THREE.Matrix4().makeTranslation(-pos.x, -pos.y, -pos.z))
+    .multiply(p.home);
+  p.mesh.matrix.copy(m);
+}
+
+// ======================================================================= effects
+function impactAt(t) {
+  let v = 0;
+  for (const s of SCHED) if (s.slam) { const d = t - s.t1; if (d >= 0 && d < 0.45) v = Math.max(v, Math.exp(-d * 9) * (s.kind === "thud" ? 0.6 : 1)); }
+  for (const e of [[19.75, 0.5], [17.35, 0.4]]) { const d = t - e[0]; if (d >= 0 && d < 0.5) v = Math.max(v, Math.exp(-d * 8) * e[1]); }
+  return v;
+}
+function flashAt(t) {
+  let v = 0;
+  for (const s of SCHED) if (s.slam) { const d = t - s.t1; if (d >= 0 && d < 0.2) v = Math.max(v, 1 - d / 0.2); }
+  const d = t - 16.3; if (d >= 0 && d < 0.3) v = Math.max(v, 1 - d / 0.3);
+  return v;
+}
+function shakeAt(t) {
+  const k = impactAt(t);
+  const w = TL.walk, moving = sm(seg(t, w.start, w.start + 0.5)) * (1 - sm(seg(t, w.stop - 0.4, w.stop)));
+  const a = 9 * k + 1.6 * moving;
+  return { x: a * (Math.sin(t * 61) + Math.sin(t * 37)) * 0.5, y: a * Math.sin(t * 53 + 1) * 0.5, z: a * Math.sin(t * 47 + 2) * 0.5 };
+}
+function updateSparks(t) {
+  const pos = sparks.geometry.attributes.position.array, col = sparks.geometry.attributes.color.array;
+  let n = 0; const max = pos.length / 3;
+  const v = new THREE.Vector3();
+  for (const s of SCHED) {
+    const d = t - s.t1; if (d < 0 || d > 0.42) continue;
+    v.setFromMatrixPosition(s.p.mesh.matrixWorld);
+    const cnt = s.slam ? 26 : 7;
+    for (let k = 0; k < cnt && n < max; k++, n++) {
+      const seed = s.p.idx * 31 + k;
+      const th = rnd(seed) * Math.PI * 2, el = rnd(seed + 7) * 0.9 + 0.1, sp = (s.slam ? 520 : 260) * (0.5 + rnd(seed + 3));
+      const life = 1 - d / 0.42;
+      pos[n * 3] = v.x + Math.cos(th) * el * sp * d; pos[n * 3 + 1] = v.y + Math.sin(th) * el * sp * d; pos[n * 3 + 2] = Math.max(1, v.z + (1 - el) * sp * d - 900 * d * d);
+      const warm = s.p.meta.stage === "foot" ? [1, 0.35, 0.7] : [0.6, 1, 0.85];
+      col[n * 3] = warm[0] * life; col[n * 3 + 1] = warm[1] * life; col[n * 3 + 2] = warm[2] * life;
+    }
+  }
+  for (; n < max; n++) { pos[n * 3 + 2] = -9999; }
+  sparks.geometry.attributes.position.needsUpdate = true; sparks.geometry.attributes.color.needsUpdate = true;
+}
+function dustEvents() {
+  // floor impacts: base & top slams, head landing, stand-up, every foot touchdown in the walk
+  const ev = [];
+  for (const s of SCHED) if (s.slam) ev.push({ t: s.t1, x: 0, y: 0, r: 300, a: 0.22 });
+  ev.push({ t: 19.75, x: 0, y: 0, r: 360, a: 0.16 });
+  const w = TL.walk, T = w.period;
+  for (let i = 0; i < 6; i++) {
+    const off = GROUP[i] * T / 2;
+    for (let n = -1; n < 40; n++) {
+      const td = w.start + off + (n + 1) * T;            // end of a swing = touchdown
+      if (td > w.stop + 1.0) break;
+      const p = footprint(i, td + T / 4), prev = footprint(i, td + T / 4 - T);
+      if (p.distanceTo(prev) < 5) continue;              // stepping in place: no touchdown
+      ev.push({ t: td, x: p.x, y: p.y, r: 40, a: 0.07, foot: i });
+    }
+  }
+  return ev;
+}
+let DUST = null;
+function updateDust(t) {
+  if (!DUST) DUST = dustEvents();
+  let k = 0;
+  for (const e of DUST) {
+    const d = t - e.t; if (d < 0 || d > 0.6 || k >= dust.length) continue;
+    const m = dust[k++]; m.visible = true;
+    const s = e.r * (0.3 + outCubic(d / 0.6)); m.scale.set(s, s, 1); m.position.set(e.x, e.y, 1.2);
+    m.material.opacity = e.a * (1 - d / 0.6);
+  }
+  for (; k < dust.length; k++) dust[k].visible = false;
+}
+
+// ======================================================================= 2D overlay (Arabic titles + HUD)
+function drawUI(t, B) {
+  g2.setTransform(1, 0, 0, 1, 0, 0); g2.clearRect(0, 0, W, H);
+  // part counter (HUD, top-left)
+  const total = SCHED.length, placed = SCHED.filter((s) => t >= s.t1).length;
+  const hudA = seg(t, 0.6, 1.0) * (1 - seg(t, 16.8, 17.2));
+  if (hudA > 0) {
+    g2.globalAlpha = hudA; g2.direction = "ltr"; g2.textAlign = "left"; g2.textBaseline = "alphabetic";
+    g2.font = "800 30px JB"; g2.fillStyle = "rgba(143,240,192,0.95)";
+    g2.fillText(`PARTS ${String(placed).padStart(3, "0")}/${total}`, 70, 150);
+    g2.fillStyle = "rgba(255,255,255,0.18)"; g2.fillRect(70, 166, 300, 6);
+    g2.fillStyle = "#8ff0c0"; g2.fillRect(70, 166, 300 * placed / total, 6);
+    g2.globalAlpha = 1;
+  }
+  // stage labels (top-right, RTL): number + title + subtitle
+  const STAGES = [
+    [2.55, 6.0, "01", "الجسم", "6 محرّكات للمفاصل الأولى"],
+    [6.1, 9.3, "02", "المفاصل", "6 وصلات بتلفّ يمين ويسار"],
+    [9.4, 13.4, "03", "الأرجل", "12 محرّك MG92B"],
+    [13.5, 16.2, "04", "الأقدام", "6 أقدام بأطراف مرنة"],
+  ];
+  for (const [a, b, num, title, sub] of STAGES) {
+    const pin = outExpo(seg(t, a, a + 0.45)), pout = seg(t, b - 0.25, b);
+    if (pin <= 0 || pout >= 1) continue;
+    const al = 1 - pout;
+    g2.save(); g2.globalAlpha = al;
+    g2.beginPath(); g2.rect(0, 190, W, 230); g2.clip();
+    const dy = (1 - pin) * 120 - pout * 60;
+    g2.direction = "ltr"; g2.textAlign = "right"; g2.font = "800 34px JB"; g2.fillStyle = "#8ff0c0";
+    g2.fillText(num + " /04", 1010, 250 + dy);
+    g2.direction = "rtl"; g2.textAlign = "right"; g2.font = "900 104px Cairo"; g2.fillStyle = "#fff";
+    g2.shadowColor = "rgba(0,0,0,.6)"; g2.shadowBlur = 24;
+    g2.fillText(title, 1010, 352 + dy);
+    g2.font = "800 40px Cairo"; g2.fillStyle = "rgba(255,255,255,.78)"; g2.fillText(sub, 1010, 405 + dy);
+    g2.restore();
+    g2.save(); g2.globalAlpha = al; g2.fillStyle = "#e8288a"; g2.fillRect(1010 - 140 * pin, 268 + (1 - pin) * 0, 140 * pin, 7); g2.restore();
+  }
+  // hook
+  bigText(t, 0.25, 2.35, ["قطعة", "قطعة"], 640, 132, "#fff", 0.16);
+  kicker(t, 0.2, 2.35, "روبوت تعليمي · Hexapod Mochi", 480);
+  // complete
+  bigText(t, 16.3, 17.25, ["18", "محرّك", "·", "6", "أرجل"], 360, 108, "#fff", 0.07);
+  // power on
+  kicker(t, 17.35, 18.5, "ESP32 · WiFi · ON", 250, true);
+  bigText(t, 17.45, 18.55, ["شغّلو"], 440, 140, "#8ff0c0", 0.0);
+  // walk
+  bigText(t, 20.1, 23.0, ["وهلق…", "بيمشي!"], 380, 124, "#fff", 0.22);
+  // end card
+  endCard(t);
+}
+function kicker(t, a, b, s, y, mono = false) {
+  const al = seg(t, a, a + 0.3) * (1 - seg(t, b - 0.25, b));
+  if (al <= 0) return;
+  g2.save(); g2.globalAlpha = al;
+  g2.font = mono ? "800 34px JB" : "800 44px Cairo"; g2.direction = mono ? "ltr" : "rtl"; g2.textAlign = "center"; g2.fillStyle = mono ? "#8ff0c0" : "rgba(255,255,255,.85)";
+  const cut = outExpo(seg(t, a, a + 0.5));
+  const w = g2.measureText(s).width;
+  g2.beginPath(); g2.rect(540 - w / 2 - 10, y - 60, (w + 20) * cut, 90); g2.clip();
+  g2.fillText(s, 540, y);
+  g2.restore();
+}
+function bigText(t, a, b, words, y, size, color, stagger) {
+  const al = 1 - seg(t, b - 0.22, b);
+  if (t < a || al <= 0) return;
+  g2.save(); g2.direction = "rtl"; g2.textAlign = "right"; g2.textBaseline = "alphabetic"; g2.font = `900 ${size}px Cairo`;
+  const sp = g2.measureText(" ").width, wid = words.map((w) => g2.measureText(w).width);
+  const total = wid.reduce((x, y) => x + y, 0) + sp * (words.length - 1);
+  let x = 540 + total / 2;
+  g2.beginPath(); g2.rect(0, y - size * 1.25, W, size * 1.7); g2.clip();
+  g2.shadowColor = "rgba(0,0,0,.65)"; g2.shadowBlur = 30;
+  words.forEach((w, i) => {
+    const p = outExpo(seg(t, a + i * stagger, a + i * stagger + 0.45));
+    const out = (1 - al);
+    g2.globalAlpha = Math.min(1, p * 2) * al;
+    g2.fillStyle = /^[0-9]+$/.test(w) ? "#8ff0c0" : color;
+    g2.fillText(w, x, y + (1 - p) * size * 1.2 - out * size * 0.6);
+    x -= wid[i] + sp;
+  });
+  g2.restore();
+}
+function endCard(t) {
+  const a = seg(t, 27.7, 28.1);
+  if (a <= 0) return;
+  g2.save();
+  // title block
+  const p1 = outExpo(seg(t, 27.75, 28.3)), p2 = outExpo(seg(t, 28.05, 28.6)), p3 = outExpo(seg(t, 28.5, 29.0));
+  g2.direction = "ltr"; g2.textAlign = "center";
+  g2.beginPath(); g2.rect(0, 180, W, 300); g2.clip();
+  g2.shadowColor = "rgba(0,0,0,.6)"; g2.shadowBlur = 30;
+  g2.font = "800 46px JB"; g2.fillStyle = "#8ff0c0"; g2.globalAlpha = p1;
+  g2.fillText("HEXAPOD", 540, 262 + (1 - p1) * 80);
+  g2.font = "900 150px Cairo"; g2.fillStyle = "#fff"; g2.direction = "ltr"; g2.globalAlpha = p2;
+  g2.fillText("Mochi", 540, 400 + (1 - p2) * 140);
+  g2.restore();
+  g2.save(); g2.globalAlpha = p3; g2.direction = "rtl"; g2.textAlign = "center"; g2.font = "800 52px Cairo"; g2.fillStyle = "#fff";
+  g2.shadowColor = "rgba(0,0,0,.6)"; g2.shadowBlur = 20;
+  g2.fillText("ركّبو بإيدك · برمجو · خلّيه يمشي", 540, 500 + (1 - p3) * 30);
+  g2.fillStyle = "#e8288a"; g2.fillRect(540 - 70 * p3, 530, 140 * p3, 7);
+  g2.restore();
+  // credits (fixed bottom, inside the safe area)
+  const p4 = seg(t, 28.8, 29.3);
+  g2.save(); g2.globalAlpha = p4; g2.direction = "rtl"; g2.textAlign = "center";
+  g2.fillStyle = "rgba(0,0,0,.35)"; g2.fillRect(90, 1520, 900, 150);
+  g2.font = "800 40px Cairo"; g2.fillStyle = "#fff"; g2.fillText("تصميم الفيديو: عبد الغني الحمدي", 540, 1580);
+  g2.direction = "ltr"; g2.font = "800 32px JB"; g2.fillStyle = "#8ff0c0"; g2.fillText("abdalgani.com", 540, 1628);
+  g2.font = "800 22px JB"; g2.fillStyle = "rgba(255,255,255,.55)"; g2.fillText("robot design: rookidroid / hexapod (GPL-3.0)", 540, 1660);
+  g2.restore();
+}
+
+// sound events for music.py, taken from the same schedule the picture uses
+window.collectSfx = () => {
+  const ev = [];
+  for (const s of SCHED) ev.push({ t: s.t1, type: s.kind, stage: s.p.meta.stage, i: s.p.meta.i ?? 0 });
+  for (const s of SCHED) if (s.slam) ev.push({ t: s.t0, type: "whoosh", dur: s.t1 - s.t0 + 0.05 });
+  if (!DUST) DUST = dustEvents();
+  for (const e of DUST) if (e.foot !== undefined) ev.push({ t: e.t, type: "step", i: e.foot });
+  return ev;
+};
+window.ready = true;
+</script>
+</body>
+</html>

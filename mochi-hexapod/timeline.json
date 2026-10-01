@@ -1,0 +1,18 @@
+{
+  "fps": 30,
+  "total": 31.0,
+  "bpm": 128,
+  "scenes": [
+    { "t": 0.0, "name": "hook: exploded parts gather" },
+    { "t": 2.5, "name": "body: base, 6 coxa servos, clamps, walls, top, head" },
+    { "t": 6.1, "name": "joints x6" },
+    { "t": 9.4, "name": "leg boxes x6 (12 servos)" },
+    { "t": 13.5, "name": "feet x6" },
+    { "t": 16.3, "name": "complete: 18 servos / 6 legs" },
+    { "t": 17.3, "name": "power on scan" },
+    { "t": 18.5, "name": "stand up" },
+    { "t": 19.9, "name": "walk" },
+    { "t": 27.6, "name": "end card" }
+  ],
+  "walk": { "start": 19.9, "stop": 26.9, "period": 0.5, "stride": 58, "lift": 26 }
+}
