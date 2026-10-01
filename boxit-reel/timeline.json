@@ -1,0 +1,37 @@
+{
+  "fps": 30,
+  "total": 12.0,
+  "bpm": 120,
+  "scenes": [
+    { "t": 0.0, "name": "1 بدك تطلب؟" },
+    { "t": 2.0, "name": "2 اختار اللي بدك ياه" },
+    { "t": 4.0, "name": "3 أضف إلى السلة / اطلب" },
+    { "t": 6.0, "name": "4 خط الحركة / ونحنا منوصلها" },
+    { "t": 8.0, "name": "5 الأخضر + الشعار" },
+    { "t": 10.0, "name": "6 اختار. اطلب. استلم. + CTA" }
+  ],
+  "sfx": [
+    { "t": 0.06, "type": "whoosh", "dur": 0.42, "gain": 0.9 },
+    { "t": 0.58, "type": "tick" },
+    { "t": 1.70, "type": "whoosh", "dur": 0.32, "gain": 0.45 },
+    { "t": 2.30, "type": "click" },
+    { "t": 2.40, "type": "click" },
+    { "t": 2.50, "type": "click" },
+    { "t": 2.60, "type": "click" },
+    { "t": 3.15, "type": "select" },
+    { "t": 3.50, "type": "whoosh", "dur": 0.55, "gain": 0.6 },
+    { "t": 5.00, "type": "tap" },
+    { "t": 5.18, "type": "whoosh", "dur": 0.25, "gain": 0.55 },
+    { "t": 5.30, "type": "hit" },
+    { "t": 6.22, "type": "whoosh", "dur": 0.40, "gain": 1.0 },
+    { "t": 6.50, "type": "whoosh", "dur": 0.40, "gain": 0.9 },
+    { "t": 6.84, "type": "thud" },
+    { "t": 7.95, "type": "swell" },
+    { "t": 8.45, "type": "reveal" },
+    { "t": 10.00, "type": "pop", "note": 0 },
+    { "t": 10.28, "type": "pop", "note": 1 },
+    { "t": 10.56, "type": "pop", "note": 2 },
+    { "t": 10.95, "type": "whoosh", "dur": 0.30, "gain": 0.45 },
+    { "t": 11.35, "type": "chime" }
+  ]
+}

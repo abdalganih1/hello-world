@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>BOXIT Reel</title>
+<style>
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: clip; background: #F05A28; }
+  #stage { position: fixed; top: 0; left: 0; width: 1080px; height: 1920px; overflow: clip; contain: paint; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c" width="1080" height="1920"></canvas></div>
+<script>
+// BOXIT ad reel — flat 2D editorial motion graphics on one Canvas2D, fully deterministic: seek(t) draws frame t from scratch.
+// Palette is locked to the three brand colours (plus their own transparency).
+const O = "#F05A28", G = "#266332", W = "#FFFFFF";
+const W_ = 1080, H_ = 1920;
+const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+const F = "Alexandria";
+
+// ---------- easing / time ----------
+const cl = (x) => Math.max(0, Math.min(1, x));
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const outCubic = (x) => 1 - (1 - x) ** 3;
+const outQuint = (x) => 1 - (1 - x) ** 5;
+const outExpo = (x) => (x >= 1 ? 1 : 1 - 2 ** (-10 * x));
+const inCubic = (x) => x * x * x;
+const inOut = (x) => (x < 0.5 ? 4 * x * x * x : 1 - (-2 * x + 2) ** 3 / 2);
+const inOutQuart = (x) => (x < 0.5 ? 8 * x ** 4 : 1 - (-2 * x + 2) ** 4 / 2);
+
+// ---------- assets ----------
+const IMG = {};
+async function loadImg(name) {
+  const im = new Image(); im.src = `assets/${name}.png`; await im.decode(); IMG[name] = im;
+}
+window.setup = async () => {
+  for (const [file, range] of [["alexandria-ar.woff2", "U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFC, U+200C-200E"], ["alexandria-latin.woff2", "U+0000-00FF, U+2000-206F"]]) {
+    for (const w of [700, 800, 900]) {
+      const f = new FontFace(F, `url(assets/${file})`, { weight: String(w), unicodeRange: range });
+      document.fonts.add(await f.load());
+    }
+  }
+  await Promise.all(["logo", "t-restaurants", "t-electronics", "t-sweets", "t-coffee", "t-burger"].map(loadImg));
+  seek(0);
+};
+
+// ---------- drawing helpers ----------
+function font(size, w = 900) { ctx.font = `${w} ${size}px ${F}`; ctx.direction = "rtl"; }
+function rrect(x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function dot(x, y, r, c) { if (r <= 0) return; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
+
+// A line of Arabic words laid out RTL around cx (or from a right/left edge), each word revealed through the
+// line's mask. mode: "up" (rises from below the mask) or "right" (slides in from the right, reading direction).
+// inT: [start, stagger, dur]; outT: [start, stagger, dur] or null; out modes: "up" | "down" | "left".
+function words(str, { x, y, size, color = W, w = 900, align = "center", inT, mode = "up", outT = null, outMode = "left", scale = 1, alpha = 1, dotColor = null }) {
+  font(size, w);
+  const ws = str.split(" ");
+  const sp = ctx.measureText(" ").width;
+  const wid = ws.map((s) => ctx.measureText(s).width);
+  const total = wid.reduce((a, b) => a + b, 0) + sp * (ws.length - 1);
+  let right = align === "center" ? x + total / 2 : align === "right" ? x : x + total;
+  const t = window.T;
+  ctx.save();
+  ctx.translate(x, y); ctx.scale(scale, scale); ctx.translate(-x, -y);
+  ctx.globalAlpha = alpha;
+  // mask: the line's own box
+  ctx.beginPath(); ctx.rect(right - total - 40 - (dotColor ? size * 0.4 : 0), y - size * 1.0, total + 80 + (dotColor ? size * 0.4 : 0), size * 1.9); ctx.clip();
+  ctx.fillStyle = color; ctx.textBaseline = "middle"; ctx.textAlign = "right";
+  let xr = right;
+  ws.forEach((s, i) => {
+    // sliding in from the right, the leftmost word must lead, so the stagger runs left→right there
+    const k = mode === "right" ? ws.length - 1 - i : i;
+    const pi = inT ? outExpo(seg(t, inT[0] + k * inT[1], inT[0] + k * inT[1] + inT[2])) : 1;
+    // words leave in reading order (rightmost first)
+    const po = outT ? inCubic(seg(t, outT[0] + i * outT[1], outT[0] + i * outT[1] + outT[2])) : 0;
+    let dx = 0, dy = 0;
+    if (mode === "up") dy += (1 - pi) * size * 1.6;
+    else dx += (1 - pi) * (total + 200);
+    if (outMode === "left") dx -= po * (total + 260);
+    else if (outMode === "up") dy -= po * size * 1.8;
+    else dy += po * size * 1.8;
+    ctx.fillText(s, xr + dx, y + dy);
+    if (dotColor && i === ws.length - 1) {
+      const pd = outCubic(seg(t, inT[0] + k * inT[1] + inT[2] * 0.45, inT[0] + k * inT[1] + inT[2] * 0.8));
+      dot(xr - wid[i] - size * 0.2 + dx, y + size * 0.2 + dy, size * 0.1 * pd, dotColor);
+    }
+    xr -= wid[i] + sp;
+  });
+  ctx.restore();
+  return { left: right - total, right, total };
+}
+
+// ---------- scene geometry (category cards are the app's own list, scaled 1.5x from the screenshot) ----------
+const CARDS = [
+  { label: "المطاعم", img: "t-restaurants", iw: 190, ih: 151, bleed: "left" },
+  { label: "الكترونيات", img: "t-electronics", iw: 183, ih: 189, bleed: "right" },
+  { label: "حلويات شرقية-غربية", img: "t-sweets", iw: 272, ih: 165, bleed: "left" },
+  { label: "بن و ضيافة", img: "t-coffee", iw: 190, ih: 190, bleed: "right" },
+];
+const CARD_H = 218, CARD_STEP = 262, LIST_Y = 600;
+function cardRect(k) {
+  const y = LIST_Y + k * CARD_STEP;
+  return CARDS[k].bleed === "left" ? { x: -60, y, w: 1065, h: CARD_H } : { x: 69, y, w: 1100, h: CARD_H };
+}
+function drawCard(k, r, contentAlpha = 1) {
+  const c = CARDS[k];
+  ctx.fillStyle = W; rrect(r.x, r.y, r.w, r.h, 30); ctx.fill();
+  if (contentAlpha <= 0) return;
+  ctx.save(); ctx.globalAlpha *= contentAlpha;
+  const cy = r.y + r.h / 2;
+  const ix = c.bleed === "left" ? r.x + r.w - 14 - c.iw : r.x + 58;
+  ctx.drawImage(IMG[c.img], ix, cy - c.ih / 2, c.iw, c.ih);
+  font(58, 800); ctx.fillStyle = G; ctx.textBaseline = "middle";
+  if (c.bleed === "left") { ctx.textAlign = "left"; ctx.fillText(c.label, 56, cy + 4); }
+  else { ctx.textAlign = "right"; ctx.fillText(c.label, 1020, cy + 4); }
+  ctx.restore();
+}
+
+// product sheet (scene 3) — the app's real product sheet content, re-set on a clean white page
+const PROD = { img: { x: 680, y: 700, s: 340 }, btn: { x: 60, y: 1270, w: 660, h: 132 } };
+
+// ---------- the frame ----------
+function seek(t) {
+  window.T = t;
+  window.scrollTo(0, 0);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = O; ctx.fillRect(0, 0, W_, H_);
+
+  // ===== Scene 1: بدك تطلب؟ (0–2) =====
+  if (t < 2.05) {
+    const push = 1 + 0.035 * inOut(seg(t, 0.5, 1.75));
+    words("بدك تطلب؟", { x: 540, y: 910, size: 146, inT: [0.08, 0, 0.62], mode: "right", outT: [1.72, 0.05, 0.3], outMode: "left", scale: push });
+    // green accent dot: pops centred under the line, then rides out after it
+    const pd = outCubic(seg(t, 0.55, 0.8)) * (1 - inCubic(seg(t, 1.76, 1.98)));
+    dot(540 - inCubic(seg(t, 1.76, 2.02)) * 640, 1075, 16 * pd, G);
+  }
+
+  // ===== Scene 2: categories (2–4) =====
+  if (t >= 1.95 && t < 4.25) {
+    // heading
+    if (t < 3.85) words("اختار اللي بدك ياه.", { x: 540, y: 380, size: 86, inT: [2.0, 0.06, 0.5], mode: "up", outT: [3.48, 0.03, 0.3], outMode: "up" });
+    const sel = 0;
+    const exp = inOutQuart(seg(t, 3.6, 4.05));            // selected card grows into the white page
+    const dim = outCubic(seg(t, 3.18, 3.45));
+    for (let k = CARDS.length - 1; k >= 0; k--) {
+      const r0 = cardRect(k);
+      const pin = outExpo(seg(t, 2.12 + k * 0.1, 2.12 + k * 0.1 + 0.6));
+      const fromX = CARDS[k].bleed === "left" ? -520 : 520;
+      let r = { ...r0, x: r0.x + (1 - pin) * fromX, y: r0.y + (1 - pin) * 520 };
+      ctx.save();
+      ctx.globalAlpha = cl(pin * 3);
+      if (k === sel) {
+        const s = 1 + 0.035 * dim * (1 - exp);
+        const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+        r = { x: cx - r.w * s / 2, y: cy - r.h * s / 2, w: r.w * s, h: r.h * s };
+        if (exp > 0) r = { x: lerp(r.x, -2, exp), y: lerp(r.y, -2, exp), w: lerp(r.w, W_ + 4, exp), h: lerp(r.h, H_ + 4, exp) };
+        // orange focus ring (inset) on selection
+        drawCard(k, r, 1 - seg(t, 3.55, 3.72));
+        if (dim > 0 && exp < 1) {
+          ctx.globalAlpha *= dim * (1 - seg(t, 3.55, 3.75));
+          ctx.strokeStyle = G; ctx.lineWidth = 8; rrect(r.x + 4, r.y + 4, r.w - 8, r.h - 8, 27); ctx.stroke();
+        }
+      } else {
+        const out = inCubic(seg(t, 3.45 + k * 0.03, 3.8 + k * 0.03));
+        r.x += out * (CARDS[k].bleed === "left" ? -1150 : 1150);
+        ctx.globalAlpha *= 1 - 0.55 * dim;
+        drawCard(k, r);
+      }
+      ctx.restore();
+    }
+    // finger dot: appears on the card, taps, disappears
+    const fa = outCubic(seg(t, 2.88, 3.05)) * (1 - seg(t, 3.42, 3.56));
+    if (fa > 0) {
+      const r = cardRect(0), x = 560, y = r.y + r.h / 2 + 4;
+      const press = Math.sin(Math.PI * seg(t, 3.12, 3.28));
+      const ring = seg(t, 3.15, 3.55);
+      if (ring > 0 && ring < 1) { ctx.strokeStyle = G; ctx.globalAlpha = (1 - ring) * 0.7; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(x, y, 30 + 90 * outCubic(ring), 0, 7); ctx.stroke(); ctx.globalAlpha = 1; }
+      dot(x, y + (1 - fa) * 40, 26 * fa * (1 - 0.25 * press), G);
+    }
+  }
+
+  // ===== Scene 3: product → أضف إلى السلة → اطلب. (4–6) =====
+  if (t >= 4.1) {
+    if (t < 8.05) { ctx.fillStyle = W; ctx.fillRect(0, 0, W_, H_); }
+  }
+  if (t >= 4.1 && t < 6.4) {
+    const ex = inCubic(seg(t, 6.0, 6.25));                // everything but the button leaves
+    ctx.save();
+    ctx.globalAlpha = 1 - ex; ctx.translate(0, ex * 70);
+    // product image: mask grows downward
+    const pi = outExpo(seg(t, 4.12, 4.7));
+    const I = PROD.img;
+    ctx.save(); rrect(I.x, I.y, I.s, I.s * pi, 26); ctx.clip();
+    const sc = 1.14 - 0.14 * pi;
+    ctx.drawImage(IMG["t-burger"], I.x + I.s / 2 - I.s * sc / 2, I.y + I.s / 2 - I.s * sc / 2, I.s * sc, I.s * sc);
+    ctx.restore();
+    words("موزريلا تشيز برغر لحم", { x: 640, y: 760, size: 48, w: 800, color: G, align: "right", inT: [4.2, 0.04, 0.5], mode: "up" });
+    words("سيتي برغر", { x: 640, y: 840, size: 38, w: 700, color: O, align: "right", inT: [4.3, 0.04, 0.5], mode: "up" });
+    words("650 ل.س", { x: 640, y: 940, size: 56, color: G, align: "right", inT: [4.38, 0.05, 0.5], mode: "up" });
+    // hairline
+    const hl = outExpo(seg(t, 4.35, 4.95));
+    ctx.fillStyle = G; ctx.globalAlpha = (1 - ex) * 0.18; ctx.fillRect(1020 - 960 * hl, 1120, 960 * hl, 3); ctx.globalAlpha = 1 - ex;
+    words("المبلغ الإجمالي:", { x: 1020, y: 1188, size: 40, w: 700, color: G, align: "right", inT: [4.42, 0.05, 0.5], mode: "up" });
+    words("650 ل.س", { x: 60, y: 1188, size: 44, color: O, align: "left", inT: [4.46, 0.05, 0.5], mode: "up" });
+    // quantity control
+    const qa = outExpo(seg(t, 4.5, 5.0));
+    ctx.save(); ctx.globalAlpha = (1 - ex) * qa; ctx.translate(0, (1 - qa) * 60);
+    const qy = PROD.btn.y + PROD.btn.h / 2;
+    dot(800, qy, 44, O); ctx.strokeStyle = W; ctx.lineWidth = 6; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(782, qy); ctx.lineTo(818, qy); ctx.moveTo(800, qy - 18); ctx.lineTo(800, qy + 18); ctx.stroke();
+    font(52, 800); ctx.fillStyle = G; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("1", 892, qy + 2);
+    ctx.strokeStyle = G; ctx.globalAlpha *= 0.35; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(980, qy, 42, 0, 7); ctx.stroke();
+    ctx.globalAlpha = (1 - ex) * qa; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(962, qy); ctx.lineTo(998, qy); ctx.stroke();
+    ctx.restore();
+    ctx.restore();
+    // title اطلب.
+    words("اطلب.", { x: 540, y: 450, size: 200, color: G, inT: [5.2, 0, 0.42], mode: "right", outT: [5.98, 0, 0.26], outMode: "left" });
+  }
+
+  // ---- the add-to-cart button (scene 3) morphs into the motion line (scene 4) ----
+  if (t >= 4.1 && t < 6.75) {
+    const B = PROD.btn;
+    const ba = outExpo(seg(t, 4.5, 5.05));
+    const press = Math.sin(Math.PI * seg(t, 5.0, 5.2));
+    const m = inOutQuart(seg(t, 6.02, 6.32));            // morph to a pill line
+    const cx = lerp(B.x + B.w / 2, 540, m), cy = lerp(B.y + B.h / 2 + (1 - ba) * 90, 1000, m);
+    let w = lerp(B.w, 300, m) * (1 - 0.04 * press), h = lerp(B.h, 26, m) * (1 - 0.06 * press);
+    // pass 1: the line streaks off to the left (head leads, tail follows)
+    let x0 = cx - w / 2, x1 = cx + w / 2;
+    const head = inCubic(seg(t, 6.3, 6.56)), tail = inCubic(seg(t, 6.36, 6.66));
+    x0 -= head * 900; x1 -= tail * 1500;
+    if (x1 > x0) {
+      ctx.save(); ctx.globalAlpha = ba;
+      ctx.fillStyle = O; rrect(x0, cy - h / 2, x1 - x0, h, Math.min(36, h / 2)); ctx.fill();
+      const ta = 1 - seg(t, 6.0, 6.1);
+      if (ta > 0) {
+        ctx.globalAlpha = ba * ta; font(52, 800); ctx.fillStyle = W; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText("أضف إلى السلة", cx, cy + 3);
+      }
+      ctx.restore();
+      // speed dashes trailing the line
+      if (t > 6.3) for (const [dy, len, d] of [[-52, 150, 0.03], [52, 90, 0.07]]) {
+        const hh = inCubic(seg(t, 6.3 + d, 6.56 + d)), tt = inCubic(seg(t, 6.36 + d, 6.66 + d));
+        const a0 = 540 - 40 - hh * 900, a1 = 540 + len - tt * 1500;
+        if (a1 > a0) { ctx.fillStyle = dy < 0 ? O : G; rrect(a0, 1000 + dy - 7, a1 - a0, 14, 7); ctx.fill(); }
+      }
+    }
+    // tap: green finger dot travels onto the button and presses it
+    const fa = outCubic(seg(t, 4.72, 4.86)) * (1 - seg(t, 5.32, 5.46));
+    if (fa > 0) {
+      const mv = inOut(seg(t, 4.72, 5.0));
+      const fx = lerp(B.x + B.w / 2 + 170, B.x + B.w / 2 + 60, mv), fy = lerp(B.y + B.h + 150, B.y + B.h / 2 + 4, mv);
+      const ring = seg(t, 5.0, 5.4);
+      if (ring > 0 && ring < 1) { ctx.strokeStyle = W; ctx.globalAlpha = (1 - ring) * 0.9; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(fx, fy, 28 + 120 * outCubic(ring), 0, 7); ctx.stroke(); ctx.globalAlpha = 1; }
+      dot(fx, fy, 26 * fa * (1 - 0.3 * press), G);
+    }
+  }
+
+  // ===== Scene 4: second pass lands as a parcel + ونحنا منوصلها. (6–8) =====
+  if (t >= 6.5 && t < 8.5) {
+    const BX = 540, BY = 960, S = 250;
+    const gone = inCubic(seg(t, 7.78, 8.02));              // dashes retract before the green takes over
+    // pass 2: line enters from the right, head stops at the parcel, tail catches up
+    const hd = outExpo(seg(t, 6.52, 6.86)), tl_ = outQuint(seg(t, 6.6, 7.1));
+    const h0 = lerp(1180, BX, hd), t0 = lerp(1900, BX + 330, tl_);
+    if (t < 7.1) { ctx.fillStyle = O; rrect(h0, BY - 13, t0 - h0, 26, 13); ctx.fill(); }
+    // brand-style speed dashes behind the parcel (the logo's own motif: one long, two short)
+    const DASH = [[-70, 120, 0.0, O], [0, 200, 0.04, O], [70, 80, 0.08, G]];
+    for (const [dy, len, d, c] of DASH) {
+      const a = outExpo(seg(t, 6.62 + d, 7.0 + d));
+      const x0 = BX + S / 2 + 34 + (1 - a) * 500;
+      const L = len * (1 + 3 * (1 - a)) * (1 - gone);
+      if (a > 0 && L > 1) { ctx.fillStyle = c; rrect(x0, BY + dy - 11, L, 22, 11); ctx.fill(); }
+    }
+    // parcel: plain box, no branding
+    const pa = outQuint(seg(t, 6.8, 7.15)) * (1 - inCubic(seg(t, 7.95, 8.18)));
+    if (pa > 0) {
+      ctx.save(); ctx.translate(BX, BY); ctx.scale(pa, pa);
+      ctx.fillStyle = G; rrect(-S / 2, -S / 2, S, S, 28); ctx.fill();
+      ctx.fillStyle = O; ctx.fillRect(-26, -S / 2, 52, S);        // tape
+      ctx.fillStyle = W; ctx.globalAlpha = 0.9; ctx.fillRect(-S / 2, -S / 2 + 74, S, 6); // lid seam
+      ctx.globalAlpha = 1; ctx.fillStyle = O; ctx.fillRect(-26, -S / 2 + 74, 52, 6);
+      ctx.restore();
+    }
+    words("ونحنا منوصلها.", { x: 540, y: 1330, size: 116, color: G, inT: [7.02, 0.1, 0.5], mode: "up", outT: [7.74, 0.04, 0.26], outMode: "down" });
+  }
+
+  // ===== Scene 5: green floods out of the parcel, original logo (8–10) =====
+  if (t >= 7.95) {
+    const g = inOutQuart(seg(t, 7.95, 8.5));
+    ctx.fillStyle = G; ctx.beginPath(); ctx.arc(540, 960, 2300 * g, 0, 7); ctx.fill();
+    // logo: original asset, fade + scale in, then moves up for the end card
+    const la = outCubic(seg(t, 8.45, 9.3));
+    const up = inOutQuart(seg(t, 9.62, 10.05));
+    const w = lerp(660, 450, up) * lerp(0.9, 1, la);
+    const cx = 540 + lerp(18, 12, up), cy = lerp(900, 560, up);
+    if (la > 0) {
+      const im = IMG.logo, h = w * im.height / im.width;
+      ctx.save(); ctx.globalAlpha = la; ctx.drawImage(im, cx - w / 2, cy - h / 2, w, h); ctx.restore();
+    }
+  }
+
+  // ===== Scene 6: اختار. اطلب. استلم. + CTA (10–12) =====
+  if (t >= 9.95) {
+    const opt = { size: 132, color: W, mode: "right", outMode: "up", dotColor: O };
+    words("اختار", { ...opt, x: 540, y: 950, inT: [10.0, 0, 0.36], outT: [10.95, 0, 0.26] });
+    words("اطلب", { ...opt, x: 540, y: 1100, inT: [10.28, 0, 0.36], outT: [11.0, 0, 0.26] });
+    // استلم. stays: lifts to the middle slot and grows
+    const lift = inOutQuart(seg(t, 11.05, 11.4));
+    words("استلم", { ...opt, x: 540, y: lerp(1250, 1040, lift), scale: lerp(1, 1.32, lift), inT: [10.56, 0, 0.36] });
+    // CTA with a tiny orange accent
+    const ba = outExpo(seg(t, 11.3, 11.7));
+    ctx.fillStyle = O; rrect(540 - 44 * ba, 1318, 88 * ba, 10, 5); ctx.fill();
+    words("اطلب من التطبيق", { x: 540, y: 1410, size: 58, w: 800, color: W, inT: [11.35, 0.05, 0.45], mode: "up" });
+  }
+}
+window.seek = seek;
+</script>
+</body>
+</html>
