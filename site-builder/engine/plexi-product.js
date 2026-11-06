@@ -23,7 +23,7 @@
   const svg = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   const I = { back: '<path d="M9 6l6 6-6 6"/>', cube: '<path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/>', photo: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5-5-9 8"/>', cut: '<path d="M4 4h16v16H4z" stroke-dasharray="3 2"/>', img: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 9v6M9 12h6"/>' };
 
-  const guessMat = (it) => { const n = (it.name || "") + " " + (it.desc || ""); if (/أسود|اسود/.test(n)) return "black"; if (/وردي|زهري|روز/.test(n)) return "rose"; if (it.cat === "mdf" || /خشب|أبيض|ابيض/.test(n)) return "white"; return "clear"; };
+  const guessMat = (it) => { const n = (it.name || "") + " " + (it.desc || ""); if (/أسود|اسود/.test(n)) return "black"; if (/وردي|زهري|روز/.test(n)) return "rose"; if (it.cat === "mdf" || /خشب|أبيض|ابيض/.test(n)) return "white"; return ""; };
 
   const findItem = (site, pid) => {
     const items = SM.pxUtil.catalogOf(site).items || [];
@@ -36,10 +36,10 @@
     const U = SM.pxUtil, K = SM.pxKit, { it, i } = findItem(site, d.pid), cur = U.catalogOf(site).currency;
     if (!it) return `<section class="px-pp px-pp-miss" id="product"><div class="wrap"><h1 class="h-lg">ما لقينا هالقطعة</h1><p class="lead">يمكن انشالت أو تغيّر رابطها.</p><a class="btn" href="${esc(homeHref())}#catalog">شوف كل المنتجات</a></div></section>`;
     const imgs = it.imgs && it.imgs.length ? it.imgs : U.imgOf(it) ? [U.imgOf(it)] : [];
-    const shape = K ? K.guess(it.name) : "arch", mat = guessMat(it), pearls = /لؤلؤ|لولو/.test(it.name + (it.desc || ""));
+    const shape = K ? K.guess(it.name, it) : "arch", md = (K && K.SHAPES[shape]) || {}, gm = guessMat(it), mat = gm || md.mat || "clear", ink = md.ink || "gold", pearls = !!md.pearls || /لؤلؤ|لولو/.test(it.name + (it.desc || ""));
     const sw = (obj, key, sel) => Object.entries(obj).map(([k, v]) => `<button type="button" class="px-pp-dot" data-${key}="${k}" aria-pressed="${k === sel}" aria-label="${esc(v[0])}" title="${esc(v[0])}"><i style="background:${v[1]}"></i></button>`).join("");
     return `
-  <section class="px-pp" id="product" data-px-product data-i="${i}" data-shape="${shape}" data-mat="${mat}" data-pearls="${pearls ? 1 : 0}">
+  <section class="px-pp" id="product" data-px-product data-i="${i}" data-shape="${shape}" data-mat="${mat}" data-ink="${ink}" data-pearls="${pearls ? 1 : 0}">
     <div class="px-pp-in"><div class="px-pp-screen">
       <div class="px-pp-head">
         <a class="px-pp-back" href="${esc(homeHref())}#catalog" aria-label="رجوع لكل المنتجات">${svg(I.back)}<span>المنتجات</span></a>
@@ -69,8 +69,8 @@
           <label><span>التاريخ أو عبارة</span><input name="line" dir="auto" placeholder="14 · 2 · 2027" maxlength="28" enterkeyhint="done"></label>
         </div>
         <div class="px-pp-strip" aria-label="خيارات القطعة">
-          <div class="px-pp-grp" role="group" aria-label="الشكل"><small>الشكل</small>${Object.entries(K.SHAPES).map(([k, v]) => `<button type="button" class="px-pp-shape" data-shape="${k}" aria-pressed="${k === shape}" aria-label="${esc(v.label)}" title="${esc(v.label)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${K.icons[k]}"/></svg></button>`).join("")}</div>
-          <div class="px-pp-grp" role="group" aria-label="لون الحروف"><small>الحروف</small>${sw(K.INKS, "ink", "gold")}</div>
+          <div class="px-pp-grp" role="group" aria-label="الشكل"><small>الشكل</small>${[shape, ...K.STUDIO.filter((k) => k !== shape)].map((k) => [k, K.SHAPES[k]]).map(([k, v]) => `<button type="button" class="px-pp-shape" data-shape="${k}" aria-pressed="${k === shape}" aria-label="${esc(v.label)}" title="${esc(v.label)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${K.icons[k]}"/></svg></button>`).join("")}</div>
+          <div class="px-pp-grp" role="group" aria-label="لون الحروف"><small>الحروف</small>${sw(K.INKS, "ink", ink)}</div>
           <div class="px-pp-grp" role="group" aria-label="الخامة"><small>الخامة</small>${sw(K.MATS, "mat", mat)}</div>
           <div class="px-pp-grp"><label class="px-pp-chip"><input type="checkbox" name="pearls"${pearls ? " checked" : ""}><span>لؤلؤ</span></label>
             <label class="px-pp-chip">${svg(I.img)}<span data-file-label>صورتك</span><input type="file" name="photo" accept="image/*"></label></div>
@@ -99,7 +99,7 @@
     document.title = it.name + " · " + site.brand.name;
     const f = sec.querySelector(".px-pp-panel"), view = sec.querySelector(".px-pp-view"), host = sec.querySelector(".px-pp-3d"), flat = sec.querySelector(".px-pp-2d");
     const wa = sec.querySelector(".px-pp-wa"), html = document.documentElement, colors = site.theme.colors;
-    const st = { shape: sec.dataset.shape, mat: sec.dataset.mat, ink: "gold", pearls: sec.dataset.pearls === "1", photo: null, photoUrl: "" };
+    const st = { shape: sec.dataset.shape, mat: sec.dataset.mat, ink: sec.dataset.ink || "gold", pearls: sec.dataset.pearls === "1", photo: null, photoUrl: "" };
     let v = "photo", eng = null, touched = false, timer = 0;
 
     // معرض الصور: سحب أفقي مع نقاط
@@ -109,7 +109,7 @@
     const names = () => [f.n1 && f.n1.value.trim(), f.n2 && f.n2.value.trim()].filter(Boolean);
     // المعاينة: إذا ما كتب شي منورجيه مثال، وإذا كتب منورجيه كلامه بس
     const prev = () => { const typed = names().length || (f.line && f.line.value.trim()); return Object.assign({}, st, typed ? { n1: f.n1.value, n2: f.n2.value, line: f.line.value } : { n1: f.n1.placeholder, n2: f.n2.placeholder, line: f.line.placeholder }); };
-    const has3d = (() => { try { return !!(K && window.THREE && document.createElement("canvas").getContext("webgl2")); } catch (e) { return false; } })();
+    const has3d = !!K && SM.pxHas3d !== undefined ? SM.pxHas3d : (SM.pxHas3d = (() => { try { return !!(window.WebGL2RenderingContext && window.THREE); } catch (e) { return false; } })());
     if (K && !has3d) { const b = sec.querySelector('.px-pp-tabs [data-v="3d"]'); if (b) b.hidden = true; sec.querySelector(".px-pp-try span").textContent = "اكتب اسمك وشوفه قبل القص"; sec.querySelector(".px-pp-try").dataset.v = "2d"; }
 
     const msg = () => {

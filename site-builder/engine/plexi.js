@@ -239,7 +239,8 @@
           el.style.opacity = v.toFixed(3);
           el.style.transform = `translateY(${((1 - a) * 40 - (1 - b) * 40).toFixed(1)}px) scale(${(0.96 + v * 0.04).toFixed(3)})`;
           el.style.visibility = v < 0.01 ? "hidden" : "visible";
-          el.style.filter = v < 0.999 ? `blur(${((1 - v) * 10).toFixed(1)}px)` : "none";
+          // الضباب (blur) تقيل عالموبايل: بالوضع الخفيف منكتفي بالشفافية والحركة
+          if (!LITE) el.style.filter = v < 0.999 ? `blur(${((1 - v) * 10).toFixed(1)}px)` : "none";
         });
         if (meter) meter.style.transform = `scaleY(${p.toFixed(4)})`;
         if (hint) hint.style.opacity = (1 - seg(p, 0, 0.05)).toFixed(3);
@@ -412,7 +413,7 @@
   function acrylic(container, colors, o) {
     const cine = container.closest("[data-px-cinema]");
     const st = SM.stage(container, colors, { exposure: 1.15 });
-    if (LITE) { st.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.25)); st.renderer.setSize(container.clientWidth || 1, container.clientHeight || 1, false); }
+    if (LITE) { st.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.1)); st.renderer.setSize(container.clientWidth || 1, container.clientHeight || 1, false); }
     const { scene, camera, renderer } = st;
     const bg = new T.Color(colors.bg), night = new T.Color("#140c10");
     scene.background = bg.clone();
