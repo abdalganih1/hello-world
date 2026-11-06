@@ -1,18 +1,29 @@
 {
-  // صمّم: Worker واحد بيخدم المنصة والـ API
+  // صمّم: Worker واحد بيخدم المنصة والـ API ومواقع الزبائن (*.md2.dev من R2)
   "name": "sammem",
   "main": "worker/index.js",
   "compatibility_date": "2025-10-01",
-  "assets": { "directory": ".", "binding": "ASSETS" },
+  "assets": { "directory": ".", "binding": "ASSETS", "run_worker_first": true },
   "vars": {
-    // رابط مزودك المتوافق مع OpenAI لحد /v1 (بدون /chat/completions). عدّله إذا الرابط مختلف.
+    // رابط مزودك المتوافق مع OpenAI لحد /v1 (بدون /chat/completions)
     "AI_BASE_URL": "https://api.abdalgani.com/v1",
     "AI_MODEL": "glm-5.3-flash",
+    "AI_NO_THINK": "1",
     "DAILY_EDITS": "20",
-    "DAILY_WRITES": "5"
+    "DAILY_WRITES": "5",
+    // مواقع الزبائن: <slug>.SITE_DOMAIN ، والمنصة نفسها على build.SITE_DOMAIN
+    "SITE_DOMAIN": "md2.dev",
+    "PLATFORM_SUBS": "build",
+    "TRIAL_DAYS": "3",
+    "CONTACT_URL": "https://abdalgani.com"
   },
-  // احتياط إذا مزودك وقف
-  "ai": { "binding": "AI" }
-  // الحد اليومي: اعمل KV واكتب رقمه هون (اختياري)
-  // , "kv_namespaces": [{ "binding": "LIMITS", "id": "ضع-رقم-الـKV" }]
+  // الأسرار (ما بتنكتب هون): AI_KEY مفتاح المزود، ADMIN_KEY مفتاح لوحة المراجعة /admin
+  "r2_buckets": [{ "binding": "SITES", "bucket_name": "sammem-sites" }],
+  "kv_namespaces": [{ "binding": "LIMITS", "id": "5146807065d74f6abbcc9f6893d5983c" }],
+  "ai": { "binding": "AI" },
+  "routes": [
+    { "pattern": "*.md2.dev/*", "zone_name": "md2.dev" }
+  ],
+  "workers_dev": true,
+  "observability": { "enabled": true }
 }

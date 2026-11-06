@@ -122,7 +122,9 @@
   }
 
   /* ---------- المعالج ---------- */
-  const st = { content: {}, logo: "", images: [], morePal: false, idea: "", t: "agency", palette: "bold", name: "", tagline: "", off: [], phone: "", whatsapp: "", slug: "", step: 0 };
+  let DOMAIN = "md2.dev";
+  fetch("/api/health").then((r) => r.json()).then((d) => { if (d.domain) DOMAIN = d.domain; }).catch(() => {});
+  const st = { contact: "", owner: "", content: {}, logo: "", images: [], morePal: false, idea: "", t: "agency", palette: "bold", name: "", tagline: "", off: [], phone: "", whatsapp: "", slug: "", step: 0 };
   const layer = $("#layer");
 
   function steps() {
@@ -169,7 +171,7 @@
       { key: "التواصل", title: "كيف بيتواصلوا معك الزبائن؟", hint: "الرسائل من نموذج التواصل بتوصلك على لوحتك وعلى بريدك.", valid: () => st.slug.length > 2,
         html: () => `<div class="two-f"><div class="fld"><label for="w-ph">رقم الهاتف</label><input id="w-ph" inputmode="tel" dir="ltr" style="text-align:right" value="${esc(st.phone)}" placeholder="011 xxx xxxx"></div>
           <div class="fld"><label for="w-wa">رقم الواتساب</label><input id="w-wa" inputmode="tel" dir="ltr" style="text-align:right" value="${esc(st.whatsapp)}" placeholder="09xx xxx xxx"></div></div>
-          <div class="fld"><label for="w-slug">رابط موقعك المجاني</label><div class="sub-in"><input id="w-slug" value="${esc(st.slug)}" spellcheck="false" autocapitalize="off"><span>.sammem.site</span></div></div>`,
+          <div class="fld"><label for="w-slug">رابط موقعك المجاني</label><div class="sub-in"><input id="w-slug" value="${esc(st.slug)}" spellcheck="false" autocapitalize="off"><span>.${esc(DOMAIN)}</span></div></div>`,
         bind: (el) => { $("#w-ph", el).oninput = (e) => (st.phone = e.target.value); $("#w-wa", el).oninput = (e) => (st.whatsapp = e.target.value);
           const s = $("#w-slug", el); s.oninput = () => { st.slug = slugify(s.value.replace(/\./g, "-")); navState(); }; s.onblur = () => (s.value = st.slug); } },
     ];
@@ -258,7 +260,7 @@
   function siteUrl() { const c = cfg(), q = new URLSearchParams(); Object.entries(c).forEach(([k, v]) => { if (Array.isArray(v) ? v.length : v) q.set(k, Array.isArray(v) ? v.join(",") : v); }); return "site.html?" + q.toString(); }
 
   function preview() {
-    const host = `${st.slug}.sammem.site`;
+    const host = `${st.slug}.${DOMAIN}`;
     layer.innerHTML = `<div class="pv">
       <div class="pv-main">
         <div class="pv-bar">
@@ -278,8 +280,15 @@
           <div><span>4</span><p><b>منتواصل معك</b>منحددلك التكلفة، والدومين الخاص بـ 20$ بالسنة.</p></div>
         </div>
         <div class="edit-box"><label class="fine" for="ask-edit">بدك تعديل؟ اكتبه بكلماتك</label><textarea id="ask-edit" placeholder="مثلاً: خلي الألوان أفتح، وزيد قسم عروض"></textarea><button class="pbtn ghost" data-redo>طبّق التعديل</button><p class="fine" id="edit-msg" role="status"></p></div>
+        <div class="edit-box pub">
+          <label class="fine" for="pv-slug">عنوان موقعك</label>
+          <div class="sub-in"><input id="pv-slug" value="${esc(st.slug)}" maxlength="30" autocomplete="off" spellcheck="false"><span>.${esc(DOMAIN)}</span></div>
+          <label class="fine" for="w-contact">رقم واتساب للتواصل معك</label>
+          <input id="w-contact" dir="ltr" inputmode="tel" value="${esc(st.contact || st.whatsapp || st.phone)}" placeholder="+963 9xx xxx xxx">
+          <p class="fine" id="pub-msg" role="status"></p>
+        </div>
         <div class="acts"><button class="pbtn accent" data-send>أرسل للمراجعة</button></div>
-        <p class="note">${st.wrote ? "النصوص كتبها الذكاء الاصطناعي حسب فكرتك. راجعها قبل الإرسال." : "النصوص الحالية من القالب. لما تنشر المنصة على حسابك، الذكاء الاصطناعي بيكتبها حسب فكرتك."}</p>
+        <p class="note">${st.wrote ? "النصوص كتبها الذكاء الاصطناعي حسب فكرتك. راجعها قبل الإرسال." : "ما قدرنا نوصل للذكاء الاصطناعي هالمرة، فالنصوص الحالية من القالب. فيك تعدّلها بالكلمات من المربع فوق."}</p>
       </aside></div>`;
     const f = $("#pf"), fw = $("#fw");
     addEventListener("message", function onMsg(e) { if (e.data && e.data.type === "sammem:ready" && e.source === f.contentWindow) f.contentWindow.postMessage({ type: "sammem:config", cfg: cfg() }, "*"); });
@@ -299,7 +308,28 @@
       if (st.palette !== before) { reload(); msg.textContent = "غيّرنا الألوان. باقي التعديلات بتحتاج الذكاء الاصطناعي، وبيشتغل بعد ما ننشر المنصة على حسابك."; }
       else msg.textContent = d.reply || "هالنسخة مو مربوطة بالذكاء الاصطناعي. بعد ما ننشرها على حسابك بكلاودفلير، هالطلب بيتنفّذ مباشرة.";
     };
-    $("[data-send]", layer).onclick = (e) => { e.target.disabled = true; e.target.textContent = "انبعت للمراجعة"; const s = $("#stt"); s.textContent = "قيد المراجعة · منبعتلك إشعار لما ينفتح"; };
+    const slugIn = $("#pv-slug"), pmsg = $("#pub-msg"), urlB = $(".pv-bar .url b");
+    let slugT;
+    slugIn.oninput = () => {
+      slugIn.value = slugIn.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
+      st.slug = slugIn.value; urlB.textContent = `${st.slug}.${DOMAIN}`;
+      clearTimeout(slugT); slugT = setTimeout(async () => {
+        try { const r = await (await fetch(`/api/slug?s=${encodeURIComponent(st.slug)}&o=${encodeURIComponent(st.owner || "")}`)).json(); pmsg.textContent = r.ok ? "العنوان متاح ✓" : r.reason === "taken" ? "هالعنوان محجوز، جرّب غيره." : "أحرف إنكليزية صغيرة وأرقام و - (من 3 لـ 30)."; } catch { pmsg.textContent = ""; }
+      }, 350);
+    };
+    $("[data-send]", layer).onclick = async (e) => {
+      const btn = e.currentTarget; st.contact = $("#w-contact").value.trim();
+      btn.disabled = true; btn.textContent = "عم نبعت…"; pmsg.textContent = "";
+      try {
+        const r = await fetch("/api/submit", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ slug: st.slug, contact: st.contact, idea: st.idea, owner: st.owner, cfg: cfg() }) });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) { btn.disabled = false; btn.textContent = "أرسل للمراجعة"; pmsg.textContent = d.reply || "ما قدرنا نبعت هلق، جرّب بعد شوي."; return; }
+        st.owner = d.owner;
+        btn.textContent = "انبعت للمراجعة ✓";
+        $("#stt").textContent = "قيد المراجعة · منتواصل معك على واتساب لما ينفتح";
+        pmsg.innerHTML = `رح ينفتح على <a href="${esc(d.url)}" target="_blank" rel="noopener" dir="ltr">${esc(d.url.replace("https://", ""))}</a> بعد الموافقة.`;
+      } catch { btn.disabled = false; btn.textContent = "أرسل للمراجعة"; pmsg.textContent = "انقطع الاتصال، جرّب مرة تانية."; }
+    };
     if (window.gsap && !reduce) { gsap.from(".pv-side > *", { x: -30, opacity: 0, stagger: 0.06, duration: 0.6, ease: "power3.out" }); gsap.from("#fw", { scale: 0.96, opacity: 0, duration: 0.8, ease: "expo.out" }); }
   }
 

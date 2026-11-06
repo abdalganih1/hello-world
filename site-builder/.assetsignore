@@ -1,6 +1,6 @@
 worker
 wrangler.jsonc
-.assetsignore
 README.md
-.wrangler
+.assetsignore
 node_modules
+.wrangler

@@ -29,20 +29,30 @@
 
 افتح `index.html` بالمتصفح مباشرة. المكتبات (Three.js r158 و GSAP 3.12.5) بتنحمّل من jsDelivr.
 
-## النشر على كلاودفلير (مع الذكاء الاصطناعي)
+## النشر على كلاودفلير (منشور حالياً)
 
-الـ Worker (`worker/index.js`) بيخدم ملفات المنصة وفيه نقطتين:
-`POST /api/write` (كتابة النصوص من فكرة الزبون) و`POST /api/edit` (التعديل بالكلمات).
-الموديل بيرجّع JSON صغير بالأقسام اللي تغيّرت بس، والـ Worker بيتحقق منه قبل ما يرجعه.
+- المنصة: https://build.md2.dev (ونفسها على https://sammem.abdalganih1.workers.dev)
+- مواقع الزبائن: `https://<العنوان>.md2.dev` ، Worker واحد (`sammem`) على المسار `*.md2.dev/*` مع سجل DNS `*` (AAAA 100:: مع البروكسي).
+- md2.dev نفسه و`www` ما بيتأثروا: الجذر عليه Worker تاني (`md2-edge`)، و`www` بيتحوّل للجذر.
+
+### دورة الموقع
+
+1. الزبون بيكتب فكرته، بيجاوب البطاقات، والذكاء الاصطناعي بيكتب النصوص (`POST /api/write`، طلبات متوازية لكل قسمين).
+2. بيعدّل بالكلمات (`POST /api/edit`)، بيختار العنوان ورقم واتساب، وبيضغط «أرسل للمراجعة» (`POST /api/submit`).
+3. الموقع بينحفظ بـ R2 (`sammem-sites/sites/<العنوان>.json`) بحالة pending، والعنوان بيعرض «قيد المراجعة».
+4. لوحة المراجعة: `https://build.md2.dev/admin?key=ADMIN_KEY` : معاينة، موافقة (تشغيل 3 أيام)، +30 يوم، إيقاف، رفض، حذف.
+5. بعد 3 أيام العنوان بيعرض «انتهت الفترة التجريبية، تواصل معنا».
+
+### الإعداد
 
 ```bash
 cd site-builder
-npx wrangler login
-npx wrangler secret put AI_KEY        # الصق مفتاح مزودك هون، ما بينكتب بأي ملف
+npx wrangler secret put AI_KEY      # مفتاح مزود الذكاء الاصطناعي
+npx wrangler secret put ADMIN_KEY   # مفتاح لوحة المراجعة
 npx wrangler deploy
-curl https://sammem.<حسابك>.workers.dev/api/health
+curl https://build.md2.dev/api/health
 ```
 
-- الرابط والموديل بـ `wrangler.jsonc` (`AI_BASE_URL` و`AI_MODEL`). الرابط لازم ينتهي بـ `/v1`.
+- الإعدادات بـ `wrangler.jsonc`: `AI_BASE_URL` و`AI_MODEL` و`AI_NO_THINK` (بيطفي التفكير بـ GLM فبيصير أسرع)، `SITE_DOMAIN`، `TRIAL_DAYS`، `CONTACT_URL`.
 - إذا مزودك وقف، الـ Worker بيرجع تلقائياً لـ Workers AI.
-- للحد اليومي: `npx wrangler kv namespace create LIMITS` وحط رقمه بـ `wrangler.jsonc`.
+- الحد اليومي لكل زائر بـ KV (`LIMITS`): 5 كتابات و20 تعديل.
