@@ -96,7 +96,7 @@
         window.ScrollTrigger && window.ScrollTrigger.refresh();
       }));
     });
-    // المنتجات: فلترة حسب الصنف وسلة بسيطة
+    // المنتجات: فلترة حسب الصنف (الطلب بيصير ع واتساب من زر كل منتج)
     root.querySelectorAll(".s-products").forEach((sec) => {
       sec.querySelectorAll("[data-cat]").forEach((b) => b.addEventListener("click", () => {
         sec.querySelectorAll("[data-cat]").forEach((x) => x.setAttribute("aria-selected", x === b));
@@ -104,14 +104,15 @@
         window.ScrollTrigger && window.ScrollTrigger.refresh();
       }));
     });
-    let cart = 0;
-    root.querySelectorAll("[data-add]").forEach((b) => b.addEventListener("click", () => {
-      cart++; root.querySelectorAll("[data-cart]").forEach((c) => { c.textContent = cart; c.hidden = false; });
-      const t = b.textContent; b.textContent = "✓ انضاف"; b.classList.add("added"); setTimeout(() => { b.textContent = t; b.classList.remove("added"); }, 1400);
-      if (window.gsap && !reduce) window.gsap.fromTo(root.querySelectorAll(".cart-btn"), { scale: 1.3 }, { scale: 1, duration: 0.5, ease: "back.out(3)" });
+    // نموذج التواصل: بيفتح واتساب برسالة جاهزة (إذا في رقم)، وإلا بس بيبيّن رسالة الشكر
+    root.querySelectorAll("[data-form]").forEach((f) => f.addEventListener("submit", (e) => {
+      e.preventDefault(); f.classList.add("sent");
+      const n = f.dataset.wa; if (!n) return;
+      const v = (k) => (f.elements[k] && f.elements[k].value.trim()) || "";
+      const t = `مرحبا ${f.dataset.brand || ""}\nالاسم: ${v("name")}\nالهاتف: ${v("phone")}${v("subject") ? "\nالطلب: " + v("subject") : ""}\n${v("message")}`;
+      const ok = f.querySelector(".ok"); if (ok) ok.textContent = "فتحنالك واتساب لتكمل الرسالة.";
+      window.open(`https://wa.me/${n}?text=${encodeURIComponent(t)}`, "_blank", "noopener");
     }));
-    // النموذج: بيمنع الإرسال الحقيقي بالمعاينة
-    root.querySelectorAll("[data-form]").forEach((f) => f.addEventListener("submit", (e) => { e.preventDefault(); f.classList.add("sent"); }));
     if (reduce || !window.matchMedia("(hover: hover)").matches) return;
 
     // ميلان ثلاثي الأبعاد للبطاقات + ضوء يلحق الماوس

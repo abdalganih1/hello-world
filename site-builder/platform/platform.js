@@ -234,7 +234,7 @@
   function close() { layer.hidden = true; layer.innerHTML = ""; document.body.classList.remove("busy"); document.body.style.overflow = ""; }
 
   /* ---------- الذكاء الاصطناعي عبر الـ Worker ---------- */
-  const EDITABLE = ["hero", "marquee", "about", "services", "menu", "process", "gallery", "team", "testimonials", "pricing", "products", "faq", "cta", "contact"];
+  const EDITABLE = ["hero", "marquee", "about", "services", "menu", "process", "gallery", "team", "testimonials", "pricing", "products", "craft", "showcase", "faq", "cta", "contact"];
   function editableContent() {
     const site = window.SAMMEM.build(Object.assign(cfg(), { off: [] }));
     return { palette: st.palette, brand: { name: site.brand.name, tagline: site.brand.tagline }, off: st.off,

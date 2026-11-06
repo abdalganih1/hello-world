@@ -173,16 +173,9 @@
       }
     });
 
-    // الطلب من نموذج التواصل بيفتح واتساب
+    // زر واتساب العائم وزر الدعوة بيفتحوا واتساب
     if (site.brand.whatsapp) {
-      root.querySelectorAll("[data-form]").forEach((f) => {
-        const ok = f.querySelector(".ok"); if (ok) ok.textContent = "فتحنالك واتساب لتكمل الطلب. إذا ما انفتح، راسلنا على " + site.brand.whatsapp;
-        f.addEventListener("submit", () => {
-          const v = (n) => (f.elements[n] && f.elements[n].value.trim()) || "";
-          const t = `مرحبا ${site.brand.name}\nالاسم: ${v("name")}\nالهاتف: ${v("phone")}${v("subject") ? "\nالطلب: " + v("subject") : ""}\n${v("message")}`;
-          window.open(waLink(site, t), "_blank", "noopener");
-        });
-      });
+      // نموذج التواصل → واتساب صار عام لكل القوالب (engine/motion.js)
       root.querySelectorAll(".wa, .s-cta .btn").forEach((a) => { a.href = waLink(site, `مرحبا ${site.brand.name}، عندي استفسار عن طلب`); a.target = "_blank"; a.rel = "noopener"; });
     }
 

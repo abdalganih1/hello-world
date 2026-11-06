@@ -353,3 +353,10 @@ p { margin: 0; }
   .s-hero[data-pin] .veil { background: linear-gradient(to bottom, var(--bg) 0%, color-mix(in srgb, var(--bg) 82%, transparent) 50%, transparent 66%); }
 }
 html, body { overflow-x: clip; }
+
+/* طلب واتساب */
+.padd { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.padd svg, .dish-order svg { width: 16px; height: 16px; flex: none; }
+.dish .price { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.dish-order { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; padding: 5px 10px; border-radius: 999px; text-decoration: none; color: var(--ink); background: color-mix(in srgb, var(--accent) 16%, transparent); transition: background .3s, color .3s; }
+.dish-order:hover { background: var(--accent); color: var(--on-accent); }

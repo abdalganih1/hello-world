@@ -2,6 +2,11 @@
    كل قسم = دالة بتاخد data وبترجع HTML. الذكاء الاصطناعي بيختار type و variant وبيعبّي data فقط. */
 (function () {
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  // سياسة المتجر: الشراء = رسالة واتساب جاهزة فيها اسم المنتج وسعره (بلا سلة ولا دفع)
+  const waNum = (n) => { let d = String(n || "").replace(/\D/g, ""); if (d.startsWith("00")) d = d.slice(2); if (d.startsWith("0")) d = "963" + d.slice(1); return d; };
+  const waLink = (site, text) => { const n = waNum(site && site.brand && site.brand.whatsapp); return n ? `https://wa.me/${n}?text=${encodeURIComponent(text)}` : "#contact"; };
+  const waAttrs = (href) => href.startsWith("https:") ? `href="${esc(href)}" target="_blank" rel="noopener"` : `href="${esc(href)}"`;
+  const orderMsg = (site, it, verb = "اطلب") => `مرحبا ${site.brand.name}، بدي ${verb}:\n• ${it.name}${it.price ? " = " + it.price : ""}\n\nالكمية: `;
 
   const I = {
     arrow: '<path d="M19 12H5M11 18l-6-6 6-6"/>',
@@ -45,7 +50,7 @@
     <div class="wrap"><div class="bar">
       <a class="logo" href="#top"><span class="mark">${esc(site.brand.mark)}</span><span>${esc(site.brand.name)}</span></a>
       <nav aria-label="روابط الموقع">${(d.links || []).map((l) => `<a href="#${esc(l.id)}">${esc(l.label)}</a>`).join("")}</nav>
-      <span style="display:flex;gap:8px;align-items:center">${site.brand.cart ? `<a class="cart-btn" href="#products" aria-label="السلة">${icon("cart")}<b data-cart hidden>0</b></a>` : ""}<a class="btn" href="#${esc(d.ctaTarget || "contact")}" data-magnetic>${esc(d.cta || "تواصل معنا")}</a></span>
+      <span style="display:flex;gap:8px;align-items:center"><a class="btn" href="#${esc(d.ctaTarget || "contact")}" data-magnetic>${esc(d.cta || "تواصل معنا")}</a></span>
     </div></div>
   </header>`;
 
@@ -102,7 +107,7 @@
     </div>
   </section>`;
 
-  S.menu = (d) => {
+  S.menu = (d, site) => {
     const cats = d.categories || [];
     return `
   <section class="sec s-menu" id="${esc(d.id || "menu")}">
@@ -117,7 +122,7 @@
             <div class="dish" data-reveal>
               <div class="thumb"><div class="ph" style="--px:${30 + j * 9}%;--py:${60 - j * 7}%"></div></div>
               <div><h4>${esc(it.name)}${it.tag ? `<span class="tag">${esc(it.tag)}</span>` : ""}</h4><p>${esc(it.desc)}</p></div>
-              <span class="price">${esc(it.price)}</span>
+              <span class="price">${esc(it.price)}${site.brand.whatsapp ? `<a class="dish-order" ${waAttrs(waLink(site, orderMsg(site, it, d.orderLabel || "اطلب")))} aria-label="${esc(d.orderLabel || "اطلب")} ${esc(it.name)} ع واتساب">${icon("wa")}${esc(d.orderLabel || "اطلب")}</a>` : ""}</span>
             </div>`).join("")}
         </div>`).join("")}
       ${d.note ? `<p class="lead" style="margin-top:28px;font-size:15px">${esc(d.note)}</p>` : ""}
@@ -125,7 +130,7 @@
   </section>`;
   };
 
-  S.products = (d) => {
+  S.products = (d, site) => {
     const cats = [...new Set((d.items || []).map((it) => it.cat).filter(Boolean))];
     return `
   <section class="sec s-products" id="${esc(d.id || "products")}">
@@ -139,7 +144,7 @@
             <div class="pbody">
               <h3>${esc(it.name)}</h3>
               ${it.desc ? `<p>${esc(it.desc)}</p>` : ""}
-              <div class="prow"><span class="pprice">${esc(it.price)}${it.old ? ` <s>${esc(it.old)}</s>` : ""}</span><button class="padd" type="button" data-add>${esc(d.addLabel || "أضف للسلة")}</button></div>
+              <div class="prow"><span class="pprice">${esc(it.price)}${it.old ? ` <s>${esc(it.old)}</s>` : ""}</span><a class="padd" ${waAttrs(waLink(site, orderMsg(site, it)))} data-order>${icon("wa")}${esc(d.addLabel || "اطلب ع واتساب")}</a></div>
             </div>
           </article>`).join("")}
       </div>
@@ -250,7 +255,7 @@
         <div class="info" data-stagger>
           ${rows.map((r) => `<div class="row">${icon(r[0])}<div><small>${r[1]}</small><b dir="auto">${esc(r[2])}</b></div></div>`).join("")}
         </div>
-        <form class="form" data-form data-reveal novalidate>
+        <form class="form" data-form data-reveal novalidate data-wa="${esc(waNum(site.brand.whatsapp))}" data-brand="${esc(site.brand.name)}">
           <div class="two">
             <div class="field"><label for="f-name">الاسم</label><input id="f-name" name="name" required autocomplete="name" placeholder="اسمك الكريم"></div>
             <div class="field"><label for="f-phone">رقم الهاتف</label><input id="f-phone" name="phone" inputmode="tel" autocomplete="tel" placeholder="09xx xxx xxx" dir="ltr" style="text-align:right"></div>
@@ -258,7 +263,7 @@
           ${d.subjects ? `<div class="field"><label for="f-subj">${esc(d.subjectLabel || "الموضوع")}</label><select id="f-subj" name="subject">${d.subjects.map((s) => `<option>${esc(s)}</option>`).join("")}</select></div>` : ""}
           <div class="field"><label for="f-msg">رسالتك</label><textarea id="f-msg" name="message" placeholder="${esc(d.placeholder || "اكتب رسالتك هون")}"></textarea></div>
           <button class="btn" type="submit" data-magnetic>${esc(d.button || "أرسل الرسالة")}</button>
-          <p class="ok" role="status">وصلت رسالتك، منرد عليك بأقرب وقت. (بالنسخة الحقيقية بتنحفظ الرسالة وبتوصل عبريدك.)</p>
+          <p class="ok" role="status">وصلت رسالتك، منرد عليك بأقرب وقت. </p>
         </form>
       </div>
     </div>
@@ -287,10 +292,12 @@
     </div>
   </footer>`;
 
-  S.whatsapp = (d, site) => site.brand.whatsapp ? `<a class="wa" href="#contact" aria-label="راسلنا على واتساب">${icon("wa")}</a>` : "";
+  S.whatsapp = (d, site) => site.brand.whatsapp ? `<a class="wa" ${waAttrs(waLink(site, `مرحبا ${site.brand.name}، `))} aria-label="راسلنا على واتساب">${icon("wa")}</a>` : "";
 
   window.SAMMEM = window.SAMMEM || {};
   window.SAMMEM.sections = S;
   window.SAMMEM.icon = icon;
   window.SAMMEM.esc = esc;
+  window.SAMMEM.waNum = waNum;
+  window.SAMMEM.waLink = waLink;
 })();
