@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;700&family=Tajawal:wght@400;500;700&family=Readex+Pro:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Changa:wght@500;700;800&family=Lalezar&family=Marhey:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700;800&family=Amiri:wght@400;700&family=Reem+Kufi:wght@500;700&family=Almarai:wght@400;700&display=swap">
 <link rel="stylesheet" href="engine/engine.css">
+<link rel="stylesheet" href="engine/plexi.css">
 <style>
   /* مكتبة الأقسام: كل قسم بإطار مع اسمه ونوعه البرمجي، ولوحة لتبديل الهوية */
   .lib-bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 70; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
@@ -34,11 +35,13 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script src="templates/templates.js"></script>
 <script src="templates/more.js"></script>
+<script src="templates/plexi.js"></script>
 <script src="engine/sections.js"></script>
 <script src="engine/scenes.js"></script>
 <script src="engine/scenes2.js"></script>
 <script src="engine/motion.js"></script>
 <script src="engine/render.js"></script>
+<script src="engine/plexi.js"></script>
 <script>
 (function () {
   const NAMES = { nav: "شريط القائمة", hero: "البطل مع مشهد 3D", marquee: "شريط كلمات متحرك", about: "من نحن مع أرقام", services: "بطاقات خدمات بميلان 3D", menu: "منيو بتبويبات", process: "خطوات بانزلاق أفقي", gallery: "معرض صور", team: "الفريق", testimonials: "آراء الزبائن", pricing: "الباقات والأسعار", faq: "أسئلة شائعة", cta: "دعوة للتواصل", contact: "تواصل ونموذج", footer: "الفوتر" };
