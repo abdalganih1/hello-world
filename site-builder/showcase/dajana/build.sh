@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# بيجمع موقع دجانة بمجلد dist جاهز للنشر على Cloudflare Pages:
-#   bash build.sh && npx wrangler pages deploy dist --project-name dajana-showcase
+# بيجمع موقع دجانة بمجلد dist جاهز للنشر على كلاودفلير:
+#   bash build.sh && npx wrangler deploy   (Worker أصول ثابتة: dajana-showcase.abdalganih1.workers.dev)
 set -euo pipefail
 cd "$(dirname "$0")"
 rm -rf dist && mkdir -p dist
