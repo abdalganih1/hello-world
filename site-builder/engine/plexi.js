@@ -223,7 +223,7 @@
 
     // البطل السينمائي
     root.querySelectorAll("[data-px-cinema]").forEach((sec) => {
-      const has3d = !!sec.querySelector(".stage canvas");
+      const has3d = !!(window.THREE && (window.WebGL2RenderingContext || window.WebGLRenderingContext) && sec.querySelector(".stage"));
       if (!has3d || reduce) { sec.classList.add("px-flat"); return; }
       const parts = [...sec.querySelectorAll("[data-at]")].map((el) => ({ el, at: el.dataset.at.split(",").map(Number) }));
       const meter = sec.querySelector(".px-meter i"), hint = sec.querySelector(".scroll-hint"), num = sec.querySelector("[data-px-n]");
@@ -343,6 +343,8 @@
   // شاشة تحميل: الشعار مع خط ذهب، وبعدين ستارة بتنرفع
   function preload(site) {
     if (document.querySelector(".px-pre")) return;
+    // شاشة الافتتاح مرة وحدة بالجلسة: الرجوع للخلف أو فتح منتج تاني ما بيستنى
+    try { if (sessionStorage.getItem("px_seen")) return; sessionStorage.setItem("px_seen", "1"); } catch (e) {}
     const el = document.createElement("div"); el.className = "px-pre"; el.setAttribute("aria-hidden", "true");
     el.innerHTML = `<div class="px-pre-in">${site.brand.logo ? `<img src="${esc(site.brand.logo)}" alt="">` : `<b>${esc(site.brand.mark)}</b>`}<span>${esc(site.brand.name)}</span><i><u></u></i></div>`;
     document.body.appendChild(el);

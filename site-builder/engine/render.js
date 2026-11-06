@@ -52,7 +52,8 @@
     site.images.forEach((src, i) => { const el = slots[i]; if (!el) return; el.classList.add("has-img"); el.style.backgroundImage = `url("${src}")`; const lab = el.parentElement.querySelector(".ph-label"); if (lab) lab.remove(); });
     if (site.brand.logo) mount.querySelectorAll(".logo .mark").forEach((m) => { m.classList.add("img"); m.innerHTML = `<img src="${site.brand.logo}" alt="">`; });
     const stageEl = mount.querySelector("[data-scene]");
-    if (stageEl) window.SAMMEM.mountScene(stageEl, site.theme.scene, site.theme.colors, { center: (site.sections.find((s) => s.type === "hero") || {}).variant === "center" });
+    // المشهد ثلاثي الأبعاد بيتجهّز بعد أول رسمة للصفحة، حتى الصفحة تبين فوراً (وخصوصاً لما يرجع للخلف)
+    if (stageEl) requestAnimationFrame(() => setTimeout(() => window.SAMMEM.mountScene(stageEl, site.theme.scene, site.theme.colors, { center: (site.sections.find((s) => s.type === "hero") || {}).variant === "center" }), 30));
     window.SAMMEM.motion.init(mount);
     return site;
   }

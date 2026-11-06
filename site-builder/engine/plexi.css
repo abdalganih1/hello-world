@@ -526,3 +526,8 @@ body:has(.px-bar) .px-studio, body:has(.px-bar) .px-catalog { padding-bottom: 12
 @media (prefers-reduced-motion: reduce) { .px-pp-try { animation: none; } }
 /* سحب أنعم عالموبايل: المتصفح ما بيرسم البطاقات البعيدة عن الشاشة */
 .px-lite .px-card { content-visibility: auto; contain-intrinsic-size: auto 400px; }
+/* البطاقة: السعر بسطر، وتحته «اطلب» وزر السلة جنب بعض دايماً (حتى لو خط التلفون كبير) */
+.px-row { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.px-row > .px-price, .px-row > span:first-child { grid-column: 1 / -1; }
+.px-row .px-order { min-width: 0; justify-content: center; white-space: nowrap; overflow: hidden; padding-inline: 10px; }
+.px-row .px-add { width: 44px; height: 44px; flex: none; }
