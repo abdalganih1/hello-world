@@ -239,3 +239,15 @@ button, input, textarea { font: inherit; color: inherit; }
 .edit-box.pub .sub-in input { width: 100%; padding: 12px 14px; border: 0; background: transparent; outline: none; font: inherit; color: inherit; }
 .edit-box.pub a { color: var(--p-accent, currentColor); }
 .tpls-more { display: block; margin: 28px auto 0; }
+
+/* توقيع المهندس عبد الغني الحمدي · تكنو إنجاز */
+.pfoot .pw { align-items: center; }
+.credit { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+.credit img { width: 44px; height: 44px; border-radius: 50%; box-shadow: 0 6px 18px -8px rgba(0,0,0,.35); }
+.credit span { display: grid; gap: 2px; }
+.credit b { color: var(--p-ink); font-size: 15px; }
+.credit small { font-size: 13px; }
+.ptop-r { display: inline-flex; align-items: center; gap: 10px; }
+.ti-badge { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px 4px 4px; border-radius: 999px; text-decoration: none; color: var(--p-ink); font-size: 14px; font-weight: 700; box-shadow: inset 0 0 0 1px var(--p-line); }
+.ti-badge img { width: 34px; height: 34px; border-radius: 50%; }
+@media (max-width: 480px) { .ti-badge span { display: none; } .ti-badge { padding: 4px; } }

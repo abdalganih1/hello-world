@@ -289,13 +289,13 @@
         <div class="frame-wrap" id="fw"><iframe id="pf" title="معاينة موقعك" src="site.html?embed=1"></iframe></div>
       </div>
       <aside class="pv-side">
-        <span class="status" id="stt">مسودة · بانتظار إرسالها للمراجعة</span>
+        <span class="status" id="stt">مسودة · جاهزة للنشر</span>
         <h2>موقع «${esc(st.name)}» جاهز للمعاينة</h2>
         <div class="timeline">
           <div><span>1</span><p><b>المسودة جاهزة</b>جرّب الموقع، وغيّر أي شي بدك ياه.</p></div>
-          <div><span>2</span><p><b>مراجعة المحتوى</b>فريقنا بيراجع كل موقع قبل ما ينفتح للناس، عادةً خلال 24 ساعة.</p></div>
+          <div><span>2</span><p><b>نشر فوري</b>بتضغط «انشر» وبينفتح موقعك على رابطه فوراً، والذكاء الاصطناعي بيراجع المحتوى بالخلفية.</p></div>
           <div><span>3</span><p><b>تشغيل تجريبي 3 أيام</b>على الرابط ${esc(host)}</p></div>
-          <div><span>4</span><p><b>منتواصل معك</b>منحددلك التكلفة، والدومين الخاص بـ 20$ بالسنة.</p></div>
+          <div><span>4</span><p><b>اعتمد موقعك</b>تواصل معنا قبل ما يخلص الوقت، منحددلك التكلفة، والدومين الخاص بـ 20$ بالسنة.</p></div>
         </div>
         <div class="edit-box"><label class="fine" for="ask-edit">بدك تعديل؟ اكتبه بكلماتك</label><textarea id="ask-edit" placeholder="مثلاً: خلي الألوان أفتح، وزيد قسم عروض"></textarea><button class="pbtn ghost" data-redo>طبّق التعديل</button><p class="fine" id="edit-msg" role="status"></p></div>
         <div class="edit-box pub">
@@ -305,7 +305,7 @@
           <input id="w-contact" dir="ltr" inputmode="tel" value="${esc(st.contact || st.whatsapp || st.phone)}" placeholder="+963 9xx xxx xxx">
           <p class="fine" id="pub-msg" role="status"></p>
         </div>
-        <div class="acts"><button class="pbtn accent" data-send>أرسل للمراجعة</button></div>
+        <div class="acts"><button class="pbtn accent" data-send>انشر موقعي هلق</button></div>
         <p class="note">${st.wrote ? "النصوص كتبها الذكاء الاصطناعي حسب فكرتك. راجعها قبل الإرسال." : "ما قدرنا نوصل للذكاء الاصطناعي هالمرة، فالنصوص الحالية من القالب. فيك تعدّلها بالكلمات من المربع فوق."}</p>
       </aside></div>`;
     const f = $("#pf"), fw = $("#fw");
@@ -319,7 +319,7 @@
       btn.disabled = true; msg.textContent = "عم نعدّل…";
       const d = await askAI("edit", v);
       btn.disabled = false;
-      if (d.ok) { if (applyAI(d)) reload(); msg.textContent = d.reply || "تم."; if (d.ok) $("#ask-edit").value = ""; return; }
+      if (d.ok) { if (applyAI(d)) { reload(); layer.dispatchEvent(new Event("sammem:changed")); } msg.textContent = d.reply || "تم."; if (d.ok) $("#ask-edit").value = ""; return; }
       // بدون اتصال بالـ Worker (متل هالمعاينة): بس الألوان بتتغير محلياً
       const before = st.palette;
       if (/فاتح|أفتح|افتح|هادي|ابيض|أبيض/.test(v)) st.palette = "calm"; else if (/غامق|فخم|ذهبي|اسود|أسود/.test(v)) st.palette = "luxe"; else if (/جريء|قوي|حماس|ملفت/.test(v)) st.palette = "bold";
@@ -335,19 +335,27 @@
         try { const r = await (await fetch(`/api/slug?s=${encodeURIComponent(st.slug)}&o=${encodeURIComponent(st.owner || "")}`)).json(); pmsg.textContent = r.ok ? "العنوان متاح ✓" : r.reason === "taken" ? "هالعنوان محجوز، جرّب غيره." : "أحرف إنكليزية صغيرة وأرقام و - (من 3 لـ 30)."; } catch { pmsg.textContent = ""; }
       }, 350);
     };
-    $("[data-send]", layer).onclick = async (e) => {
-      const btn = e.currentTarget; st.contact = $("#w-contact").value.trim();
-      btn.disabled = true; btn.textContent = "عم نبعت…"; pmsg.textContent = "";
+    const sendBtn = $("[data-send]", layer);
+    const publish = async () => {
+      const btn = sendBtn; st.contact = $("#w-contact").value.trim();
+      btn.disabled = true; btn.textContent = "عم ننشر…"; pmsg.textContent = "";
       try {
         const r = await fetch("/api/submit", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ slug: st.slug, contact: st.contact, idea: st.idea, owner: st.owner, cfg: cfg() }) });
         const d = await r.json().catch(() => ({}));
-        if (!r.ok) { btn.disabled = false; btn.textContent = "أرسل للمراجعة"; pmsg.textContent = d.reply || "ما قدرنا نبعت هلق، جرّب بعد شوي."; return; }
+        if (!r.ok) { btn.disabled = false; btn.textContent = "انشر موقعي هلق"; pmsg.textContent = d.reply || "ما قدرنا نبعت هلق، جرّب بعد شوي."; return; }
         st.owner = d.owner;
-        btn.textContent = "انبعت للمراجعة ✓";
-        $("#stt").textContent = "قيد المراجعة · منتواصل معك على واتساب لما ينفتح";
-        pmsg.innerHTML = `رح ينفتح على <a href="${esc(d.url)}" target="_blank" rel="noopener" dir="ltr">${esc(d.url.replace("https://", ""))}</a> بعد الموافقة.`;
-      } catch { btn.disabled = false; btn.textContent = "أرسل للمراجعة"; pmsg.textContent = "انقطع الاتصال، جرّب مرة تانية."; }
+        btn.disabled = false; btn.onclick = () => window.open(d.url, "_blank", "noopener");
+        btn.textContent = "افتح موقعك";
+        $("#stt").textContent = "منشور · تجريبي " + (d.days || 3) + " أيام";
+        const end = new Date(d.liveUntil), when = end.toLocaleDateString("ar-SY-u-nu-latn", { weekday: "long", day: "numeric", month: "long" }) + " " + end.toLocaleTimeString("ar-SY-u-nu-latn", { hour: "numeric", minute: "2-digit" });
+        pmsg.innerHTML = `موقعك صار شغّال على <a href="${esc(d.url)}" target="_blank" rel="noopener" dir="ltr">${esc(d.url.replace("https://", ""))}</a><br>بيتوقف ${esc(when)} · باقي <b data-left></b><br>تواصل معنا قبلها لتعتمده.`;
+        const left = pmsg.querySelector("[data-left]"), pad = (n) => String(n).padStart(2, "0");
+        (function tick() { if (!left.isConnected) return; let s = Math.max(0, Math.floor((d.liveUntil - Date.now()) / 1000)); const dd = Math.floor(s / 86400); s %= 86400; left.textContent = (dd ? dd + "ي " : "") + pad(Math.floor(s / 3600)) + ":" + pad(Math.floor(s % 3600 / 60)) + ":" + pad(s % 60); setTimeout(tick, 1000); })();
+      } catch { btn.disabled = false; btn.textContent = "انشر موقعي هلق"; pmsg.textContent = "انقطع الاتصال، جرّب مرة تانية."; }
     };
+    sendBtn.onclick = publish;
+    // بعد أي تعديل على موقع منشور: الزر بيرجع «حدّث موقعك»
+    layer.addEventListener("sammem:changed", () => { if (st.owner) { sendBtn.onclick = publish; sendBtn.textContent = "حدّث موقعك المنشور"; } });
     if (window.gsap && !reduce) { gsap.from(".pv-side > *", { x: -30, opacity: 0, stagger: 0.06, duration: 0.6, ease: "power3.out" }); gsap.from("#fw", { scale: 0.96, opacity: 0, duration: 0.8, ease: "expo.out" }); }
   }
 

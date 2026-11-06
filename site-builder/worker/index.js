@@ -140,6 +140,11 @@ function page(title, body, status = 200) {
 table{width:100%;border-collapse:collapse;font-size:.92rem}td,th{padding:8px 6px;border-bottom:1px solid #8883;text-align:start;vertical-align:top}button{font:inherit;padding:6px 12px;border-radius:10px;border:1px solid #8886;background:transparent;color:inherit;cursor:pointer}button.ok{background:var(--ac);color:#fff;border:0}.wide{max-width:1100px}</style></head>
 <body>${body}</body></html>`, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
 }
+function contactLink(env, rec) {
+  const msg = `مرحبا، بدي اعتمد موقعي ${rec.slug}.${env.SITE_DOMAIN} وبدي دومين خاص`;
+  if (env.CONTACT_WA) return `https://wa.me/${String(env.CONTACT_WA).replace(/\D/g, "")}?text=${encodeURIComponent(msg)}`;
+  return env.CONTACT_URL || "#";
+}
 const CONTACT = (env) => env.CONTACT_URL ? `<p><a href="${escH(env.CONTACT_URL)}">تواصل معنا</a></p>` : "";
 
 async function serveSite(req, env, slug) {
@@ -151,10 +156,12 @@ async function serveSite(req, env, slug) {
   }
   const rec = await getSite(env, slug);
   if (!rec || rec.status === "rejected") return page("الموقع غير موجود", `<div class="c"><h1>هالموقع مو موجود</h1><p>العنوان ${escH(slug)}.${escH(env.SITE_DOMAIN)} مو محجوز لأي موقع.</p></div>`, 404);
+  if (rec.status === "flagged") return page("الموقع موقوف", `<div class="c"><h1>الموقع موقوف مؤقتاً</h1><p>المراجعة التلقائية لقت بالمحتوى شي لازم نتأكد منه. إذا إنت صاحب الموقع، تواصل معنا ومنحلها بسرعة.</p>${CONTACT(env)}</div>`, 451);
   if (rec.status === "pending") return page("قيد المراجعة", `<div class="c"><h1>الموقع قيد المراجعة</h1><p>«${escH(rec.cfg.name)}» وصلنا، وفريقنا عم يراجعه. رح ينفتح هون خلال 24 ساعة بالعادة.</p></div>`);
   if (rec.status === "live" && Date.now() > rec.liveUntil) return page("انتهت الفترة التجريبية", `<div class="c"><h1>انتهت الفترة التجريبية</h1><p>موقع «${escH(rec.cfg.name)}» خلص تشغيله التجريبي (3 أيام). إذا إنت صاحب الموقع، تواصل معنا لنكمّل ونحددلك التكلفة.</p>${CONTACT(env)}</div>`);
   const html = await (await env.ASSETS.fetch(new Request(new URL("/site.html", url)))).text();
-  const inject = `<script>window.SAMMEM_SITE=${JSON.stringify(rec.cfg).replace(/</g, "\\u003c")};</script>`;
+  const trial = rec.paid ? "" : `<script>window.SAMMEM_TRIAL=${JSON.stringify({ until: rec.liveUntil, days: parseInt(env.TRIAL_DAYS || "3", 10), contact: contactLink(env, rec) }).replace(/</g, "\\u003c")};</script><script src="/engine/trial.js" defer></script>`;
+  const inject = `<script>window.SAMMEM_SITE=${JSON.stringify(rec.cfg).replace(/</g, "\\u003c")};</script>` + trial;
   return new Response(html.replace("<main id=\"site\"></main>", "<main id=\"site\"></main>" + inject), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=60" } });
 }
 
@@ -169,7 +176,33 @@ function cleanCfg(c) {
   return out;
 }
 
-async function handleSubmit(req, env) {
+/* ---------- مراجعة المحتوى بالذكاء الاصطناعي ---------- */
+const MOD_SYSTEM = `إنت مراجع محتوى لمنصة مواقع. بيوصلك نص موقع زبون. قرر إذا الموقع مقبول للنشر.
+ارفض فقط إذا فيه: احتيال أو نصب (استثمار وهمي، أرباح مضمونة، انتحال جهة رسمية أو بنك أو علامة تجارية)، أو محتوى جنسي، أو مخدرات أو سلاح، أو قمار، أو كراهية وعنف، أو جمع بيانات بطاقات وكلمات سر.
+المشاريع العادية (مطاعم، متاجر، خدمات، شركات) مقبولة حتى لو النص ضعيف.
+رجّع JSON فقط: {"ok":true|false,"reason":"جملة قصيرة بالعربي"}`;
+function siteText(rec) {
+  const out = [rec.cfg.name, rec.cfg.tagline, rec.idea];
+  const walk = (v) => { if (typeof v === "string") out.push(v); else if (Array.isArray(v)) v.forEach(walk); else if (v && typeof v === "object") Object.values(v).forEach(walk); };
+  walk(rec.cfg.content || {});
+  return out.filter(Boolean).join("\n").slice(0, 8000);
+}
+async function moderate(env, slug) {
+  const rec = await getSite(env, slug); if (!rec) return;
+  const messages = [{ role: "system", content: MOD_SYSTEM }, { role: "user", content: `القالب: ${rec.cfg.t}\nالعنوان: ${slug}\n\n${siteText(rec)}` }];
+  let out;
+  try { out = extractJSON(await callProvider(env, messages)); }
+  catch (e1) { try { out = extractJSON(await callWorkersAI(env, messages)); } catch (e2) { out = null; } }
+  const cur = await getSite(env, slug); if (!cur || cur.updated !== rec.updated) return; // انعدّل بالنص، المراجعة الجاية بتغطيه
+  if (!out) cur.moderation = { state: "error", at: Date.now() };
+  else {
+    cur.moderation = { state: out.ok === false ? "flagged" : "ok", reason: String(out.reason || "").slice(0, 200), at: Date.now() };
+    if (out.ok === false) cur.status = "flagged";
+  }
+  await putSite(env, cur);
+}
+
+async function handleSubmit(req, env, ctx) {
   if (!env.SITES) return json({ error: "storage not configured" }, 500);
   const raw = await req.text();
   if (raw.length > 6_000_000) return json({ error: "too large", reply: "الصور كبيرة كتير، شيل كم صورة وجرّب." }, 413);
@@ -182,9 +215,12 @@ async function handleSubmit(req, env) {
   const old = await getSite(env, slug);
   if (old && old.status !== "rejected" && old.owner !== b.owner) return json({ error: "taken", reply: "هالعنوان محجوز، اختار غيره." }, 409);
   const owner = (old && old.owner === b.owner && b.owner) || crypto.randomUUID();
-  const rec = { slug, owner, status: "pending", contact, idea: String(b.idea || "").slice(0, 800), cfg: cleanCfg(b.cfg), created: old?.created || Date.now(), updated: Date.now(), ip: req.headers.get("cf-connecting-ip") || "" };
+  const days = parseInt(env.TRIAL_DAYS || "3", 10);
+  const rec = { slug, owner, status: "live", liveUntil: old?.liveUntil && old.status === "live" ? old.liveUntil : Date.now() + days * DAY, approvedAt: old?.approvedAt || Date.now(), moderation: { state: "checking" }, contact, idea: String(b.idea || "").slice(0, 800), cfg: cleanCfg(b.cfg), created: old?.created || Date.now(), updated: Date.now(), ip: req.headers.get("cf-connecting-ip") || "" };
   await putSite(env, rec);
-  return json({ ok: true, slug, owner, url: `https://${slug}.${env.SITE_DOMAIN}` });
+  // المراجعة بالذكاء الاصطناعي بالخلفية: الموقع بينفتح فوراً، وإذا طلع مخالف بيتوقف
+  if (ctx) ctx.waitUntil(moderate(env, slug).catch((e) => console.warn("moderation failed:", e.message)));
+  return json({ ok: true, slug, owner, url: `https://${slug}.${env.SITE_DOMAIN}`, liveUntil: rec.liveUntil, days });
 }
 
 async function handleSlug(url, env) {
@@ -205,7 +241,8 @@ async function handleAdmin(req, env, url) {
       const days = parseInt(env.TRIAL_DAYS || "3", 10);
       if (act === "approve") Object.assign(rec, { status: "live", approvedAt: Date.now(), liveUntil: Date.now() + days * DAY });
       else if (act === "extend") Object.assign(rec, { status: "live", liveUntil: Math.max(Date.now(), rec.liveUntil || 0) + 30 * DAY });
-      else if (act === "stop") Object.assign(rec, { liveUntil: Date.now() - 1 });
+      else if (act === "stop") Object.assign(rec, { liveUntil: Date.now() - 1, paid: false });
+      else if (act === "paid") Object.assign(rec, { status: "live", paid: true, liveUntil: Date.now() + 366 * DAY });
       else if (act === "reject") rec.status = "rejected";
       if (act === "delete") await env.SITES.delete(siteKey(slug)); else await putSite(env, rec);
     }
@@ -213,12 +250,13 @@ async function handleAdmin(req, env, url) {
   }
   const list = []; let cursor;
   do { const r = await env.SITES.list({ prefix: "sites/", cursor }); for (const o of r.objects) { const x = await env.SITES.get(o.key); if (x) list.push(await x.json()); } cursor = r.truncated ? r.cursor : null; } while (cursor && list.length < 500);
-  list.sort((a, b) => (a.status === "pending" ? -1 : 0) - (b.status === "pending" ? -1 : 0) || b.updated - a.updated);
-  const st = (r) => r.status === "pending" ? "⏳ بانتظار المراجعة" : r.status === "rejected" ? "✗ مرفوض" : Date.now() > r.liveUntil ? "⌛ منتهي" : "● شغّال لـ " + new Date(r.liveUntil).toISOString().slice(0, 16).replace("T", " ");
+  const pri = (r) => (r.status === "flagged" ? -2 : r.status === "pending" ? -1 : 0); list.sort((a, b) => pri(a) - pri(b) || b.updated - a.updated);
+  const mod = (r) => !r.moderation ? "" : r.moderation.state === "ok" ? "<br><small>✓ الذكاء الاصطناعي: مقبول</small>" : r.moderation.state === "flagged" ? `<br><small>⚠ الذكاء الاصطناعي: ${escH(r.moderation.reason)}</small>` : r.moderation.state === "checking" ? "<br><small>… عم يتراجع</small>" : "<br><small>؟ المراجعة ما اشتغلت</small>";
+  const st = (r) => (r.status === "flagged" ? "⚠ موقوف تلقائياً" : r.paid && r.status === "live" ? "★ معتمد لـ " + new Date(r.liveUntil).toISOString().slice(0, 10) : r.status === "pending" ? "⏳ بانتظار المراجعة" : r.status === "rejected" ? "✗ مرفوض" : Date.now() > r.liveUntil ? "⌛ منتهي" : "● تجريبي لـ " + new Date(r.liveUntil).toISOString().slice(0, 16).replace("T", " ")) + mod(r);
   const btn = (r, act, label, cls = "") => `<form method="post" style="display:inline"><input type="hidden" name="slug" value="${escH(r.slug)}"><input type="hidden" name="act" value="${act}"><button class="${cls}">${label}</button></form>`;
   const rows = list.map((r) => `<tr><td><a href="https://${escH(r.slug)}.${escH(env.SITE_DOMAIN)}" target="_blank">${escH(r.slug)}</a><br><small>${escH(r.cfg.name)}</small></td><td>${escH(r.contact)}</td><td><small>${escH(r.idea)}</small></td><td>${st(r)}</td><td>
     <a href="/admin/preview?key=${encodeURIComponent(key)}&s=${encodeURIComponent(r.slug)}" target="_blank">معاينة</a>
-    ${r.status !== "live" ? btn(r, "approve", "وافق وشغّل 3 أيام", "ok") : ""} ${r.status === "live" ? btn(r, "extend", "+30 يوم") + btn(r, "stop", "أوقف") : ""} ${r.status !== "rejected" ? btn(r, "reject", "ارفض") : btn(r, "delete", "احذف")}</td></tr>`).join("");
+    ${r.status !== "live" ? btn(r, "approve", "وافق وشغّل 3 أيام", "ok") : ""} ${r.status === "live" ? btn(r, "paid", "اعتمد (سنة بلا شريط)", "ok") + btn(r, "extend", "+30 يوم") + btn(r, "stop", "أوقف") : ""} ${r.status !== "rejected" ? btn(r, "reject", "ارفض") : btn(r, "delete", "احذف")}</td></tr>`).join("");
   return page("مراجعة المواقع", `<div class="c wide"><h1>مراجعة المواقع (${list.length})</h1><table><tr><th>العنوان</th><th>التواصل</th><th>الفكرة</th><th>الحالة</th><th></th></tr>${rows || '<tr><td colspan="5">ما في مواقع لسا.</td></tr>'}</table></div>`);
 }
 
@@ -231,7 +269,7 @@ async function adminPreview(req, env, url) {
 }
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url);
     const host = url.hostname.toLowerCase(), dom = (env.SITE_DOMAIN || "").toLowerCase();
     if (dom && host.endsWith("." + dom)) {
@@ -244,7 +282,7 @@ export default {
     }
     if (url.pathname === "/admin") return handleAdmin(req, env, url);
     if (url.pathname === "/admin/preview") return adminPreview(req, env, url);
-    if (req.method === "POST" && url.pathname === "/api/submit") return handleSubmit(req, env);
+    if (req.method === "POST" && url.pathname === "/api/submit") return handleSubmit(req, env, ctx);
     if (url.pathname === "/api/slug") return handleSlug(url, env);
     if (url.pathname === "/api/health") return json({ ok: true, domain: env.SITE_DOMAIN, storage: !!env.SITES, model: env.AI_MODEL || "glm-5.3-flash", provider: !!(env.AI_BASE_URL && env.AI_KEY), fallback: !!env.AI });
     if (req.method === "POST" && url.pathname === "/api/edit") return handleAI(req, env, "edit");
