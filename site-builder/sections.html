@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مكتبة أقسام صمّم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;700&family=Tajawal:wght@400;500;700&family=Readex+Pro:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Changa:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="engine/engine.css">
+<style>
+  /* مكتبة الأقسام: كل قسم بإطار مع اسمه ونوعه البرمجي، ولوحة لتبديل الهوية */
+  .lib-bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 70; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  .lib-bar .wrap { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; padding-block: 12px; }
+  .lib-bar h1 { font-size: 20px; }
+  .lib-bar .pick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .lib-bar a { text-decoration: none; font-size: 14px; padding: 6px 12px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line); color: var(--muted); }
+  .lib-bar a[aria-current="true"] { background: var(--accent); color: var(--on-accent); box-shadow: none; }
+  .lib-bar .lib-toc { flex-wrap: nowrap; }
+  .lib-toc { display: flex; gap: 6px; overflow-x: auto; padding-block: 0 12px; scrollbar-width: none; }
+  .lib-toc a { white-space: nowrap; font-size: 13px; }
+  .lib-block { position: relative; border-top: 1px dashed var(--line); }
+  .lib-tag { position: absolute; z-index: 20; top: 14px; inset-inline-start: max(16px, env(safe-area-inset-left, 0px)); display: flex; gap: 8px; align-items: center; font-size: 13px; padding: 6px 12px; border-radius: 999px; background: var(--ink); color: var(--bg); }
+  .lib-tag code { font-family: ui-monospace, monospace; opacity: .7; direction: ltr; }
+  .lib-block .s-nav { position: relative; padding-block: 64px 24px; transform: none !important; }
+  .lib-block .s-hero { min-height: 760px; }
+  .lib-block .sec + .sec { border-top: 0; }
+</style>
+</head>
+<body>
+<div id="lib"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="templates/templates.js"></script>
+<script src="engine/sections.js"></script>
+<script src="engine/scenes.js"></script>
+<script src="engine/motion.js"></script>
+<script src="engine/render.js"></script>
+<script>
+(function () {
+  const NAMES = { nav: "شريط القائمة", hero: "البطل مع مشهد 3D", marquee: "شريط كلمات متحرك", about: "من نحن مع أرقام", services: "بطاقات خدمات بميلان 3D", menu: "منيو بتبويبات", process: "خطوات بانزلاق أفقي", gallery: "معرض صور", team: "الفريق", testimonials: "آراء الزبائن", pricing: "الباقات والأسعار", faq: "أسئلة شائعة", cta: "دعوة للتواصل", contact: "تواصل ونموذج", footer: "الفوتر" };
+  const cfg = SAMMEM.readConfig(); cfg.t = cfg.t || "agency";
+  const site = SAMMEM.build(cfg);
+  SAMMEM.applyTheme(site); document.title = "مكتبة أقسام صمّم";
+  const c = site.theme.colors;
+
+  // كل الأقسام من كل القوالب، بدون تكرار، مع شكلين للبطل
+  const T = window.SAMMEM_TEMPLATES, seen = new Set(), blocks = [];
+  const order = ["nav", "hero", "marquee", "about", "services", "menu", "process", "gallery", "team", "testimonials", "pricing", "faq", "cta", "contact", "footer"];
+  order.forEach((type) => {
+    const own = site.sections.find((s) => s.type === type);
+    const src = own || Object.values(T).map((t) => t.sections.find((s) => s.type === type)).find(Boolean);
+    if (!src) return;
+    if (type === "hero") { blocks.push({ ...src, variant: "split" }, { ...src, variant: "center" }); } else blocks.push(src);
+  });
+  const S = SAMMEM.sections, esc = SAMMEM.esc;
+  const pick = Object.values(T).map((t) => Object.keys(t.palettes).map((p) => {
+    const on = t.id === site.id && (cfg.palette || t.defaultPalette) === p;
+    return `<a href="?t=${t.id}&palette=${p}" aria-current="${on}">${esc(t.label.split(" ")[0])} · ${{ luxe: "فخم", calm: "هادي", bold: "جريء" }[p]}</a>`;
+  }).join("")).join("");
+  document.getElementById("lib").innerHTML = `
+    <div class="lib-bar"><div class="wrap"><h1>مكتبة الأقسام · ${blocks.length} قسم</h1><div class="pick">${pick}</div></div>
+      <div class="wrap lib-toc">${blocks.map((b, i) => `<a href="#b${i}">${NAMES[b.type]}${b.type === "hero" ? (b.variant === "center" ? " (وسط)" : " (جانبي)") : ""}</a>`).join("")}</div></div>
+    ${blocks.map((b, i) => `<div class="lib-block" id="b${i}"><span class="lib-tag">${NAMES[b.type]} <code>${b.type}${b.type === "hero" ? ":" + b.variant : ""}</code></span>${S[b.type](Object.assign({ variant: b.variant }, b.data), site)}</div>`).join("")}`;
+  document.querySelectorAll("[data-scene]").forEach((el) => SAMMEM.mountScene(el, site.theme.scene, c, { center: el.closest(".s-hero").classList.contains("center") }));
+  SAMMEM.motion.init(document.getElementById("lib"));
+})();
+</script>
+</body>
+</html>
