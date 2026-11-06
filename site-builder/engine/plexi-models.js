@@ -12,6 +12,8 @@
   const MATS = { clear: ["شفاف كريستال", "linear-gradient(135deg,#fff,#e7eef3 50%,#fff)"], frost: ["مغشّى", "linear-gradient(135deg,#f3f3f3,#dcdcdc)"], white: ["أبيض", "#fbfbf8"], mirror: ["مرآة فضي", "linear-gradient(135deg,#fff,#b9bec6 45%,#6d727b 70%,#eef0f3)"], gold: ["مرآة ذهبي", "linear-gradient(135deg,#fff1c2,#c9973f 45%,#7a5418 70%,#f6dc93)"], black: ["أسود لامع", "#141114"], rose: ["وردي", "#f2c7d3"], wood: ["خشب", "linear-gradient(135deg,#e0bf93,#b88a58)"] };
   const INKS = { gold: ["ذهبي مرآة", "linear-gradient(135deg,#fff1c2,#c9973f 45%,#7a5418 70%,#f6dc93)"], silver: ["فضي مرآة", "linear-gradient(135deg,#fff,#a9adb6 45%,#5e626b 70%,#e9ebef)"], rosegold: ["روز جولد", "linear-gradient(135deg,#ffe3dc,#d9958a 45%,#93564e 70%,#f6c9bf)"], black: ["أسود", "#151215"], white: ["أبيض", "#ffffff"] };
   const INK2D = { gold: "#b8893b", silver: "#8d929c", rosegold: "#c27c71", black: "#151215", white: "#ffffff" };
+  // ألوان إضاءة مصباح الـ LED (القاعدة بتغيّر اللون متل الحقيقي)
+  const LEDS = { blue: ["أزرق", "#3fa9ff"], white: ["أبيض", "#eef6ff"], warm: ["دافي", "#ffb54d"], red: ["أحمر", "#ff3346"], pink: ["زهري", "#ff4fd2"], green: ["أخضر", "#38ff8b"], purple: ["بنفسجي", "#9a5bff"] };
   const GLOW = { gold: "#ffd27a", silver: "#8fd3ff", rosegold: "#ff8fb8", black: "#6fa8ff", white: "#ffffff" };
   const FILL2D = { black: "#1a1619", white: "#fff", rose: "#f6d6df", gold: "#e9c37a", mirror: "#d9dde2", wood: "#d8b384", frost: "#eef0f1", clear: "rgba(220,235,245,.45)" };
 
@@ -38,6 +40,9 @@
   const cloudS = () => { const s = S2(); s.moveTo(-1.8, -0.85); s.lineTo(1.8, -0.85); s.bezierCurveTo(2.45, -0.85, 2.45, 0.25, 1.7, 0.2); s.bezierCurveTo(1.85, 1.05, 0.9, 1.35, 0.6, 0.8); s.bezierCurveTo(0.4, 1.65, -0.85, 1.65, -0.8, 0.8); s.bezierCurveTo(-1.25, 1.15, -1.95, 0.8, -1.7, 0.2); s.bezierCurveTo(-2.45, 0.25, -2.45, -0.85, -1.8, -0.85); return s; };
   const handMirrorS = () => { const s = S2(), cy = 0.6, r = 1.15, a = Math.atan2(-Math.sqrt(r * r - 0.2 * 0.2), 0.2), b = Math.atan2(-Math.sqrt(r * r - 0.2 * 0.2), -0.2); s.moveTo(-0.3, -1.95); s.lineTo(0.3, -1.95); s.quadraticCurveTo(0.34, -1.2, 0.2, cy + r * Math.sin(a)); s.absarc(0, cy, r, a, b + Math.PI * 2, false); s.quadraticCurveTo(-0.34, -1.2, -0.3, -1.95); return s; };
   const medalS = () => { const s = circleS(1.3), h = new T.Path(); h.absarc(0, 1.05, 0.11, 0, Math.PI * 2, true); s.holes.push(h); return s; };
+  // لوح المصباح بيتقص على شكل الرسمة: كرة فوق وشريط الاسم تحت، أو بيت بسقف
+  const lampGlobeS = () => { const s = S2(), r = 1.25, cy = 1.0, y0 = -0.1, x0 = Math.sqrt(r * r - (cy - y0) ** 2); s.moveTo(-1.45, -1.0); s.lineTo(1.45, -1.0); s.lineTo(1.45, y0); s.lineTo(x0, y0); s.absarc(0, cy, r, Math.atan2(y0 - cy, x0), Math.atan2(y0 - cy, -x0) + Math.PI * 2, false); s.lineTo(-1.45, y0); s.lineTo(-1.45, -1.0); return s; };
+  const lampHouseS = () => { const s = S2(); s.moveTo(-1.5, -1.0); s.lineTo(1.5, -1.0); s.lineTo(1.5, 0.3); s.lineTo(1.2, 0.3); s.lineTo(0, 1.6); s.lineTo(-1.2, 0.3); s.lineTo(-1.5, 0.3); s.lineTo(-1.5, -1.0); return s; };
   const awardArchS = () => { const s = S2(), W = 2.3, H = 3.2, r = 0.9; s.moveTo(-W / 2, -H / 2); s.lineTo(W / 2, -H / 2); s.lineTo(W / 2, H / 2 - 0.55); s.quadraticCurveTo(W / 2, H / 2, 0, H / 2 + 0.05); s.quadraticCurveTo(-W / 2, H / 2, -W / 2, H / 2 - 0.55); s.lineTo(-W / 2, -H / 2); return s; };
 
   /* ---------- المجسمات ----------
@@ -67,7 +72,8 @@
     handMirror: { label: "مراية يد", cm: cm("20×35"), outline: handMirrorS, slots: [{ x: 0, y: 0.6, w: 1.7, h: 1.3, mode: "one" }], base: "none", rim: "pearl", pearls: true, mat: "mirror", ink: "gold", tilt: 0.12 },
     medal: { label: "ميدالية", cm: "قطر 6 سم", outline: medalS, slots: [{ x: 0, y: -0.1, w: 2.0, h: 1.5, mode: "one" }], base: "hang", mat: "gold", ink: "black", extra: ["keyring"] },
     badge: { label: "بروش اسم", cm: cm("7×2"), outline: () => rrect(3.2, 0.95, 0.2), slots: [{ x: 0.35, y: 0, w: 2.3, h: 0.75, mode: "one" }], base: "none", mat: "gold", ink: "black", extra: ["badgeLogo"] },
-    lamp: { label: "مصباح LED", cm: cm("20×25"), outline: () => rrect(2.7, 2.9, 0.3), slots: [{ x: 0, y: 0, w: 2.4, h: 1.7, mode: "one" }], base: "black", mat: "clear", ink: "silver", glow: true },
+    lamp: { label: "مصباح LED كرة", cm: cm("20×25"), custom: "lamp", art: "globe", outline: lampGlobeS, slots: [{ x: 0, y: -0.55, w: 2.6, h: 0.75, mode: "brand" }], mat: "clear", ink: "blue", inks: LEDS, glow: true, kind: "brand" },
+    lampHouse: { label: "مصباح LED بيت", cm: cm("25×22"), custom: "lamp", art: "house", outline: lampHouseS, slots: [{ x: 0, y: -0.5, w: 2.7, h: 0.8, mode: "brand" }], mat: "clear", ink: "blue", inks: LEDS, glow: true, kind: "brand" },
     phone: { label: "كفر موبايل", cm: cm("7×15"), outline: () => rrect(1.65, 3.3, 0.3), slots: [{ x: 0, y: -0.5, w: 1.4, h: 1.2, mode: "one" }], base: "none", mat: "white", ink: "black", extra: ["camera"], tilt: 0.1 },
     cloud: { label: "غيمة مولود", cm: cm("40×25"), outline: cloudS, slots: [{ x: 0, y: 0.1, w: 2.6, h: 1.2, mode: "one" }], base: "hang", mat: "white", ink: "gold", extra: ["stars"] },
     circle: { label: "دائرة", cm: "قطر 35 سم", outline: () => circleS(1.55), slots: [{ x: 0, y: 0, w: 2.3, h: 2.3, mode: "all" }], base: "bar", rim: "pearl", mat: "clear" },
@@ -84,7 +90,7 @@
     awardArch: "M6 18V8q0-5 6-5t6 5v10zM4 21h16", sail: "M6 20V11c4 0 7 2 8-8 3 5 4 11 3 17zM4 21h16", book: "M12 6v14M12 6C9 4 5 4 3 5v14c2-1 6-1 9 1 3-2 7-2 9-1V5c-2-1-6-1-9 1z",
     box: "M4 9h16v11H4zM3 6h18v3H3zM10 4h4v2h-4z", gradBox: "M5 10h14v11H5zM12 3 4 7l8 3 8-3z", tray: "M3 16h18v4H3zM7 16V9a5 5 0 0 1 10 0v7", tallBox: "M8 4h8v17H8zM9 4V2h6v2", bottle: "M7 9h10v12H7zM10 5h4v4h-4zM9 2h6v3H9z",
     handMirror: "M12 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12zM11 14h2v8h-2z", medal: "M12 7a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM12 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z", badge: "M3 9h18v6H3zM6 12h1",
-    lamp: "M5 3h14v14H5zM4 17h16v4H4z", phone: "M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM8 4h3v4H8z", cloud: "M7 18h10a4 4 0 0 0 0-8 5 5 0 0 0-10 0 4 4 0 0 0 0 8z",
+    lamp: "M12 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12zM5 14h14v4H5zM4 18h16v3H4z", lampHouse: "M3 11 12 3l9 8v6H3zM4 18h16v3H4z", phone: "M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM8 4h3v4H8z", cloud: "M7 18h10a4 4 0 0 0 0-8 5 5 0 0 0-10 0 4 4 0 0 0 0 8z",
     plaque: "M3 7h18v11H3z", board: "M6 3h12v18H6z",
   };
   const SHAPES = M;
@@ -93,7 +99,7 @@
     if (it && it.shape && M[it.shape]) return it.shape;
     const n = String(name || "");
     if (/فراش/.test(n)) return "butterfly"; if (/أجنح|اجنح|ملاك/.test(n)) return "wings"; if (/تاج/.test(n) && /ستاند/.test(n)) return "crown";
-    if (/مصباح|لمب|LED/i.test(n)) return "lamp"; if (/كفر|موبايل/.test(n)) return "phone"; if (/عطر/.test(n)) return "bottle"; if (/غيم/.test(n)) return "cloud"; if (/مبخر/.test(n)) return "tallBox";
+    if (/بيت|home|دير/i.test(n) && /مصباح|لمب|LED/i.test(n)) return "lampHouse"; if (/مصباح|لمب|LED/i.test(n)) return "lamp"; if (/كفر|موبايل/.test(n)) return "phone"; if (/عطر/.test(n)) return "bottle"; if (/غيم/.test(n)) return "cloud"; if (/مبخر/.test(n)) return "tallBox";
     if (/كتاب|دفتر/.test(n)) return "book"; if (/بروش/.test(n)) return "badge"; if (/مراي.*يد|مرآة يد/.test(n)) return "handMirror";
     if (/علب.*تخرج|تخرج.*علب/.test(n)) return "gradBox"; if (/صين|بوكس|توزيع/.test(n)) return "tray"; if (/علب|صندوق|ضياف/.test(n)) return "box";
     if (/خواتم|دبل|مراي|مرآ/.test(n)) return "ringStand"; if (/قلب/.test(n)) return "heart"; if (/درع/.test(n)) return "trophy";
@@ -110,12 +116,20 @@
     const fam = getComputedStyle(document.documentElement).getPropertyValue("--font-display") || "serif", body = '"Tajawal", sans-serif';
     const dir = (t) => (x.direction = /[؀-ۿ]/.test(t) ? "rtl" : "ltr");
     const fit = (t, size, maxW, weight = 700, f = fam) => { dir(t); let fs = Math.max(20, size); x.font = `${weight} ${fs}px ${f}`; while (x.measureText(t).width > maxW && fs > 18) { fs -= 4; x.font = `${weight} ${fs}px ${f}`; } return fs; };
-    const H = c.height, maxW = R * 0.9, n1 = st.n1.trim(), n2 = st.n2.trim(), line = st.line.trim();
+    const H = c.height, maxW = R * 0.9, n1 = st.n1.trim(), n2 = st.n2.trim(), line = st.line.trim(), wed = !st.kind || st.kind === "wedding";
     const say = (t, y, size, weight, f) => { if (!t) return; fit(t, size, maxW, weight, f); x.fillText(t, R / 2, y); };
     if (mode === "n1") say(n1 || n2, H * 0.52, Math.min(H * 0.62, 330));
     else if (mode === "n2") say(n1 && n2 ? n2 : "", H * 0.52, Math.min(H * 0.62, 330));
     else if (mode === "line") say(line, H * 0.5, Math.min(H * 0.55, 170), 600, body);
-    else if (mode === "one") say([n1, n2].filter(Boolean).join(" و ") || line, H * 0.5, Math.min(H * 0.6, 300));
+    else if (mode === "one") say((wed ? [n1, n2].filter(Boolean).join(" و ") : n1 || n2) || line, H * 0.5, Math.min(H * 0.6, 300));
+    else if (mode === "brand") { say(n1 || n2, n2 && n1 ? H * 0.4 : H * 0.5, Math.min(H * (n2 && n1 ? 0.5 : 0.7), 300), 700, '"Tajawal", sans-serif'); if (n1 && n2) say(n2, H * 0.85, H * 0.22, 500, body); }
+    else if (!wed) {
+      // تخرج، مولود، هدية: اللقب صغير فوق، الاسم كبير بالنص، والعبارة تحت
+      const big = Math.min(mode === "pair" ? 300 : 230, H * (mode === "pair" ? 0.42 : 0.22));
+      if (n2) say(n2, H * (mode === "pair" ? 0.16 : 0.22), big * 0.45, 600, body);
+      say(n1 || n2 && "", H * (n2 ? 0.48 : 0.42), big * 1.2);
+      if (line) say(line, H * (mode === "pair" ? 0.84 : 0.76), Math.min(110, big * 0.5), 600, body);
+    }
     else if (mode === "pair") { const t = n1 && n2 ? `${n1} & ${n2}` : n1 || n2; say(t, line ? H * 0.4 : H * 0.5, Math.min(H * (line ? 0.42 : 0.58), 260)); if (line) say(line, H * 0.82, Math.min(H * 0.18, 70), 500, body); }
     else {
       const big = Math.min(230, H * 0.2);
@@ -134,6 +148,64 @@
     return pts.map((p, i) => { const a = pts[(i - 1 + pts.length) % pts.length], b = pts[(i + 1) % pts.length], tx = b.x - a.x, ty = b.y - a.y, L = Math.hypot(tx, ty) || 1; return new T.Vector2(p.x - (ty / L) * inset * sg, p.y + (tx / L) * inset * sg); });
   }
   const bboxOf = (shape) => { const b = new T.Box2(); shape.getPoints(64).forEach((p) => b.expandByPoint(p)); return b; };
+
+  // رسمة المصباح المحفورة: خطوط مضيئة (كرة أرضية أو بيت) والاسم تحتها، بتوهج متل الليزر عالأكريليك
+  function lampArt(st, m, b, color, noText) {
+    const W = b.max.x - b.min.x, H = b.max.y - b.min.y, R = 1024, c = document.createElement("canvas"); c.width = R; c.height = Math.round(R * H / W);
+    const x = c.getContext("2d"), X = (v) => ((v - b.min.x) / W) * R, Y = (v) => ((b.max.y - v) / H) * c.height, S = R / W;
+    const strokeArt = () => {
+      x.beginPath();
+      if (m.art === "globe") {
+        const cx = X(0), cy = Y(1.0), r = 1.05 * S; x.arc(cx, cy, r, 0, Math.PI * 2);
+        for (let k = -3; k <= 3; k++) { const dy = (k * r) / 4, rx = Math.sqrt(r * r - dy * dy); x.moveTo(cx + rx, cy + dy); x.ellipse(cx, cy + dy, rx, rx * 0.14, 0, 0, Math.PI * 2); }
+        for (let j = 1; j <= 3; j++) { const rx = r * Math.cos((j * Math.PI) / 8); x.moveTo(cx, cy - r); x.ellipse(cx, cy, rx, r, 0, -Math.PI / 2, Math.PI * 1.5); }
+        x.moveTo(cx, cy - r); x.lineTo(cx, cy + r);
+      } else {
+        const p = (a, bb) => [X(a), Y(bb)]; x.moveTo(...p(-1.1, 0.25)); x.lineTo(...p(0, 1.35)); x.lineTo(...p(1.1, 0.25)); x.moveTo(...p(-0.8, 0.25)); x.lineTo(...p(0, 1.05)); x.lineTo(...p(0.8, 0.25));
+        x.moveTo(...p(0.55, 0.9)); x.lineTo(...p(0.55, 1.15)); x.lineTo(...p(0.75, 1.15)); x.lineTo(...p(0.75, 0.72));
+        const w = 0.13 * S; [[-0.16, 0.62], [0.02, 0.62], [-0.16, 0.44], [0.02, 0.44]].forEach(([a, bb]) => x.rect(X(a), Y(bb), w, w));
+      }
+    };
+    const txt = noText ? null : textCanvas(st, 2.6, 0.75, "brand");
+    // توهج عريض، وبعدين خط ساطع بالنص
+    [[color, 26, 7], ["#ffffff", 4, 2.2]].forEach(([col, blur, lw]) => {
+      x.save(); x.strokeStyle = col; x.shadowColor = color; x.shadowBlur = blur; x.lineWidth = lw; x.lineJoin = x.lineCap = "round"; strokeArt(); x.stroke(); x.restore();
+    });
+    if (noText) return c;
+    // الاسم: منلوّن قناع الكتابة بلون الإضاءة
+    const t = document.createElement("canvas"); t.width = txt.width; t.height = txt.height; const g = t.getContext("2d");
+    g.drawImage(txt, 0, 0); const id = g.getImageData(0, 0, t.width, t.height), px = id.data, cc = new T.Color(color);
+    const cr = Math.round(cc.r * 255), cg = Math.round(cc.g * 255), cb = Math.round(cc.b * 255);
+    for (let i = 0; i < px.length; i += 4) { const a = px[i]; px[i] = Math.min(255, cr + a * 0.45); px[i + 1] = Math.min(255, cg + a * 0.45); px[i + 2] = Math.min(255, cb + a * 0.45); px[i + 3] = a; }
+    g.putImageData(id, 0, 0);
+    const sl = m.slots[0], tx = X(sl.x - sl.w / 2), ty = Y(sl.y + sl.h / 2), tw = sl.w * S, th = sl.h * S;
+    x.save(); x.shadowColor = color; x.shadowBlur = 24; x.drawImage(t, tx, ty, tw, th); x.restore(); x.drawImage(t, tx, ty, tw, th);
+    return c;
+  }
+
+  /* ---------- أمثلة وأسماء خانات حسب نوع القطعة ---------- */
+  const KIND_LABELS = { wedding: ["اسم العريس", "اسم العروس", "التاريخ"], grad: ["اسم الخريج", "اللقب أو التخصص", "السنة أو عبارة"], baby: ["اسم المولود", "اسم تاني (اختياري)", "التاريخ أو عبارة"], gift: ["الاسم", "سطر تاني (اختياري)", "عبارة قصيرة"], brand: ["الاسم أو الشعار", "سطر تاني (اختياري)", "عبارة"] };
+  const EX = {
+    wedding: [["أحمد", "ليلى", "12 · 9 · 2026"], ["خالد", "ريم", "4 · 4 · 2026"], ["عمر", "جود", "21 · 7 · 2026"], ["يوسف", "لين", "28 · 9 · 2026"], ["محمود", "نور", "1 · 1 · 2027"], ["سامر", "هبة", "20 · 8 · 2026"], ["علي", "مريم", "5 · 8 · 2026"], ["كريم", "سلمى", "14 · 2 · 2027"]],
+    grad: [["سارة أحمد", "المهندسة", "دفعة 2026"], ["محمد خالد", "الدكتور", "دفعة 2026"], ["لين يوسف", "الصيدلانية", "2026"], ["عبد الله سامر", "المحامي", "دفعة 2026"]],
+    baby: [["ليان", "", "أهلاً بالأميرة"], ["آدم", "", "نوّرت دنيتنا"], ["جوري", "", "2026"], ["كرم", "", "أهلاً بالأمير"]],
+    gift: [["أبو إبراهيم", "", "هدية من القلب"], ["لمى", "", "كل عام وانتي بخير"], ["الأستاذ كريم", "", "شكراً من القلب"], ["أم محمد", "", "ست الكل"]],
+    brand: [["IT Next", "", ""], ["Al Hadi Home", "", ""], ["رونق", "", ""], ["Sweet Home", "", ""]],
+  };
+  function kindOf(it, model) {
+    const n = ((it && it.name) || "") + " " + ((it && it.desc) || "");
+    if (model && model.kind) return model.kind;
+    if (/تخرج|خريج|دكتور|مهندس|صيدل/.test(n)) return "grad";
+    if (/مولود|مواليد|بيبي|ولادة|غيمة/.test(n)) return "baby";
+    if (/عقد|خطوب|خطبه|زواج|عرس|عروس|زفاف|دبل|خواتم|العروسين/.test(n)) return "wedding";
+    return "gift";
+  }
+  function exampleFor(it, model) {
+    const k = kindOf(it, model), list = EX[k], id = String((it && (it.id || it.name)) || "x");
+    let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const e = list[h % list.length];
+    return { kind: k, labels: KIND_LABELS[k], n1: e[0], n2: e[1], line: e[2] };
+  }
 
   /* ---------- المحرك ---------- */
   function engine(host, colors) {
@@ -311,6 +383,18 @@
         face(1.1, 1.1, d / 2 + 0.03, h / 2, m.slots.map((s) => Object.assign({}, s, { x: 0, y: 0, w: 1.1, h: 1.1 })));
         return grp;
       }
+      if (m.custom === "lamp") {
+        const led = new T.Color((LEDS[st.ink] || LEDS.blue)[1]), sh = m.outline(), b = bboxOf(sh), W = b.max.x - b.min.x, H = b.max.y - b.min.y, plate = new T.Group();
+        const glass = ext(sh, 0.1, phys({ color: 0xd8ecff, roughness: 0.02, transparent: true, opacity: 0.1, clearcoat: 1, depthWrite: false }), 0.012); plate.add(glass);
+        plate.add(new T.LineSegments(new T.EdgesGeometry(glass.geometry, 30), new T.LineBasicMaterial({ color: led, transparent: true, opacity: 0.45, toneMapped: false })));
+        const art = mesh(new T.PlaneGeometry(W, H), new T.MeshBasicMaterial({ map: new T.CanvasTexture(lampArt(st, m, b, "#" + led.getHexString())), transparent: true, blending: T.AdditiveBlending, depthWrite: false, toneMapped: false, side: T.DoubleSide }), (b.min.x + b.max.x) / 2, (b.min.y + b.max.y) / 2, 0.065); plate.add(art);
+        plate.position.y = 0.42 - b.min.y - 0.06; grp.add(plate);
+        const base = mesh(new T.BoxGeometry(W * 0.82, 0.42, 0.85), phys({ color: 0x0b0a0c, roughness: 0.35, clearcoat: 0.6 }), 0, 0.21, 0); grp.add(base);
+        grp.add(mesh(new T.BoxGeometry(W * 0.7, 0.03, 0.14), new T.MeshBasicMaterial({ color: led, toneMapped: false }), 0, 0.425, 0));
+        const btn = mesh(new T.CylinderGeometry(0.05, 0.05, 0.02, 16), new T.MeshBasicMaterial({ color: 0x334433 }), W * 0.3, 0.2, 0.43); btn.rotation.x = Math.PI / 2; grp.add(btn);
+        const glowL = new T.PointLight(led, 6, 4); glowL.position.set(0, 0.7, 0.9); grp.add(glowL);
+        return grp;
+      }
       if (m.custom === "wings") {
         // جناح ريش: حافة عليا ناعمة وحافة سفلية مموّجة
         const wing = (sx) => { const s = S2(), f = (x, y) => [sx * x, y]; s.moveTo(...f(0.12, 0.35)); s.bezierCurveTo(...f(0.55, 1.6), ...f(1.5, 2.85), ...f(2.3, 3.05));
@@ -385,6 +469,7 @@
       <rect x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}" fill="url(#${id}g)"/>
       <path d="${d}" fill-rule="evenodd" fill="${FILL2D[st.mat] || FILL2D.clear}" stroke="rgba(0,0,0,.15)" stroke-width=".01"/>
       ${st.photo ? `<image href="${st.photoUrl}" x="${b.min.x}" y="${-b.max.y}" width="${b.max.x - b.min.x}" height="${b.max.y - b.min.y}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/>` : ""}
+      ${m.art ? `<image href="${lampArt(st, m, b, "#30343a", true).toDataURL()}" x="${b.min.x}" y="${-b.max.y}" width="${b.max.x - b.min.x}" height="${b.max.y - b.min.y}" preserveAspectRatio="none"/>` : ""}
       ${m.slots.map((s, i) => `<rect x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}" fill="${inkCol}" mask="url(#${id}m${i})"/>`).join("")}
       <path class="px-cut" d="${d}" fill="none" stroke="#ff2d55" stroke-width=".022" stroke-dasharray=".08 .05"/>
       <g class="px-dim" stroke="${colors.muted}" stroke-width=".01" fill="${colors.muted}" font-size=".16" font-family="Tajawal, sans-serif" text-anchor="middle">
@@ -410,5 +495,5 @@
         <text x="${tw / 2}" y="${th + 3.6}">${esc(m.cm)} · خط أحمر = قص، منقّط = طي</text></g></svg>`;
   }
 
-  SM.pxKit = { engine, svg2d, guess, SHAPES, MATS, INKS, icons, STUDIO, textCanvas };
+  SM.pxKit = { engine, svg2d, guess, SHAPES, MATS, INKS, LEDS, icons, STUDIO, textCanvas, kindOf, exampleFor };
 })();
