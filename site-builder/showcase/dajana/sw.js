@@ -1,14 +1,20 @@
-/* دجانة: تخزين مؤقت حتى يفتح الموقع بسرعة وكأنه تطبيق */
-const V = "dajana-v6";
-self.addEventListener("install", (e) => { self.skipWaiting(); e.waitUntil(caches.open(V).then((c) => c.addAll(["./", "products.js", "dajana.js"]).catch(() => {}))); });
+/* دجانة: تخزين بالمتصفح من أول زيارة حتى الموقع يفتح فوراً، والرجوع للخلف ما يستنى تحميل */
+const V = "dajana-v7";
+self.addEventListener("install", (e) => { self.skipWaiting(); e.waitUntil(caches.open(V).then((c) => c.addAll(["/"]).catch(() => {}))); });
 self.addEventListener("activate", (e) => e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== V).map((k) => caches.delete(k)))).then(() => self.clients.claim())));
+const put = (key, res) => { if (res && (res.ok || res.type === "opaque")) { const cp = res.clone(); caches.open(V).then((c) => c.put(key, cp)); } return res; };
 self.addEventListener("fetch", (e) => {
   const r = e.request; if (r.method !== "GET") return;
   const u = new URL(r.url);
-  const cacheable = u.origin === location.origin || /cdn\.jsdelivr\.net|fonts\.(googleapis|gstatic)\.com/.test(u.host);
-  if (!cacheable) return;
-  // الصفحة: الشبكة أولاً. الباقي: من التخزين فوراً مع تحديث بالخلفية
-  // الصفحة وملفات الموقع نفسه (js/css): الشبكة أولاً حتى أي تحديث يبين فوراً، والتخزين بس إذا ما في نت
-  if (r.mode === "navigate" || (u.origin === location.origin && /\.(js|css)$/.test(u.pathname))) { e.respondWith(fetch(r).then((res) => { caches.open(V).then((c) => c.put(r, res.clone())); return res; }).catch(() => caches.match(r, { ignoreSearch: true }).then((m) => m || caches.match("./")))); return; }
-  e.respondWith(caches.match(r).then((m) => { const net = fetch(r).then((res) => { if (res.ok || res.type === "opaque") caches.open(V).then((c) => c.put(r, res.clone())); return res; }).catch(() => m); return m || net; }));
+  const same = u.origin === location.origin;
+  if (same && /^\/(api|admin)\b/.test(u.pathname)) return; // المتجر ولوحة الإدارة دايماً من الشبكة
+  if (!same && !/cdn\.jsdelivr\.net|fonts\.(googleapis|gstatic)\.com/.test(u.host)) return;
+  // الصفحة: الرئيسية وكل صفحات المنتجات هي نفس الملف، فبتنفتح فوراً من المخزّن وبتتحدّث بالخلفية للمرة الجاية
+  if (r.mode === "navigate") {
+    const key = /^\/(product\/[\w-]+\/?)?$/.test(u.pathname) ? "/" : r;
+    e.respondWith(caches.match(key, { ignoreSearch: true }).then((m) => { const net = fetch(r).then((res) => put(key, res)).catch(() => m); if (m) { e.waitUntil(net); return m; } return net; }));
+    return;
+  }
+  // الباقي (ملفات بنسخة ?v=، صور، خطوط، مكتبات): من المخزّن فوراً، ومن الشبكة إذا مش موجود
+  e.respondWith(caches.match(r).then((m) => m || fetch(r).then((res) => put(r, res))));
 });

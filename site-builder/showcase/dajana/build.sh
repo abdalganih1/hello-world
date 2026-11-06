@@ -10,4 +10,5 @@ sed -e 's|\.\./\.\./||g' -e 's|<head>|<head>\n<base href="/">|' index.html > dis
 # رقم نسخة على ملفات الموقع حتى ما يضل حدا على نسخة قديمة من الكاش
 V=$(date +%s)
 sed -i -E "s#(src|href)=\"((engine|templates)/[^\"]+\.(js|css)|products\.js|dajana\.js)\"#\1=\"\2?v=$V\"#g" dist/index.html
+sed -i "s/dajana-v[0-9]*/dajana-$V/" dist/sw.js
 echo "dist جاهز: $(du -sh dist | cut -f1)"

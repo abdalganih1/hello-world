@@ -36,14 +36,32 @@
 <script src="../../engine/plexi-product.js"></script>
 <script src="../../engine/plexi-shop.js"></script>
 <script>
-  // دجانة: منحمّل المنتجات الحيّة (بحد أقصى ثانيتين ونص) وبعدين منبني الصفحة
-  // صفحة المنتج: /product/<id> (أو ?p=<id> القديم) بتنفتح كصفحة كاملة بدل نافذة
-  const m = location.pathname.match(/^\/product\/([\w-]+)/), pid = m ? m[1] : new URLSearchParams(location.search).get("p");
-  DAJANA_LIVE().then((items) => {
-    window.DAJANA_ITEMS = items;
+  // دجانة: الصفحة بتنبني فوراً من آخر نسخة منتجات محفوظة بالمتصفح، والمنتجات الحيّة بتتحدّث بالخلفية للزيارة الجاية
+  // صفحة المنتج: /product/<id> (أو ?p=<id> القديم) بتنفتح كصفحة كاملة
+  (function () {
+    const m = location.pathname.match(/^\/product\/([\w-]+)/), pid = m ? m[1] : new URLSearchParams(location.search).get("p");
     const local = !/technoenjaz|workers\.dev/.test(location.hostname);
-    SAMMEM.render(Object.assign(DAJANA_CFG(items), { product: pid || "", productUrl: local ? "?p={id}" : "/product/{id}", homeUrl: local ? "" : "/" }));
-  });
+    const KEY = "dj_items_v1", get = () => { try { const x = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(x) && x.length ? x : null; } catch (e) { return null; } };
+    const save = (x) => { try { localStorage.setItem(KEY, JSON.stringify(x)); } catch (e) {} };
+    const go = (items) => {
+      window.DAJANA_ITEMS = items;
+      SAMMEM.render(Object.assign(DAJANA_CFG(items), { product: pid || "", productUrl: local ? "?p={id}" : "/product/{id}", homeUrl: local ? "" : "/" }));
+      restore();
+    };
+    // نفس مكان السحب لما يرجع للخلف
+    const SK = "dj_y:" + location.pathname + location.search;
+    const restore = () => { try { const y = +sessionStorage.getItem(SK); if (y > 0) { history.scrollRestoration = "manual"; requestAnimationFrame(() => scrollTo(0, y)); setTimeout(() => scrollTo(0, y), 250); } } catch (e) {} };
+    addEventListener("pagehide", () => { try { sessionStorage.setItem(SK, String(Math.round(scrollY))); } catch (e) {} });
+    const cached = get();
+    if (cached && (!pid || cached.some((x) => x.id === pid))) { go(cached); DAJANA_LIVE(6000).then((x) => { if (x !== cached) save(x); }); }
+    else DAJANA_LIVE().then((x) => { save(x); go(x); });
+    // بعد ما تهدا الصفحة: منخزّن صور كل المنتجات بالمتصفح، حتى فتح أي منتج يكون فوري
+    const warm = () => { const list = (window.DAJANA_ITEMS || []).flatMap((x) => [x.thumb, x.imgs && x.imgs[0]]).filter(Boolean); let i = 0;
+      const next = () => { if (i >= list.length) return; const u = list[i++]; fetch(u, { priority: "low" }).catch(() => {}).finally(() => setTimeout(next, 60)); }; next(); };
+    addEventListener("load", () => setTimeout(() => (window.requestIdleCallback || setTimeout)(warm), 2500));
+    // لمسة على بطاقة: منبلّش نحمّل صورة المنتج الكبيرة قبل ما تفتح الصفحة
+    addEventListener("pointerdown", (e) => { const c = e.target.closest && e.target.closest(".px-card"); const it = c && (window.DAJANA_ITEMS || [])[+c.dataset.i]; if (it && it.imgs && it.imgs[0]) new Image().src = it.imgs[0]; }, { passive: true });
+  })();
 </script>
 </body>
 </html>
