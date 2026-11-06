@@ -111,6 +111,7 @@
         ${d.lead ? `<p class="lead">${esc(d.lead)}</p>` : ""}
       </div>
     </div>
+    <div class="px-rail-nav"><button type="button" data-rail-go="1" aria-label="السابق">→</button><button type="button" data-rail-go="-1" aria-label="التالي">←</button></div>
     <div class="px-rail-wrap"><div class="px-rail">
       ${list.map((it) => `<figure class="px-slide">
         <button type="button" class="px-slide-img" ${it.i != null ? `data-px-open="${it.i}"` : ""} aria-label="${esc(it.name)}">
@@ -292,7 +293,7 @@
       const L = (n) => sec.querySelector(".l" + n), steps = [...sec.querySelectorAll(".px-step")], stack = sec.querySelector(".px-stack");
       const setStep = (k) => steps.forEach((s, i) => s.classList.toggle("on", i === k));
       const laser = sec.querySelector(".px-laser");
-      const tl = g.timeline({ defaults: { ease: "power2.inOut" }, scrollTrigger: { trigger: sec, start: "top top", end: "+=170%", pin: true, scrub: 0.8, anticipatePin: 1,
+      const tl = g.timeline({ defaults: { ease: "power2.inOut" }, scrollTrigger: { trigger: sec, start: "top top", end: "+=130%", pin: true, scrub: 0.8, anticipatePin: 1,
         onUpdate: (s) => setStep(Math.min(steps.length - 1, Math.floor(s.progress * steps.length * 0.999))) } });
       g.set(stack, { rotateX: 58, rotateZ: -32, rotateY: 0 });
       g.set([L(1), L(2), L(3), L(4)], { z: 0, opacity: 0 });
@@ -322,8 +323,9 @@
           s.style.setProperty("--lit", (1 - Math.min(1, Math.abs(k))).toFixed(3));
         });
       };
-      if (dist() < 40) { bend(); return; }
-      g.to(rail, { x: () => dist(), ease: "none", scrollTrigger: { trigger: sec, start: "top top", end: () => "+=" + dist(), pin: true, scrub: 0.7, invalidateOnRefresh: true, onUpdate: bend, onRefresh: bend } });
+      // انزلاق أفقي عادي بالإصبع أو الأسهم، بدون ما نثبّت الصفحة
+      wrap.addEventListener("scroll", () => requestAnimationFrame(bend), { passive: true });
+      sec.querySelectorAll("[data-rail-go]").forEach((b) => b.addEventListener("click", () => wrap.scrollBy({ left: +b.dataset.railGo * (slides[0].offsetWidth + 30), behavior: "smooth" })));
       bend();
       addEventListener("resize", bend);
     });
@@ -519,7 +521,7 @@
       prog += (progress() - prog) * Math.min(1, dt * 6);
       const p = prog, small = !st.wide;
       root.scale.setScalar(small ? 0.74 : 1.12);
-      root.position.set(small ? 0 : -2.55 * (1 - inout(seg(p, 0.36, 0.5))), small ? -1.05 * (1 - inout(seg(p, 0.1, 0.3))) : 0, 0);
+      root.position.set(small ? 0 : -2.55 * (1 - inout(seg(p, 0.36, 0.5))), small ? -1.75 * (1 - inout(seg(p, 0.1, 0.3))) : 0, 0);
       // جوّا القوس: صالة عرض غامقة والمنتجات بتضوي، وبالآخر منرجع للون الصفحة
       const dk = inout(seg(p, 0.47, 0.6)) * (1 - inout(seg(p, 0.9, 0.995)));
       scene.background.copy(bg).lerp(night, dk); scene.fog.color.copy(scene.background); renderer.setClearColor(scene.background, 1);

@@ -185,7 +185,7 @@
         const g = new T.ExtrudeGeometry(shape, { depth: D, bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.025, bevelSegments: 3, curveSegments: 64 }); g.translate(0, 0, -D / 2);
         piece.add(new T.Mesh(g, sheetMat(st.mat)));
         if (st.photo) { const pg = new T.ShapeGeometry(shape, 64); shapeUV(pg, b); const tex = coverTex(st.photo, bw / bh); tex.repeat.set(tex.repeat.x, tex.repeat.y); const ph = new T.Mesh(pg, new T.MeshBasicMaterial({ map: tex, toneMapped: false })); ph.position.z = D / 2 + 0.03; piece.add(ph); }
-        const tw = bw * 0.9, th = bh * 0.9, tx = new T.CanvasTexture(textCanvas(st, tw, th));
+        const tk = st.shape === "butterfly" ? 0.55 : st.shape === "heart" ? 0.8 : 0.9, tw = bw * tk, th = bh * tk, tx = new T.CanvasTexture(textCanvas(st, tw, th));
         const txt = new T.Mesh(new T.PlaneGeometry(tw, th), inkMat(st.ink, tx)); txt.position.set(cx, cy, D / 2 + 0.06); piece.add(txt);
         if (st.pearls) {
           const pts = shape.getSpacedPoints(st.shape === "butterfly" ? 110 : 84), k = Math.min(bw, bh);
@@ -215,7 +215,7 @@
       const e = 1 - Math.pow(1 - pop, 3), over = Math.sin(pop * Math.PI) * 0.06;
       holder.rotation.set(rot.x, rot.y, 0); holder.scale.setScalar(0.9 + e * 0.1 + over);
       holder.position.y = (1 - e) * 0.4;
-      if (lid) lid.rotation.x = -e * 0.95;
+      if (lid) lid.rotation.x = -e * 0.28; // الغطا مسكّر مع فتحة خفيفة لتبين الحلو جوّا
       renderer.render(scene, camera);
     };
     requestAnimationFrame(loop);
@@ -224,6 +224,7 @@
 
   /* ---------- عرض 2D قبل القص ---------- */
   function svg2d(st, colors) {
+    if (st.shape === "box") return boxNet(st, colors);
     const k = st.shape === "box" ? "plaque" : st.shape, shape = shapeOf(k), b = bboxOf(shape), pad = 0.35;
     const vb = [b.min.x - pad, -b.max.y - pad, b.max.x - b.min.x + pad * 2, b.max.y - b.min.y + pad * 2];
     const d = "M" + shape.getPoints(80).map((p) => `${p.x.toFixed(3)} ${(-p.y).toFixed(3)}`).join("L") + "Z";
@@ -242,6 +243,28 @@
         <path d="M${b.min.x} ${-b.min.y + 0.2}H${b.max.x}M${b.min.x} ${-b.min.y + 0.12}v.16M${b.max.x} ${-b.min.y + 0.12}v.16" fill="none"/>
         <text x="${(b.min.x + b.max.x) / 2}" y="${-b.min.y + 0.33}" stroke="none">${esc(SHAPES[st.shape].cm)}</text>
       </g></svg>`;
+  }
+
+  // الفرد الكامل للعلبة: قاع، أربع جوانب، والغطا، مع خطوط الطي
+  function boxNet(st, colors) {
+    const W = 26, D = 18, H = 14, g = 3, pad = 4;
+    const tw = W + 2 * H, th = D + 2 * H + D + g;
+    const cut = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${st.mat === "black" ? "#1a1619" : st.mat === "white" ? "#fff" : st.mat === "rose" ? "#f6d6df" : st.mat === "gold" ? "#e9c37a" : "rgba(220,235,245,.55)"}" stroke="#ff2d55" stroke-width=".25" stroke-dasharray=".9 .5" class="px-cut"/>`;
+    const fold = (x1, y1, x2, y2) => `<path d="M${x1} ${y1}L${x2} ${y2}" stroke="${colors.muted}" stroke-width=".18" stroke-dasharray=".4 .4"/>`;
+    const ox = H, oy = H;
+    const tc = textCanvas(st, W, H);
+    const inkCol = { gold: "#b8893b", silver: "#8d929c", rosegold: "#c27c71", black: "#151215", white: "#ffffff" }[st.ink];
+    const id = "b" + Math.random().toString(36).slice(2, 7);
+    return `<svg viewBox="${-pad} ${-pad} ${tw + pad * 2} ${th + pad * 2 + 4}" aria-hidden="true" font-family="Tajawal, sans-serif">
+      <defs><mask id="${id}"><image href="${tc.toDataURL()}" x="${ox}" y="${oy + D}" width="${W}" height="${H}" preserveAspectRatio="none"/></mask></defs>
+      ${cut(ox, oy, W, D)}${cut(ox, 0, W, H)}${cut(ox, oy + D, W, H)}${cut(0, oy, H, D)}${cut(ox + W, oy, H, D)}${cut(ox - 0.5, oy + D + H + g, W + 1, D + 1)}
+      ${st.photo ? `<image href="${st.photoUrl}" x="${ox}" y="${oy + D}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid slice"/>` : ""}
+      <rect x="${ox}" y="${oy + D}" width="${W}" height="${H}" fill="${inkCol}" mask="url(#${id})"/>
+      ${fold(ox, oy, ox + W, oy)}${fold(ox, oy + D, ox + W, oy + D)}${fold(ox, oy, ox, oy + D)}${fold(ox + W, oy, ox + W, oy + D)}
+      <g fill="${colors.muted}" font-size="1.6" text-anchor="middle">
+        <text x="${ox + W / 2}" y="${oy + D / 2 + 0.6}">القاع</text><text x="${ox + W / 2}" y="${H / 2 + 0.6}">الجانب الخلفي</text><text x="${H / 2}" y="${oy + D / 2 + 0.6}">جانب</text><text x="${ox + W + H / 2}" y="${oy + D / 2 + 0.6}">جانب</text>
+        <text x="${ox + W / 2}" y="${oy + D + H + g + D / 2 + 0.6}">الغطا</text>
+        <text x="${tw / 2}" y="${th + 3.6}">${esc(SHAPES.box.cm)} · خط أحمر = قص، منقّط = طي</text></g></svg>`;
   }
 
   function guess(name) {

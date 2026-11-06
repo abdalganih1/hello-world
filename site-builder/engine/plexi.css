@@ -376,3 +376,44 @@ body:has(.px-bar) .s-footer { padding-bottom: 100px; }
 .px-in-ok { border: 0; cursor: pointer; padding: 9px 16px; border-radius: 999px; font-weight: 700; background: var(--ink); color: var(--bg); }
 .px-in-no { border: 0; cursor: pointer; width: 34px; height: 34px; border-radius: 50%; background: var(--bg); color: var(--muted); display: grid; place-items: center; }
 .px-in-no svg { width: 16px; height: 16px; }
+
+/* ---------- إصلاحات بعد التجربة ---------- */
+/* نافذة المنتج: الصورة بحجمها الطبيعي، بلا أشرطة رمادية، وما بتغطي العنوان */
+.px-dlg-media { display: block; padding: 0; background: var(--surface); }
+.px-dlg-main { display: block; width: 100%; height: auto; max-height: 72svh; object-fit: contain; border-radius: 0; box-shadow: none; margin-inline: auto; }
+@media (min-width: 861px) { .px-dlg-media { display: grid; place-items: center; background: var(--bg); } .px-dlg-main { max-height: calc(100svh - 24px); } }
+@media (max-width: 860px) {
+  .px-dlg-in { display: block; }
+  .px-dlg-main { max-height: 58svh; aspect-ratio: auto; }
+  .px-thumbs { position: static; padding: 10px 12px 0; justify-content: flex-start; }
+}
+/* أهداف لمس أكبر */
+.px-add { height: 44px; }
+.px-order { min-height: 44px; }
+.px-st-sw button { min-height: 44px; }
+.px-st-tabs button { min-height: 40px; padding-inline: 16px; }
+.px-st-toggle { min-height: 44px; padding-inline-end: 6px; }
+.px-st-toggle input { width: 22px; height: 22px; }
+.px-chip { min-height: 44px; }
+.px-name { padding: 4px 0; }
+/* مسافة تحت الأقسام حتى الشريط السفلي ما يغطي شي */
+body:has(.px-bar) .px-studio, body:has(.px-bar) .px-catalog { padding-bottom: 120px; }
+/* المختارات: سحب أفقي حر بدل التثبيت */
+.px-show { min-height: 0; }
+.px-rail-wrap { overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; padding-block: 30px 10px; }
+.px-rail-wrap::-webkit-scrollbar { display: none; }
+.px-slide { scroll-snap-align: center; transition: transform .25s ease-out; }
+.px-rail-nav { display: flex; justify-content: center; gap: 10px; margin-top: 18px; }
+.px-rail-nav button { width: 48px; height: 48px; border-radius: 50%; border: 0; cursor: pointer; font-size: 20px; background: rgba(255,255,255,.1); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.px-rail-nav button:hover { background: var(--accent); color: var(--on-accent); }
+/* الفتحة أقصر */
+.s-hero.px-cinema { height: 300svh; }
+@media (max-width: 860px) { .s-hero.px-cinema { height: 280svh; } }
+/* زر الطلب ظاهر دايماً بنافذة المنتج */
+.px-dlg-acts { position: sticky; bottom: 0; z-index: 2; padding: 12px 0 4px; margin-top: -4px; background: linear-gradient(transparent, var(--surface) 30%); }
+.px-details { max-height: 260px; overflow-y: auto; }
+/* المعاينة بالاستوديو بتضل ضمن الشاشة */
+@media (min-width: 861px) { .px-st-view { max-height: calc(100svh - 110px); aspect-ratio: auto; height: min(calc(100svh - 110px), 640px); } }
+/* الشريط السفلي للموبايل بس */
+@media (min-width: 900px) { .px-bar { display: none; } body:has(.px-bar) .wa { display: grid; } body:has(.px-bar) .px-studio, body:has(.px-bar) .px-catalog { padding-bottom: clamp(72px, 10vw, 140px); } }
+@media (min-width: 861px) { .px-dlg-body { max-height: calc(100svh - 24px); min-height: 0; } .px-dlg-in { align-items: stretch; } }
