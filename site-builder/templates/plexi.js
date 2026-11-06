@@ -15,8 +15,8 @@ window.SAMMEM_TEMPLATES.plexi = {
   },
   brand: { name: "لمسة كريستال", mark: "ل", tagline: "قطع بلكسي وأكريليك بالاسم، لكل فرحة عندكم", phone: "0944 000 000", whatsapp: "0944 000 000", address: "دمشق", hours: "كل يوم من 10 الصبح لـ 9 المسا" },
   sections: [
-    { type: "nav", data: { links: [{ id: "catalog", label: "المنتجات" }, { id: "craft", label: "كيف منصنعها" }, { id: "showcase", label: "مختارات" }, { id: "faq", label: "أسئلة" }], cta: "اطلب قطعتك", ctaTarget: "catalog" } },
-    { type: "hero", variant: "split", data: { eyebrow: "قص وحفر ليزر · بلكسي · طباعة UV", title: "قطعة شفافة بتحكي فرحتكم", lead: "ستاندات خطوبة وعقد قران، دروع تخرج، وهدايا بالاسم. منصممها إلكم ومنقصها بالليزر قطعة قطعة.", primary: "شوف المنتجات", primaryTarget: "catalog", secondary: "كيف منصنعها", secondaryTarget: "craft", badges: [{ k: "بالاسم", v: "تخصيص كامل" }, { k: "ليزر", v: "قص وحفر دقيق" }, { k: "UV", v: "طباعة ملونة" }] } },
+    { type: "nav", data: { links: [{ id: "catalog", label: "المنتجات" }, { id: "studio", label: "جرّب قطعتك" }, { id: "craft", label: "كيف منصنعها" }, { id: "showcase", label: "مختارات" }, { id: "faq", label: "أسئلة" }], cta: "اطلب قطعتك", ctaTarget: "catalog" } },
+    { type: "hero", variant: "cinema", data: { eyebrow: "قص وحفر ليزر · بلكسي · طباعة UV", title: "قطعة شفافة بتحكي فرحتكم", lead: "ستاندات خطوبة وعقد قران، دروع تخرج، وهدايا بالاسم. منصممها إلكم ومنقصها بالليزر قطعة قطعة.", primary: "شوف المنتجات", primaryTarget: "catalog", secondary: "كيف منصنعها", secondaryTarget: "craft", badges: [{ k: "بالاسم", v: "تخصيص كامل" }, { k: "ليزر", v: "قص وحفر دقيق" }, { k: "UV", v: "طباعة ملونة" }] } },
     { type: "marquee", data: { items: ["ستاندات خطوبة", "عقد قران", "دروع تخرج", "مرايا عروس", "توزيعات مواليد", "ميداليات بالاسم", "لوحات استقبال", "طباعة UV"] } },
     { type: "catalog", data: { id: "catalog", eyebrow: "المنتجات", title: "اختار قطعتك ومنكتبلك عليها اسمك", lead: "كل قطعة بتنعمل حسب الطلب: الاسم، التاريخ، الألوان، والقياس.", currency: "ل.س", pageSize: 12,
       categories: [{ id: "all", label: "الكل" }, { id: "plexi", label: "بلكسي" }, { id: "mdf", label: "خشب MDF" }, { id: "uv", label: "طباعة UV" }, { id: "vinyl", label: "فينيل" }],
@@ -30,6 +30,7 @@ window.SAMMEM_TEMPLATES.plexi = {
         { name: "توزيعات مناسبات", cat: "plexi", price: 15000, desc: "توزيعات صغيرة بالاسم والتاريخ لكل الضيوف." },
         { name: "عبارات فينيل", cat: "vinyl", price: 40000, desc: "عبارات للزجاج والجدران بأي خط بدك ياه." },
       ] } },
+    { type: "studio", data: { id: "studio", eyebrow: "جرّب قطعتك", title: "اكتب اسمك وشوف قطعتك قبل ما تنقص", lead: "اختار الشكل والخامة ولون الحروف، وضيف صورتك إذا بدك. لفّها 3D أو شوفها 2D متل ما بتطلع عالليزر، وبعدين اطلبها بضغطة." } },
     { type: "craft", data: { id: "craft", eyebrow: "كيف منصنعها", title: "أربع طبقات بتعمل قطعة وحدة", steps: [
       { title: "منصمم معكم", text: "بتبعتولنا الأسماء والتاريخ والفكرة، ومنرجعلكم تصميم تشوفوه قبل القص." },
       { title: "قص بالليزر", text: "لوح البلكسي بينقص بالليزر بدقة أجزاء من المليمتر، وحوافه بتطلع لامعة متل الكريستال." },
