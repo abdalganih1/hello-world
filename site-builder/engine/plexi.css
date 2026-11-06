@@ -524,3 +524,5 @@ body:has(.px-bar) .px-studio, body:has(.px-bar) .px-catalog { padding-bottom: 12
 @media (max-width: 380px) { .px-pp-add span { display: none; } .px-pp-add { width: 48px; padding: 0 !important; justify-content: center; } }
 .px-lite .px-pp-tabs { backdrop-filter: none; }
 @media (prefers-reduced-motion: reduce) { .px-pp-try { animation: none; } }
+/* سحب أنعم عالموبايل: المتصفح ما بيرسم البطاقات البعيدة عن الشاشة */
+.px-lite .px-card { content-visibility: auto; contain-intrinsic-size: auto 400px; }
