@@ -9,6 +9,9 @@
   if (!S) return;
 
   /* ---------- أدوات ---------- */
+  const clamp01 = (x) => Math.min(1, Math.max(0, x));
+  const seg = (p, a, b) => clamp01((p - a) / (b - a));
+  const ease = (x) => 1 - Math.pow(1 - clamp01(x), 4);
   const waNum = (n) => { let d = String(n || "").replace(/\D/g, ""); if (d.startsWith("00")) d = d.slice(2); if (d.startsWith("0")) d = "963" + d.slice(1); return d; };
   const waLink = (site, text) => { const n = waNum(site.brand.whatsapp); return n ? `https://wa.me/${n}?text=${encodeURIComponent(text)}` : "#contact"; };
   const money = (p, cur) => (typeof p === "number" ? p.toLocaleString("en-US") : esc(p)) + (cur ? ` <small>${esc(cur)}</small>` : "");
@@ -116,6 +119,46 @@
   </section>`;
   };
 
+  /* ---------- بطل سينمائي: hero بـ variant "cinema" ----------
+     شاشة مثبتة طويلة: القوس بيتركب، بيتفكك، البابين بينفتحوا، والكاميرا بتفوت لنفق المنتجات.
+     النصوص بتظهر وبتختفي حسب التقدّم (data-at="ظهور-بداية,ظهور-نهاية,اختفاء-بداية,اختفاء-نهاية"). */
+  const baseHero = S.hero;
+  S.hero = (d, site) => {
+    if (d.variant !== "cinema") return baseHero(d, site);
+    const cat = catalogOf(site), items = cat.items || [];
+    const feat = items.filter((x) => x.featured && imgOf(x));
+    const rest = items.filter((x) => !x.featured && imgOf(x));
+    const tunnel = (feat.length ? feat.concat(rest) : items).slice(0, 16).map((x) => ({ img: imgOf(x), name: x.name }));
+    const n = items.length;
+    const L = d.lines || {};
+    return `
+  <section class="s-hero px-cinema" id="hero" data-px-cinema>
+    <div class="px-sticky">
+      <div class="stage" data-scene="${esc(site.theme.scene)}"></div>
+      <script type="application/json" class="px-cine-data">${JSON.stringify(tunnel).replace(/</g, "\\u003c")}</script>
+      <div class="px-cine-veil px-c" data-at="0,0,0.1,0.22"></div>
+      <div class="wrap px-c px-c1" data-at="0,0,0.1,0.17">
+        <div class="copy">
+          ${d.eyebrow ? `<span class="eyebrow" data-hero-in>${esc(d.eyebrow)}</span>` : ""}
+          <h1 class="h-xl" data-split="hero">${esc(d.title)}</h1>
+          <p class="lead" data-hero-in>${esc(d.lead)}</p>
+          <div class="actions" data-hero-in>
+            <a class="btn" href="#${esc(d.primaryTarget || "catalog")}" data-magnetic>${esc(d.primary)} ${icon("arrow")}</a>
+            ${d.secondary ? `<a class="btn ghost" href="#${esc(d.secondaryTarget || "about")}">${esc(d.secondary)}</a>` : ""}
+          </div>
+          ${d.badges ? `<div class="badges" data-hero-in>${d.badges.map((b) => `<span class="chip"><b>${esc(b.k)}</b> ${esc(b.v)}</span>`).join("")}</div>` : ""}
+        </div>
+      </div>
+      <div class="px-c px-c2 px-side" data-at="0.17,0.22,0.36,0.41"><span class="eyebrow">${esc(L.k2 || "طبقة فوق طبقة")}</span><p class="px-huge">${esc(L.t2 || "مرآة، كريستال، وحروف من دهب")}</p></div>
+      <div class="px-c px-c3 px-mid" data-at="0.43,0.48,0.56,0.6"><p class="px-huge">${esc(L.t3 || "تفضّلوا لجوّا")}</p></div>
+      <div class="px-c px-c4 px-mid" data-at="0.66,0.72,0.86,0.9"><p class="px-count"><b data-px-n="${n}">${n}</b></p><p class="px-huge sm">${esc(L.t4 || "قطعة بتستنّى أساميكم")}</p></div>
+      <div class="px-c px-c5 px-mid" data-at="0.9,0.95,2,2"><p class="px-huge">${esc(L.t5 || "اختاروا قطعتكم")}</p><a class="btn" href="#${esc(d.primaryTarget || "catalog")}" data-magnetic>${esc(d.primary)} ${icon("arrow")}</a></div>
+      <div class="px-meter" aria-hidden="true"><i></i></div>
+      <div class="scroll-hint" aria-hidden="true">انزل لتفوت<i></i></div>
+    </div>
+  </section>`;
+  };
+
   /* ---------- نافذة تفاصيل المنتج ---------- */
   function openProduct(root, site, i) {
     const d = catalogOf(site), it = (d.items || [])[i];
@@ -136,9 +179,14 @@
         ${it.price ? `<b class="px-price">${money(it.price, d.currency)}</b>` : ""}
         ${it.desc ? `<p class="px-desc">${esc(it.desc)}</p>` : ""}
         ${it.details ? `<div class="px-details">${esc(it.details)}</div>` : ""}
-        <a class="btn" href="${esc(waLink(site, orderText(site, it, d.currency)))}" target="_blank" rel="noopener">${icon("wa")} اطلب هالقطعة على واتساب</a>
+        <div class="px-dlg-acts"><a class="btn" href="${esc(waLink(site, orderText(site, it, d.currency)))}" target="_blank" rel="noopener">${icon("wa")} اطلب هالقطعة على واتساب</a>
+        ${document.querySelector("[data-px-studio]") ? `<button type="button" class="btn ghost" data-px-try>${icon("pen")} جرّب اسمك عليها</button>` : ""}</div>
       </div></div>`;
     dlg.querySelectorAll(".px-thumbs button").forEach((b) => b.addEventListener("click", () => { dlg.querySelector(".px-dlg-main").src = b.dataset.src; dlg.querySelectorAll(".px-thumbs button").forEach((x) => x.setAttribute("aria-pressed", x === b)); }));
+    const tryB = dlg.querySelector("[data-px-try]"); if (tryB) tryB.addEventListener("click", () => { dlg.close(); SM.pxStudio && SM.pxStudio.open(it.name); });
+    // عرض 3D للصورة: لوح أكريليك سميك بيلف مع الماوس أو الإصبع
+    const media = dlg.querySelector(".px-dlg-media");
+    if (media && !matchMedia("(prefers-reduced-motion: reduce)").matches) media.addEventListener("pointermove", (e) => { const r = media.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5; media.style.setProperty("--rx", (-y * 14).toFixed(2) + "deg"); media.style.setProperty("--ry", (x * 18).toFixed(2) + "deg"); media.style.setProperty("--gx", (x * 100 + 50).toFixed(1) + "%"); });
     dlg.showModal ? dlg.showModal() : dlg.setAttribute("open", "");
     if (window.gsap && !matchMedia("(prefers-reduced-motion: reduce)").matches) window.gsap.from(dlg.querySelector(".px-dlg-in"), { y: 40, rotateX: -10, opacity: 0, duration: 0.7, ease: "expo.out" });
   }
@@ -147,6 +195,36 @@
   function init(root, site) {
     const g = window.gsap, ST = window.ScrollTrigger, reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const anim = g && ST && !reduce;
+
+    // آخر كلمة بكل عنوان بلمعة ذهب
+    root.querySelectorAll("h1[data-split], h2[data-split]").forEach((h) => { const w = h.querySelectorAll(".w"); (w.length ? w[w.length - 1] : h).classList.add("px-g"); });
+
+    // البطل السينمائي
+    root.querySelectorAll("[data-px-cinema]").forEach((sec) => {
+      const has3d = !!sec.querySelector(".stage canvas");
+      if (!has3d || reduce) { sec.classList.add("px-flat"); return; }
+      const parts = [...sec.querySelectorAll("[data-at]")].map((el) => ({ el, at: el.dataset.at.split(",").map(Number) }));
+      const meter = sec.querySelector(".px-meter i"), hint = sec.querySelector(".scroll-hint"), num = sec.querySelector("[data-px-n]");
+      let last = -1;
+      const tick = () => {
+        requestAnimationFrame(tick);
+        const r = sec.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > innerHeight) return;
+        const p = clamp01(-r.top / Math.max(1, r.height - innerHeight));
+        if (Math.abs(p - last) < 0.0005) return; last = p;
+        parts.forEach(({ el, at }) => {
+          const a = at[1] > at[0] ? seg(p, at[0], at[1]) : 1, b = 1 - seg(p, at[2], at[3]), v = Math.min(a, b);
+          el.style.opacity = v.toFixed(3);
+          el.style.transform = `translateY(${((1 - a) * 40 - (1 - b) * 40).toFixed(1)}px) scale(${(0.96 + v * 0.04).toFixed(3)})`;
+          el.style.visibility = v < 0.01 ? "hidden" : "visible";
+          el.style.filter = v < 0.999 ? `blur(${((1 - v) * 10).toFixed(1)}px)` : "none";
+        });
+        if (meter) meter.style.transform = `scaleY(${p.toFixed(4)})`;
+        if (hint) hint.style.opacity = (1 - seg(p, 0, 0.05)).toFixed(3);
+        if (num) num.textContent = Math.round(+num.dataset.pxN * ease(seg(p, 0.66, 0.8)));
+      };
+      tick();
+    });
 
     // فتح التفاصيل
     root.addEventListener("click", (e) => { const b = e.target.closest("[data-px-open]"); if (b) { e.preventDefault(); openProduct(root, site, +b.dataset.pxOpen); } });
@@ -235,22 +313,37 @@
     });
   }
 
+  // شاشة تحميل: الشعار مع خط ذهب، وبعدين ستارة بتنرفع
+  function preload(site) {
+    if (document.querySelector(".px-pre")) return;
+    const el = document.createElement("div"); el.className = "px-pre"; el.setAttribute("aria-hidden", "true");
+    el.innerHTML = `<div class="px-pre-in">${site.brand.logo ? `<img src="${esc(site.brand.logo)}" alt="">` : `<b>${esc(site.brand.mark)}</b>`}<span>${esc(site.brand.name)}</span><i><u></u></i></div>`;
+    document.body.appendChild(el);
+    const done = () => { el.classList.add("out"); setTimeout(() => el.remove(), 1400); };
+    let ok = false; const go = () => { if (!ok) { ok = true; setTimeout(done, 450); } };
+    if (document.readyState === "complete") go(); else addEventListener("load", go);
+    setTimeout(go, 3500);
+  }
+
   // بنربط حالنا بعد الحركة الأساسية، فقط إذا الصفحة فيها أقسامنا
   const baseRender = SM.render;
   if (baseRender) SM.render = function (cfg, mount) {
     const site = baseRender.call(this, cfg, mount);
     const root = mount || document.getElementById("site");
-    if (root.querySelector("[data-px-catalog], [data-px-craft], [data-px-show]")) init(root, site);
+    if (root.querySelector("[data-px-catalog], [data-px-craft], [data-px-show], [data-px-cinema]")) { init(root, site); preload(site); }
     return site;
   };
 
-  /* ---------- مشهد acrylic ---------- */
+  /* ---------- مشهد acrylic ----------
+     ستاند قوس: مرآة غامقة + لوح أكريليك (كبابين بينفتحوا) + حروف مرآة ذهبية + إطار ذهبي ولؤلؤ + قاعدة.
+     بوضع السينما (القسم [data-px-cinema]): مع الانزلاق الطبقات بتتفكك، البابين بينفتحوا،
+     والكاميرا بتعبر القوس لنفق من ألواح بلكسي عليها صور المنتجات، مع غبار ذهبي. */
   const T = window.THREE;
-  function textTexture(name, colors) {
+  function textTexture(name) {
     const c = document.createElement("canvas"); c.width = 1024; c.height = 1024;
     const tex = new T.CanvasTexture(c);
     const draw = () => {
-      const x = c.getContext("2d"); x.clearRect(0, 0, 1024, 1024); x.fillStyle = "#000"; x.fillRect(0, 0, 1024, 1024);
+      const x = c.getContext("2d"); x.fillStyle = "#000"; x.fillRect(0, 0, 1024, 1024);
       x.fillStyle = "#fff"; x.textAlign = "center"; x.textBaseline = "middle"; x.direction = "rtl";
       const fam = getComputedStyle(document.documentElement).getPropertyValue("--font-display") || "serif";
       let fs = 300; x.font = `700 ${fs}px ${fam}`;
@@ -265,82 +358,181 @@
     if (document.fonts) document.fonts.ready.then(draw);
     return tex;
   }
+  function labelTexture(name, colors) {
+    // صورة بديلة للوح إذا المنتج بلا صورة
+    const c = document.createElement("canvas"); c.width = 512; c.height = 640;
+    const x = c.getContext("2d"), g = x.createLinearGradient(0, 0, 512, 640);
+    g.addColorStop(0, colors.surface); g.addColorStop(1, colors.accent); x.fillStyle = g; x.fillRect(0, 0, 512, 640);
+    x.fillStyle = colors.ink; x.textAlign = "center"; x.direction = "rtl"; x.font = "700 40px Tajawal, sans-serif"; x.fillText(name.slice(0, 22), 256, 330);
+    return new T.CanvasTexture(c);
+  }
 
   function archShape(w, h, inset = 0) {
     const r = w / 2 - inset, s = new T.Shape();
     s.moveTo(-r, -h / 2 + inset); s.lineTo(r, -h / 2 + inset); s.lineTo(r, h / 2 - w / 2); s.absarc(0, h / 2 - w / 2, r, 0, Math.PI, false); s.lineTo(-r, -h / 2 + inset);
     return s;
   }
+  // نص القوس (باب): side = -1 يسار، 1 يمين. المحور عند المفصلة (الحافة الخارجية)
+  function doorShape(w, h, side) {
+    const r = w / 2, cy = h / 2 - w / 2, s = new T.Shape();
+    s.moveTo(0, -h / 2); s.lineTo(side * r, -h / 2); s.lineTo(side * r, cy);
+    s.absarc(0, cy, r, side > 0 ? 0 : Math.PI, Math.PI / 2, side < 0);
+    s.lineTo(0, -h / 2);
+    return s;
+  }
+
+  const inout = (x) => { x = clamp01(x); return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
 
   function acrylic(container, colors, o) {
+    const cine = container.closest("[data-px-cinema]");
     const st = SM.stage(container, colors, { exposure: 1.15 });
     const { scene, camera, renderer } = st;
-    scene.background = new T.Color(colors.bg);
-    renderer.setClearColor(new T.Color(colors.bg), 1);
+    const bg = new T.Color(colors.bg), night = new T.Color("#140c10");
+    scene.background = bg.clone();
+    renderer.setClearColor(bg, 1);
+    if (cine) { scene.fog = new T.Fog(bg, 9, 30); camera.far = 120; camera.updateProjectionMatrix(); }
     scene.add(new T.HemisphereLight(0xffffff, new T.Color(colors.accent2), 0.8));
     const key = new T.DirectionalLight(0xffffff, 2.4); key.position.set(-3, 5, 6); scene.add(key);
     const warm = new T.PointLight(new T.Color(colors.accent), 40, 18); warm.position.set(3, 2, 3); scene.add(warm);
     const rose = new T.PointLight(new T.Color(colors.accent2), 25, 14); rose.position.set(-3, -2, 2); scene.add(rose);
+    const camLight = new T.PointLight(0xffffff, 30, 12); scene.add(camLight);
 
-    const W = 2.3, H = 3.3;
+    const W = 2.3, H = 3.3, cy = H / 2 - W / 2;
     const root = new T.Group(), group = new T.Group(); root.add(group); scene.add(root);
-    const gold = new T.MeshPhysicalMaterial({ color: new T.Color(colors.accent).lerp(new T.Color("#ffd98a"), 0.35), metalness: 1, roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.08 });
+    const goldC = new T.Color(colors.accent).lerp(new T.Color("#ffd98a"), 0.35);
+    const gold = new T.MeshPhysicalMaterial({ color: goldC, metalness: 1, roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.08 });
     const glass = new T.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.04, transmission: 1, thickness: 0.35, ior: 1.49, clearcoat: 1, clearcoatRoughness: 0.03, specularIntensity: 1, attenuationColor: new T.Color(colors.accent2).lerp(new T.Color("#ffffff"), 0.75), attenuationDistance: 2.5, side: T.DoubleSide });
-    const ex = (shape, depth, bevel = 0.02) => { const g = new T.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 3, curveSegments: 64 }); g.translate(0, 0, -depth / 2); return g; };
+    const darkMirror = new T.MeshPhysicalMaterial({ color: new T.Color(colors.ink).lerp(new T.Color("#000"), 0.4), metalness: 1, roughness: 0.06, clearcoat: 1, transparent: true });
+    const ex = (shape, depth, bevel = 0.02) => { const g = new T.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 3, curveSegments: 48 }); g.translate(0, 0, -depth / 2); return g; };
 
-    // 1. مرآة خلفية غامقة
-    const mirror = new T.Mesh(ex(archShape(W, H), 0.05, 0.01), new T.MeshPhysicalMaterial({ color: new T.Color(colors.ink).lerp(new T.Color("#000"), 0.4), metalness: 1, roughness: 0.06, clearcoat: 1 }));
-    // 2. لوح أكريليك شفاف
-    const sheet = new T.Mesh(ex(archShape(W, H), 0.14, 0.03), glass);
-    // 3. حروف مرآة ذهبية (اسم المحل)
-    const words = new T.Mesh(new T.PlaneGeometry(W * 0.92, W * 0.92), new T.MeshPhysicalMaterial({ color: gold.color, metalness: 1, roughness: 0.18, clearcoat: 1, alphaMap: textTexture((o.name || document.title.split(" · ")[0]).trim(), colors), transparent: true, alphaTest: 0.4, side: T.DoubleSide }));
+    // البابين: كل باب = نص مرآة + نص أكريليك، بيلفّ حول مفصلته
+    const doors = [-1, 1].map((side) => {
+      const pivot = new T.Group(); pivot.position.x = side * W / 2;
+      const m = new T.Mesh(ex(doorShape(W, H, side), 0.05, 0.01), darkMirror); m.position.set(-side * W / 2, 0, -0.12);
+      const g = new T.Mesh(ex(doorShape(W, H, side), 0.14, 0.025), glass); g.position.set(-side * W / 2, 0, 0);
+      pivot.add(m, g); pivot.userData = { side, m, g }; group.add(pivot); return pivot;
+    });
+    const words = new T.Mesh(new T.PlaneGeometry(W * 0.92, W * 0.92), new T.MeshPhysicalMaterial({ color: goldC, metalness: 1, roughness: 0.18, clearcoat: 1, alphaMap: textTexture((o.name || document.title.split(" · ")[0]).trim()), transparent: true, alphaTest: 0.4, side: T.DoubleSide }));
     words.position.y = 0.05;
-    // 4. إطار ذهبي مع لؤلؤ
     const frameS = archShape(W, H); frameS.holes.push(archShape(W, H, 0.16));
     const frame = new T.Group();
     frame.add(new T.Mesh(ex(frameS, 0.06, 0.015), gold));
-    const pts = [], r0 = W / 2 - 0.08, cy = H / 2 - W / 2;
+    const pts = [], r0 = W / 2 - 0.08;
     for (let i = 0; i <= 34; i++) { const a = Math.PI * (i / 34); pts.push([Math.cos(a) * r0, cy + Math.sin(a) * r0]); }
     for (let y = cy - 0.13; y > -H / 2 + 0.1; y -= 0.13) pts.push([r0, y], [-r0, y]);
     const pearl = new T.InstancedMesh(new T.SphereGeometry(0.055, 20, 14), new T.MeshPhysicalMaterial({ color: 0xfffaf0, roughness: 0.25, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.1, sheen: 1, sheenColor: new T.Color("#ffe6f0"), iridescence: 0.5 }), pts.length);
     const m4 = new T.Matrix4(); pts.forEach((p, i) => { m4.makeTranslation(p[0], p[1], 0.05); pearl.setMatrixAt(i, m4); });
     frame.add(pearl);
-    // القاعدة
     const base = new T.Mesh(new T.BoxGeometry(W + 0.5, 0.16, 0.7), gold); base.position.y = -H / 2 - 0.08;
     const baseGlass = new T.Mesh(new T.BoxGeometry(W + 0.3, 0.12, 0.55), glass); baseGlass.position.y = -H / 2 - 0.22;
-    [mirror, sheet, words, frame].forEach((m) => group.add(m));
-    group.add(base, baseGlass);
-    const rest = { mirror: -0.12, sheet: 0, words: 0.1, frame: 0.16 };
+    group.add(words, frame, base, baseGlass);
 
-    // قطع صغيرة طايرة: قلوب ونجوم ودوائر بلكسي وذهب
+    // قطع صغيرة طايرة: قلوب ونجوم ودوائر
     const heart = new T.Shape(); heart.moveTo(0, -0.18); heart.bezierCurveTo(-0.3, 0.02, -0.18, 0.26, 0, 0.12); heart.bezierCurveTo(0.18, 0.26, 0.3, 0.02, 0, -0.18);
     const star = new T.Shape(); for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2 + Math.PI / 2, r = i % 2 ? 0.08 : 0.19; i ? star.lineTo(Math.cos(a) * r, Math.sin(a) * r) : star.moveTo(Math.cos(a) * r, Math.sin(a) * r); }
     const disc = new T.Shape(); disc.absarc(0, 0, 0.15, 0, Math.PI * 2);
     const bits = [], shapes = [heart, star, disc];
     for (let i = 0; i < 16; i++) {
       const m = new T.Mesh(ex(shapes[i % 3], 0.05, 0.012), i % 4 === 0 ? gold : glass);
-      const a = (i / 16) * Math.PI * 2;
-      m.userData = { a, r: 2.1 + (i % 3) * 0.45, y: Math.sin(i * 2.3) * 1.8, sp: 0.15 + (i % 5) * 0.04, rs: 0.4 + (i % 3) * 0.3 };
+      m.userData = { a: (i / 16) * Math.PI * 2, r: 2.1 + (i % 3) * 0.45, y: Math.sin(i * 2.3) * 1.8, sp: 0.15 + (i % 5) * 0.04, rs: 0.4 + (i % 3) * 0.3 };
       m.scale.setScalar(0.7 + (i % 4) * 0.2);
       root.add(m); bits.push(m);
     }
 
-    const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 4);
+    // نفق المنتجات (السينما فقط)
+    const panels = [], Z0 = -5, GAP = 3.1;
+    let dust = null, tunnelEnd = 0;
+    if (cine) {
+      let list = [];
+      try { list = JSON.parse((cine.querySelector(".px-cine-data") || {}).textContent || "[]"); } catch (e) {}
+      const small = innerWidth < 700;
+      list = list.slice(0, small ? 10 : 16);
+      const loader = new T.TextureLoader();
+      const frameMat = gold;
+      list.forEach((it, i) => {
+        const p = new T.Group(), side = i % 2 ? 1 : -1;
+        const pw = 1.7, ph = 2.12;
+        const mat = new T.MeshBasicMaterial({ color: 0xffffff, toneMapped: false, map: it.img ? null : labelTexture(it.name || "", colors) });
+        if (it.img) loader.load(it.img, (tx) => { tx.colorSpace = T.SRGBColorSpace; tx.anisotropy = 4; const a = tx.image.width / tx.image.height; const r = pw / ph; tx.repeat.set(a > r ? r / a : 1, a > r ? 1 : a / r); tx.offset.set((1 - tx.repeat.x) / 2, (1 - tx.repeat.y) / 2); mat.map = tx; mat.needsUpdate = true; });
+        const photo = new T.Mesh(new T.PlaneGeometry(pw, ph), mat); photo.position.z = 0.051;
+        const slab = new T.Mesh(new T.BoxGeometry(pw + 0.24, ph + 0.24, 0.1), new T.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.05, metalness: 0, clearcoat: 1, transparent: true, opacity: 0.35, side: T.DoubleSide }));
+        const edge = new T.Mesh(new T.BoxGeometry(pw + 0.3, 0.05, 0.12), frameMat); edge.position.y = -ph / 2 - 0.15;
+        p.add(slab, photo, edge);
+        const R = small ? 1.55 : 2.35;
+        p.position.set(side * R + (small ? 0 : Math.sin(i * 1.7) * 0.25), Math.sin(i * 2.1) * (small ? 0.5 : 0.7), Z0 - i * GAP);
+        p.rotation.y = -side * (small ? 0.55 : 0.7);
+        p.userData = { y: p.position.y, k: i };
+        root.add(p); panels.push(p);
+      });
+      tunnelEnd = Z0 - Math.max(1, list.length) * GAP;
+      // غبار ذهبي على طول النفق
+      const n = 900, pos = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) { pos[i * 3] = (Math.random() - 0.5) * 9; pos[i * 3 + 1] = (Math.random() - 0.5) * 6; pos[i * 3 + 2] = 6 - Math.random() * (Math.abs(tunnelEnd) + 14); }
+      const dg = new T.BufferGeometry(); dg.setAttribute("position", new T.BufferAttribute(pos, 3));
+      dust = new T.Points(dg, new T.PointsMaterial({ color: goldC, size: 0.035, transparent: true, opacity: 0.85, depthWrite: false }));
+      root.add(dust);
+    }
+
+    let prog = 0;
+    const progress = () => { const r = cine.getBoundingClientRect(); return clamp01(-r.top / Math.max(1, r.height - innerHeight)); };
     st.update = (dt, t) => {
-      const A = SM.anchor(st, o.center), s = st.scroll;
-      root.position.set(A.x, A.y, 0); root.scale.setScalar(A.s);
-      // دخول: الطبقات بتجي من بعيد وبتتركب
-      const k = ease((t - 0.2) / 2.2), sep = (1 - k) * 2.2 + s * 1.6;
-      mirror.position.z = rest.mirror - sep * 0.9;
-      sheet.position.z = rest.sheet;
-      words.position.z = rest.words + sep * 0.7;
-      frame.position.z = rest.frame + sep * 1.3;
-      [mirror, words, frame].forEach((m, i) => { m.rotation.y = (1 - k) * (i - 1) * 0.6; });
-      group.rotation.y = -0.38 + (1 - k) * 1.2 + st.pointer.sx * 0.35 + s * 1.1 + Math.sin(t * 0.5) * 0.05;
-      group.rotation.x = 0.05 - st.pointer.sy * 0.15 + s * 0.25;
-      group.position.y = Math.sin(t * 0.8) * 0.06 - s * 0.6;
-      bits.forEach((b) => { const u = b.userData, a = u.a + t * u.sp; b.position.set(Math.cos(a) * u.r, u.y + Math.sin(t * 0.6 + u.a) * 0.25 + s * 2 * (u.sp * 4), Math.sin(a) * u.r * 0.6); b.rotation.set(t * u.rs, t * u.rs * 0.7, 0); });
-      camera.position.x = st.pointer.sx * 0.3; camera.position.y = st.pointer.sy * 0.2; camera.lookAt(root.position.x * 0.15, 0, 0);
+      const k = ease((t - 0.2) / 2.2); // دخول: الطبقات بتتركب
+      if (!cine) {
+        const A = SM.anchor(st, o.center), s = st.scroll;
+        root.position.set(A.x, A.y, 0); root.scale.setScalar(A.s);
+        const sep = (1 - k) * 2.2 + s * 1.6;
+        doors.forEach((d) => { d.userData.m.position.z = -0.12 - sep * 0.9; d.rotation.y = 0; });
+        words.position.z = 0.1 + sep * 0.7; frame.position.z = 0.16 + sep * 1.3;
+        words.rotation.y = 0; frame.rotation.y = (1 - k) * 0.6;
+        group.rotation.y = -0.38 + (1 - k) * 1.2 + st.pointer.sx * 0.35 + s * 1.1 + Math.sin(t * 0.5) * 0.05;
+        group.rotation.x = 0.05 - st.pointer.sy * 0.15 + s * 0.25;
+        group.position.y = Math.sin(t * 0.8) * 0.06 - s * 0.6;
+        bits.forEach((b) => { const u = b.userData, a = u.a + t * u.sp; b.position.set(Math.cos(a) * u.r, u.y + Math.sin(t * 0.6 + u.a) * 0.25 + s * 2 * (u.sp * 4), Math.sin(a) * u.r * 0.6); b.rotation.set(t * u.rs, t * u.rs * 0.7, 0); });
+        camera.position.set(st.pointer.sx * 0.3, st.pointer.sy * 0.2, 10); camera.lookAt(root.position.x * 0.15, 0, 0);
+        camLight.position.copy(camera.position);
+        return;
+      }
+      // ---- السينما ----
+      prog += (progress() - prog) * Math.min(1, dt * 6);
+      const p = prog, small = !st.wide;
+      root.scale.setScalar(small ? 0.74 : 1.12);
+      root.position.set(small ? 0 : -2.55 * (1 - inout(seg(p, 0.36, 0.5))), small ? -1.05 * (1 - inout(seg(p, 0.1, 0.3))) : 0, 0);
+      // جوّا القوس: صالة عرض غامقة والمنتجات بتضوي، وبالآخر منرجع للون الصفحة
+      const dk = inout(seg(p, 0.47, 0.6)) * (1 - inout(seg(p, 0.9, 0.995)));
+      scene.background.copy(bg).lerp(night, dk); scene.fog.color.copy(scene.background); renderer.setClearColor(scene.background, 1);
+      const ex1 = inout(seg(p, 0.1, 0.32)) * (1 - inout(seg(p, 0.34, 0.46))); // تفكك ثم رجعة
+      const sep = (1 - k) * 2.2 + ex1 * 2.4;
+      const open = inout(seg(p, 0.42, 0.58)); // البابين
+      doors.forEach((d) => {
+        const sd = d.userData.side;
+        d.userData.m.position.z = -0.12 - sep * 0.9;
+        d.rotation.y = sd * open * 1.95;
+        d.userData.m.material.opacity = 1 - seg(p, 0.5, 0.6);
+      });
+      words.position.z = 0.1 + sep * 0.7; words.material.opacity = 1 - seg(p, 0.42, 0.5); words.visible = words.material.opacity > 0.01;
+      frame.position.z = 0.16 + sep * 1.3; frame.rotation.y = (1 - k) * 0.6;
+      const spin = Math.sin(ex1 * Math.PI) * 0.9;
+      group.rotation.y = (1 - k) * 1.2 + (-0.32 + st.pointer.sx * 0.3) * (1 - seg(p, 0.3, 0.45)) + spin * 0.6;
+      group.rotation.x = 0.04 - st.pointer.sy * 0.12 * (1 - seg(p, 0.3, 0.45)) + ex1 * 0.35;
+      group.position.y = Math.sin(t * 0.8) * 0.05 * (1 - seg(p, 0.4, 0.5));
+      // الكاميرا: بتقرّب، بتعبر القوس، وبتمشي بالنفق
+      const fly = inout(seg(p, 0.5, 1));
+      const zA = 10 - inout(seg(p, 0.3, 0.52)) * 3.4;
+      const camZ = zA - fly * (zA - (tunnelEnd - 2));
+      const doorY = -0.25 * (small ? 0.74 : 1.12);
+      camera.position.set(st.pointer.sx * 0.3 + Math.sin(camZ * 0.18) * 0.35 * fly, doorY * seg(p, 0.4, 0.55) + st.pointer.sy * 0.15 + Math.cos(camZ * 0.15) * 0.2 * fly, camZ);
+      camera.lookAt(camera.position.x * 0.5 + root.position.x * (1 - fly), camera.position.y * 0.6, camZ - 8);
+      camera.rotation.z = Math.sin(camZ * 0.08) * 0.05 * fly;
+      camLight.position.set(camera.position.x, camera.position.y + 1, camZ - 1.5);
+      bits.forEach((b) => { const u = b.userData, a = u.a + t * u.sp; b.position.set(Math.cos(a) * u.r * (1 + ex1 * 0.6), u.y + Math.sin(t * 0.6 + u.a) * 0.25, Math.sin(a) * u.r * 0.6); b.rotation.set(t * u.rs, t * u.rs * 0.7, 0); b.visible = p < 0.75; });
+      panels.forEach((pn) => {
+        const d = pn.position.z - camZ; // سالب = قدام الكاميرا
+        const near = clamp01(1 - (-d - 2) / 14);
+        pn.position.y = pn.userData.y + Math.sin(t * 0.7 + pn.userData.k) * 0.08;
+        pn.scale.setScalar(0.85 + near * 0.15);
+        pn.visible = d < 1.5 && p > 0.38;
+      });
+      if (dust) { dust.rotation.z = t * 0.02; dust.material.opacity = 0.85 * seg(p, 0.35, 0.5); }
     };
     return st;
   }
