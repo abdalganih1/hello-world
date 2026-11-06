@@ -122,7 +122,7 @@
   }
 
   /* ---------- المعالج ---------- */
-  const st = { logo: "", images: [], morePal: false, idea: "", t: "agency", palette: "bold", name: "", tagline: "", off: [], phone: "", whatsapp: "", slug: "", step: 0 };
+  const st = { content: {}, logo: "", images: [], morePal: false, idea: "", t: "agency", palette: "bold", name: "", tagline: "", off: [], phone: "", whatsapp: "", slug: "", step: 0 };
   const layer = $("#layer");
 
   function steps() {
@@ -177,7 +177,7 @@
 
   function startWizard(idea, forceT) {
     st.idea = idea.trim(); st.ai = chooseTemplate(st.idea); st.t = forceT || st.ai; st.palette = TPL[st.t].defaultPalette;
-    st.name = guessName(st.idea); st.slug = slugify(st.name) || TPL[st.t].id; st.off = []; st.step = 0; st.logo = ""; st.images = []; st.morePal = false;
+    st.name = guessName(st.idea); st.slug = slugify(st.name) || TPL[st.t].id; st.off = []; st.step = 0; st.logo = ""; st.images = []; st.morePal = false; st.content = {};
     layer.hidden = false; document.body.classList.add("busy"); document.body.style.overflow = "hidden";
     paint(true);
   }
@@ -213,17 +213,48 @@
   }
   function close() { layer.hidden = true; layer.innerHTML = ""; document.body.classList.remove("busy"); document.body.style.overflow = ""; }
 
+  /* ---------- الذكاء الاصطناعي عبر الـ Worker ---------- */
+  const EDITABLE = ["hero", "marquee", "about", "services", "menu", "process", "gallery", "team", "testimonials", "pricing", "faq", "cta", "contact"];
+  function editableContent() {
+    const site = window.SAMMEM.build(Object.assign(cfg(), { off: [] }));
+    return { palette: st.palette, brand: { name: site.brand.name, tagline: site.brand.tagline }, off: st.off,
+      sections: site.sections.filter((x) => EDITABLE.includes(x.type)).map((x) => ({ type: x.type, data: x.data })) };
+  }
+  async function askAI(kind, instruction) {
+    const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 60000);
+    try {
+      const r = await fetch("/api/" + kind, { method: "POST", signal: ctrl.signal, headers: { "content-type": "application/json" }, body: JSON.stringify({ instruction, name: st.name, content: editableContent() }) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) return { ok: false, reply: d.reply };
+      return { ok: true, ...d };
+    } catch (e) { return { ok: false }; } finally { clearTimeout(timer); }
+  }
+  function applyAI(d) {
+    if (d.palette) st.palette = d.palette;
+    if (d.brand && d.brand.name) st.name = d.brand.name;
+    if (d.brand && d.brand.tagline) st.tagline = d.brand.tagline;
+    (d.sections || []).forEach((x) => { st.content[x.type] = x.data; });
+    (d.off || []).forEach((t) => { if (!st.off.includes(t)) st.off.push(t); });
+    (d.on || []).forEach((t) => { st.off = st.off.filter((x) => x !== t); });
+    return (d.sections || []).length || d.palette || d.brand || (d.off || []).length || (d.on || []).length;
+  }
+
   /* ---------- التوليد ---------- */
   function generate() {
     const lines = ["عم نفهم فكرتك ونختار القالب", "عم نكتب النصوص بالعربي", "عم نركّب الأقسام والحركة", "عم نجهّز المعاينة"];
     layer.innerHTML = shell(`<div class="gen"><div class="box"><div class="orbit"><i></i><i></i><i></i></div><h2>عم نصمّم «${esc(st.name)}»</h2><ul>${lines.map((l) => `<li>${l}</li>`).join("")}</ul></div></div>`);
-    const li = layer.querySelectorAll(".gen li"); let i = 0;
-    const tick = () => { if (i) li[i - 1].className = "ok"; if (i < li.length) { li[i].className = "run"; i++; setTimeout(tick, reduce ? 200 : 750); } else setTimeout(preview, 350); };
+    const li = layer.querySelectorAll(".gen li"); let i = 0, done = false;
+    const job = askAI("write", st.idea + (st.tagline ? " — " + st.tagline : "")).then((d) => { if (d.ok) applyAI(d); st.wrote = d.ok; done = true; });
+    const tick = () => {
+      if (i === 2 && !done) { setTimeout(tick, 400); return; } // منستنى الكتابة عند خطوة النصوص
+      if (i) li[i - 1].className = "ok";
+      if (i < li.length) { li[i].className = "run"; i++; setTimeout(tick, reduce ? 200 : 750); } else job.then(() => setTimeout(preview, 350));
+    };
     tick();
   }
 
   /* ---------- المعاينة ---------- */
-  function cfg() { return { t: st.t, palette: st.palette, name: st.name.trim(), tagline: st.tagline.trim(), phone: st.phone.trim(), whatsapp: st.whatsapp.trim(), off: st.off, logo: st.logo, images: st.images }; }
+  function cfg() { return { t: st.t, palette: st.palette, name: st.name.trim(), tagline: st.tagline.trim(), phone: st.phone.trim(), whatsapp: st.whatsapp.trim(), off: st.off, logo: st.logo, images: st.images, content: st.content }; }
   function siteUrl() { const c = cfg(), q = new URLSearchParams(); Object.entries(c).forEach(([k, v]) => { if (Array.isArray(v) ? v.length : v) q.set(k, Array.isArray(v) ? v.join(",") : v); }); return "site.html?" + q.toString(); }
 
   function preview() {
@@ -248,21 +279,25 @@
         </div>
         <div class="edit-box"><label class="fine" for="ask-edit">بدك تعديل؟ اكتبه بكلماتك</label><textarea id="ask-edit" placeholder="مثلاً: خلي الألوان أفتح، وزيد قسم عروض"></textarea><button class="pbtn ghost" data-redo>طبّق التعديل</button><p class="fine" id="edit-msg" role="status"></p></div>
         <div class="acts"><button class="pbtn accent" data-send>أرسل للمراجعة</button></div>
-        <p class="note">هاد نموذج أولي للتجربة: الإرسال والتعديل بالكلمات رح يشتغلوا لما نربط المنصة بالذكاء الاصطناعي ولوحة الأدمن.</p>
+        <p class="note">${st.wrote ? "النصوص كتبها الذكاء الاصطناعي حسب فكرتك. راجعها قبل الإرسال." : "النصوص الحالية من القالب. لما تنشر المنصة على حسابك، الذكاء الاصطناعي بيكتبها حسب فكرتك."}</p>
       </aside></div>`;
     const f = $("#pf"), fw = $("#fw");
     addEventListener("message", function onMsg(e) { if (e.data && e.data.type === "sammem:ready" && e.source === f.contentWindow) f.contentWindow.postMessage({ type: "sammem:config", cfg: cfg() }, "*"); });
     layer.querySelectorAll("[data-dev]").forEach((b) => b.onclick = () => { layer.querySelectorAll("[data-dev]").forEach((x) => x.setAttribute("aria-pressed", x === b)); fw.classList.toggle("mobile", b.dataset.dev === "mob"); });
     $("[data-edit]", layer).onclick = () => { st.step = 0; paint(true); };
-    $("[data-redo]", layer).onclick = () => {
-      const v = $("#ask-edit").value;
+    const reload = () => (f.src = "site.html?embed=1&r=" + Date.now());
+    $("[data-redo]", layer).onclick = async (e) => {
+      const v = $("#ask-edit").value, msg = $("#edit-msg"), btn = e.currentTarget;
+      if (v.trim().length < 3) { msg.textContent = "اكتب شو بدك نغيّر."; return; }
+      btn.disabled = true; msg.textContent = "عم نعدّل…";
+      const d = await askAI("edit", v);
+      btn.disabled = false;
+      if (d.ok) { if (applyAI(d)) reload(); msg.textContent = d.reply || "تم."; if (d.ok) $("#ask-edit").value = ""; return; }
+      // بدون اتصال بالـ Worker (متل هالمعاينة): بس الألوان بتتغير محلياً
       const before = st.palette;
       if (/فاتح|أفتح|افتح|هادي|ابيض|أبيض/.test(v)) st.palette = "calm"; else if (/غامق|فخم|ذهبي|اسود|أسود/.test(v)) st.palette = "luxe"; else if (/جريء|قوي|حماس|ملفت/.test(v)) st.palette = "bold";
-      const changed = st.palette !== before;
-      const msg = $("#edit-msg");
-      if (v.trim().length < 3) { msg.textContent = "اكتب شو بدك نغيّر."; return; }
-      if (changed) { f.src = "site.html?embed=1&r=" + Date.now(); msg.textContent = "غيّرنا الألوان. باقي أنواع التعديل (المنيو والنصوص والأقسام) بتشتغل لما نربط الذكاء الاصطناعي."; }
-      else msg.textContent = "وصل طلبك. بهالنسخة التجريبية ما في ذكاء اصطناعي مربوط لسا، فالتعديلات على النصوص والمنيو بتشتغل بالمرحلة الجاية.";
+      if (st.palette !== before) { reload(); msg.textContent = "غيّرنا الألوان. باقي التعديلات بتحتاج الذكاء الاصطناعي، وبيشتغل بعد ما ننشر المنصة على حسابك."; }
+      else msg.textContent = d.reply || "هالنسخة مو مربوطة بالذكاء الاصطناعي. بعد ما ننشرها على حسابك بكلاودفلير، هالطلب بيتنفّذ مباشرة.";
     };
     $("[data-send]", layer).onclick = (e) => { e.target.disabled = true; e.target.textContent = "انبعت للمراجعة"; const s = $("#stt"); s.textContent = "قيد المراجعة · منبعتلك إشعار لما ينفتح"; };
     if (window.gsap && !reduce) { gsap.from(".pv-side > *", { x: -30, opacity: 0, stagger: 0.06, duration: 0.6, ease: "power3.out" }); gsap.from("#fw", { scale: 0.96, opacity: 0, duration: 0.8, ease: "expo.out" }); }

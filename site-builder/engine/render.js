@@ -16,6 +16,8 @@
     if (cfg.logo) site.brand.logo = cfg.logo;
     site.images = Array.isArray(cfg.images) ? cfg.images : [];
     ["phone", "whatsapp", "email", "address", "hours"].forEach((k) => { if (cfg[k]) site.brand[k] = cfg[k]; });
+    // تعديلات الذكاء الاصطناعي: { type: data } بتنضاف فوق بيانات القالب (المعرّف id بيضل نفسه)
+    if (cfg.content) site.sections.forEach((s) => { const d = cfg.content[s.type]; if (d) s.data = Object.assign({}, s.data, d, s.data && s.data.id ? { id: s.data.id } : {}); });
     const off = new Set(cfg.off || []);
     site.sections = site.sections.filter((s) => !off.has(s.type) && !off.has(s.data && s.data.id));
     // الهيرو بياخد اسم المشروع إذا ما في عنوان مخصص

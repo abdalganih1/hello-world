@@ -28,3 +28,21 @@
 ## التجربة محلياً
 
 افتح `index.html` بالمتصفح مباشرة. المكتبات (Three.js r158 و GSAP 3.12.5) بتنحمّل من jsDelivr.
+
+## النشر على كلاودفلير (مع الذكاء الاصطناعي)
+
+الـ Worker (`worker/index.js`) بيخدم ملفات المنصة وفيه نقطتين:
+`POST /api/write` (كتابة النصوص من فكرة الزبون) و`POST /api/edit` (التعديل بالكلمات).
+الموديل بيرجّع JSON صغير بالأقسام اللي تغيّرت بس، والـ Worker بيتحقق منه قبل ما يرجعه.
+
+```bash
+cd site-builder
+npx wrangler login
+npx wrangler secret put AI_KEY        # الصق مفتاح مزودك هون، ما بينكتب بأي ملف
+npx wrangler deploy
+curl https://sammem.<حسابك>.workers.dev/api/health
+```
+
+- الرابط والموديل بـ `wrangler.jsonc` (`AI_BASE_URL` و`AI_MODEL`). الرابط لازم ينتهي بـ `/v1`.
+- إذا مزودك وقف، الـ Worker بيرجع تلقائياً لـ Workers AI.
+- للحد اليومي: `npx wrangler kv namespace create LIMITS` وحط رقمه بـ `wrangler.jsonc`.

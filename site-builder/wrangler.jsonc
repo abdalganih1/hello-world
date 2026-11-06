@@ -1,0 +1,18 @@
+{
+  // صمّم: Worker واحد بيخدم المنصة والـ API
+  "name": "sammem",
+  "main": "worker/index.js",
+  "compatibility_date": "2025-10-01",
+  "assets": { "directory": ".", "binding": "ASSETS" },
+  "vars": {
+    // رابط مزودك المتوافق مع OpenAI لحد /v1 (بدون /chat/completions). عدّله إذا الرابط مختلف.
+    "AI_BASE_URL": "https://api.abdalgani.com/v1",
+    "AI_MODEL": "glm-5.3-flash",
+    "DAILY_EDITS": "20",
+    "DAILY_WRITES": "5"
+  },
+  // احتياط إذا مزودك وقف
+  "ai": { "binding": "AI" }
+  // الحد اليومي: اعمل KV واكتب رقمه هون (اختياري)
+  // , "kv_namespaces": [{ "binding": "LIMITS", "id": "ضع-رقم-الـKV" }]
+}
