@@ -24,6 +24,15 @@
     tl.from(root.querySelectorAll("[data-hero-in]"), { y: 30, opacity: 0, duration: 1.1, stagger: 0.1 }, 0.45);
     tl.from(root.querySelectorAll(".s-nav .bar"), { y: -40, opacity: 0, duration: 1 }, 0.2);
 
+    // تثبيت البطل: المشهد بيكمل حركته (تقطيع، فتح، فرد) والصفحة واقفة
+    root.querySelectorAll(".s-hero[data-pin]").forEach((hero) => {
+      const stage = hero.querySelector(".stage"), hint = hero.querySelector(".scroll-hint"), copy = hero.querySelector(".copy");
+      stage.dataset.pinned = "1"; stage.dataset.progress = "0";
+      ST.create({ trigger: hero, start: "top top", end: () => "+=" + Math.round(innerHeight * 1.3), pin: true, scrub: true, invalidateOnRefresh: true,
+        onUpdate: (s) => { stage.dataset.progress = s.progress.toFixed(4); if (hint) hint.style.opacity = String(1 - Math.min(1, s.progress * 4)); } });
+      if (copy) g.to(copy, { yPercent: -6, ease: "none", scrollTrigger: { trigger: hero, start: "top top", end: () => "+=" + Math.round(innerHeight * 1.3), scrub: true } });
+    });
+
     // عناوين الأقسام كلمة كلمة
     root.querySelectorAll("[data-split]:not([data-split='hero'])").forEach((h) => {
       g.from(h.querySelectorAll(".w > span"), { yPercent: 105, duration: 1.1, ease: "expo.out", stagger: 0.05, scrollTrigger: { trigger: h, start: "top 88%" } });
@@ -87,6 +96,20 @@
         window.ScrollTrigger && window.ScrollTrigger.refresh();
       }));
     });
+    // المنتجات: فلترة حسب الصنف وسلة بسيطة
+    root.querySelectorAll(".s-products").forEach((sec) => {
+      sec.querySelectorAll("[data-cat]").forEach((b) => b.addEventListener("click", () => {
+        sec.querySelectorAll("[data-cat]").forEach((x) => x.setAttribute("aria-selected", x === b));
+        sec.querySelectorAll(".prod").forEach((p) => { p.hidden = b.dataset.cat !== "*" && p.dataset.c !== b.dataset.cat; });
+        window.ScrollTrigger && window.ScrollTrigger.refresh();
+      }));
+    });
+    let cart = 0;
+    root.querySelectorAll("[data-add]").forEach((b) => b.addEventListener("click", () => {
+      cart++; root.querySelectorAll("[data-cart]").forEach((c) => { c.textContent = cart; c.hidden = false; });
+      const t = b.textContent; b.textContent = "✓ انضاف"; b.classList.add("added"); setTimeout(() => { b.textContent = t; b.classList.remove("added"); }, 1400);
+      if (window.gsap && !reduce) window.gsap.fromTo(root.querySelectorAll(".cart-btn"), { scale: 1.3 }, { scale: 1, duration: 0.5, ease: "back.out(3)" });
+    }));
     // النموذج: بيمنع الإرسال الحقيقي بالمعاينة
     root.querySelectorAll("[data-form]").forEach((f) => f.addEventListener("submit", (e) => { e.preventDefault(); f.classList.add("sent"); }));
     if (reduce || !window.matchMedia("(hover: hover)").matches) return;

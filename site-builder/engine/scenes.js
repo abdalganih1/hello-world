@@ -34,7 +34,7 @@
     scene.environment = makeEnv(renderer, colors);
     const camera = new T.PerspectiveCamera(35, 1, 0.1, 100);
     camera.position.set(0, 0, 10);
-    const st = { renderer, scene, camera, pointer: { x: 0, y: 0, sx: 0, sy: 0 }, scroll: 0, wide: true, running: true, t: 0 };
+    const st = { renderer, scene, camera, pointer: { x: 0, y: 0, sx: 0, sy: 0 }, scroll: 0, sp: 0, wide: true, running: true, t: 0 };
 
     const resize = () => {
       const w = container.clientWidth || 1, h = container.clientHeight || 1;
@@ -66,6 +66,8 @@
       st.t += reduce ? dt * 0.15 : dt;
       st.pointer.sx += (st.pointer.x - st.pointer.sx) * 0.05;
       st.pointer.sy += (st.pointer.y - st.pointer.sy) * 0.05;
+      if (container.dataset.pinned) st.scroll = +container.dataset.progress || 0;
+      st.sp += (st.scroll - st.sp) * (reduce ? 1 : 0.09);
       st.update && st.update(dt, st.t);
       renderer.render(scene, camera);
     };
@@ -285,12 +287,13 @@
 
   window.SAMMEM = window.SAMMEM || {};
   window.SAMMEM.scenes = { petals, helix, blob };
+  window.SAMMEM.three = { stage, anchor, makeEnv };
   window.SAMMEM.mountScene = function (el, type, colors, opts = {}) {
     if (!T) return null;
     try {
       const c = document.createElement("canvas").getContext("webgl2") || document.createElement("canvas").getContext("webgl");
       if (!c) return null;
-      return (window.SAMMEM.scenes[type] || blob)(el, colors, opts);
+      return (window.SAMMEM.scenes[type] || window.SAMMEM.scenes.blob)(el, colors, opts);
     } catch (err) { console.warn("3D off:", err); return null; }
   };
 })();

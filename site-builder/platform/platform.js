@@ -7,7 +7,7 @@
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const PAL_NAMES = { luxe: ["فخم", "ألوان غامقة ولمسة ذهبية"], calm: ["هادي", "فاتح ومريح للعين"], bold: ["جريء", "ألوان قوية بتلفت النظر"] };
-  const SECTION_NAMES = { marquee: "شريط كلمات متحرك", about: "من نحن", services: "الخدمات", menu: "المنيو", process: "خطوات العمل", gallery: "معرض صور", team: "الفريق", testimonials: "آراء الزبائن", pricing: "الأسعار والباقات", faq: "أسئلة شائعة", cta: "دعوة للتواصل" };
+  const SECTION_NAMES = { marquee: "شريط كلمات متحرك", about: "من نحن", services: "الخدمات", menu: "المنيو", process: "خطوات العمل", gallery: "معرض صور", team: "الفريق", testimonials: "آراء الزبائن", pricing: "الأسعار والباقات", products: "المنتجات والسلة", faq: "أسئلة شائعة", cta: "دعوة للتواصل" };
 
   /* ---------- رسم موقع مصغّر على canvas (للبطاقات العائمة وصور القوالب) ---------- */
   function drawMini(c, pal, seed = 1, title) {
@@ -81,7 +81,8 @@
   /* ---------- القوالب بالصفحة الرئيسية ---------- */
   function renderTemplateCards() {
     const box = $("#tpls"); if (!box) return;
-    box.innerHTML = Object.values(TPL).map((t, i) => {
+    const all = Object.values(TPL), LIMIT = 6;
+    box.innerHTML = all.map((t, i) => {
       const p = t.palettes[t.defaultPalette];
       return `<article class="tpl">
         <div class="shot"><canvas width="640" height="400" data-mini="${t.id}" data-seed="${i + 3}"></canvas></div>
@@ -91,6 +92,15 @@
           <div class="row"><button class="pbtn ghost" data-try="${t.id}">جرّب القالب</button><a class="pbtn ghost" href="site.html?t=${t.id}" target="_blank" rel="noopener">افتح كامل</a></div>
         </div></article>`;
     }).join("");
+    // منعرض أول 6 قوالب وزر «اعرض كل القوالب»
+    const cards = [...box.children];
+    if (cards.length > LIMIT) {
+      cards.slice(LIMIT).forEach((c) => (c.hidden = true));
+      const more = document.createElement("button"); more.className = "more tpls-more"; more.type = "button";
+      more.innerHTML = `اعرض كل القوالب <span>(${cards.length - LIMIT} كمان)</span>`;
+      more.onclick = () => { cards.forEach((c) => (c.hidden = false)); more.remove(); draw(); };
+      box.after(more);
+    }
     const draw = () => box.querySelectorAll("[data-mini]").forEach((c) => { const t = TPL[c.dataset.mini]; drawMini(c, t.palettes[t.defaultPalette], +c.dataset.seed, t.brand.name); });
     draw(); document.fonts && document.fonts.ready.then(draw);
     box.addEventListener("click", (e) => { const b = e.target.closest("[data-try]"); if (b) startWizard(TPL[b.dataset.try].keywords[0] + " " + TPL[b.dataset.try].brand.name, b.dataset.try); });
@@ -132,8 +142,16 @@
     const optional = [...new Set(t.sections.map((s) => s.type))].filter((k) => SECTION_NAMES[k]);
     return [
       { key: "النوع", title: "شو نوع مشروعك؟", hint: "اخترنالك الأقرب حسب فكرتك. غيّرو إذا بدك.", valid: () => !!st.t,
-        html: () => `<div class="opts">${Object.values(TPL).map((x) => `<button class="opt" data-t="${x.id}" aria-pressed="${x.id === st.t}">${x.id === st.ai ? '<span class="tagai">اقتراح الذكاء الاصطناعي</span>' : ""}<b>${esc(x.label)}</b><small>${esc(x.keywords.slice(0, 5).join("، "))}</small></button>`).join("")}</div>`,
-        bind: (el) => el.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => { st.t = b.dataset.t; st.palette = TPL[st.t].defaultPalette; st.off = []; paint(); }) },
+        html: () => {
+          // الاقتراح والمختار أولاً، وبعدين الباقي؛ منعرض 6 وبزر «اعرض المزيد» الباقي
+          const all = Object.values(TPL), first = [st.ai, st.t].filter((v, i, a) => a.indexOf(v) === i);
+          const list = [...first.map((id) => TPL[id]), ...all.filter((x) => !first.includes(x.id))];
+          const shown = st.moreT ? list : list.slice(0, 6), rest = list.length - shown.length;
+          return `<div class="opts">${shown.map((x) => `<button class="opt" data-t="${x.id}" aria-pressed="${x.id === st.t}">${x.id === st.ai ? '<span class="tagai">اقتراح الذكاء الاصطناعي</span>' : ""}<b>${esc(x.label)}</b><small>${esc(x.keywords.slice(0, 5).join("، "))}</small></button>`).join("")}</div>
+            ${rest ? `<button class="more" data-more>اعرض المزيد <span>(${rest} أنواع)</span></button>` : ""}`;
+        },
+        bind: (el) => { el.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => { st.t = b.dataset.t; st.palette = TPL[st.t].defaultPalette; st.off = []; paint(); });
+          const m = $("[data-more]", el); if (m) m.onclick = () => { st.moreT = true; paint(); animIn(); }; } },
       { key: "الاسم", title: "شو اسم مشروعك؟", hint: "هالاسم رح يطلع باللوغو وبعنوان الموقع.", valid: () => st.name.trim().length > 1,
         html: () => `<div class="fld"><label for="w-name">اسم المشروع</label><input id="w-name" value="${esc(st.name)}" placeholder="${esc(TPL[st.t].brand.name)}" autocomplete="organization"></div>
           <div class="fld"><label for="w-tag">جملة قصيرة بتوصفه (اختياري)</label><input id="w-tag" value="${esc(st.tagline)}" placeholder="${esc(TPL[st.t].brand.tagline)}"></div>`,
@@ -179,7 +197,7 @@
 
   function startWizard(idea, forceT) {
     st.idea = idea.trim(); st.ai = chooseTemplate(st.idea); st.t = forceT || st.ai; st.palette = TPL[st.t].defaultPalette;
-    st.name = guessName(st.idea); st.slug = slugify(st.name) || TPL[st.t].id; st.off = []; st.step = 0; st.logo = ""; st.images = []; st.morePal = false; st.content = {};
+    st.name = guessName(st.idea); st.slug = slugify(st.name) || TPL[st.t].id; st.off = []; st.step = 0; st.logo = ""; st.images = []; st.morePal = false; st.moreT = false; st.content = {};
     layer.hidden = false; document.body.classList.add("busy"); document.body.style.overflow = "hidden";
     paint(true);
   }
@@ -216,7 +234,7 @@
   function close() { layer.hidden = true; layer.innerHTML = ""; document.body.classList.remove("busy"); document.body.style.overflow = ""; }
 
   /* ---------- الذكاء الاصطناعي عبر الـ Worker ---------- */
-  const EDITABLE = ["hero", "marquee", "about", "services", "menu", "process", "gallery", "team", "testimonials", "pricing", "faq", "cta", "contact"];
+  const EDITABLE = ["hero", "marquee", "about", "services", "menu", "process", "gallery", "team", "testimonials", "pricing", "products", "faq", "cta", "contact"];
   function editableContent() {
     const site = window.SAMMEM.build(Object.assign(cfg(), { off: [] }));
     return { palette: st.palette, brand: { name: site.brand.name, tagline: site.brand.tagline }, off: st.off,

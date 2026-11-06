@@ -45,12 +45,12 @@
     <div class="wrap"><div class="bar">
       <a class="logo" href="#top"><span class="mark">${esc(site.brand.mark)}</span><span>${esc(site.brand.name)}</span></a>
       <nav aria-label="روابط الموقع">${(d.links || []).map((l) => `<a href="#${esc(l.id)}">${esc(l.label)}</a>`).join("")}</nav>
-      <a class="btn" href="#${esc(d.ctaTarget || "contact")}" data-magnetic>${esc(d.cta || "تواصل معنا")}</a>
+      <span style="display:flex;gap:8px;align-items:center">${site.brand.cart ? `<a class="cart-btn" href="#products" aria-label="السلة">${icon("cart")}<b data-cart hidden>0</b></a>` : ""}<a class="btn" href="#${esc(d.ctaTarget || "contact")}" data-magnetic>${esc(d.cta || "تواصل معنا")}</a></span>
     </div></div>
   </header>`;
 
   S.hero = (d, site) => `
-  <section class="s-hero${d.variant === "center" ? " center" : ""}" id="hero">
+  <section class="s-hero${d.variant === "center" ? " center" : ""}" id="hero"${d.pin ? " data-pin" : ""}>
     <div class="stage" data-scene="${esc(site.theme.scene)}"></div>
     <div class="veil"></div>
     <div class="wrap">
@@ -120,6 +120,29 @@
               <span class="price">${esc(it.price)}</span>
             </div>`).join("")}
         </div>`).join("")}
+      ${d.note ? `<p class="lead" style="margin-top:28px;font-size:15px">${esc(d.note)}</p>` : ""}
+    </div>
+  </section>`;
+  };
+
+  S.products = (d) => {
+    const cats = [...new Set((d.items || []).map((it) => it.cat).filter(Boolean))];
+    return `
+  <section class="sec s-products" id="${esc(d.id || "products")}">
+    <div class="wrap">
+      ${head(d)}
+      ${cats.length > 1 ? `<div class="tabs" role="tablist" data-reveal><button class="tab" data-cat="*" aria-selected="true">الكل</button>${cats.map((c) => `<button class="tab" data-cat="${esc(c)}" aria-selected="false">${esc(c)}</button>`).join("")}</div>` : ""}
+      <div class="prods" data-stagger>
+        ${(d.items || []).map((it, i) => `
+          <article class="prod" data-c="${esc(it.cat || "")}" data-tilt>
+            <div class="pimg">${ph("", 25 + (i * 23) % 60, 30 + (i * 17) % 40)}${it.tag ? `<span class="ptag">${esc(it.tag)}</span>` : ""}</div>
+            <div class="pbody">
+              <h3>${esc(it.name)}</h3>
+              ${it.desc ? `<p>${esc(it.desc)}</p>` : ""}
+              <div class="prow"><span class="pprice">${esc(it.price)}${it.old ? ` <s>${esc(it.old)}</s>` : ""}</span><button class="padd" type="button" data-add>${esc(d.addLabel || "أضف للسلة")}</button></div>
+            </div>
+          </article>`).join("")}
+      </div>
       ${d.note ? `<p class="lead" style="margin-top:28px;font-size:15px">${esc(d.note)}</p>` : ""}
     </div>
   </section>`;
