@@ -402,7 +402,7 @@
   function acrylic(container, colors, o) {
     const cine = container.closest("[data-px-cinema]");
     const st = SM.stage(container, colors, { exposure: 1.15 });
-    if (LITE) { st.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.25)); st.renderer.setSize(container.clientWidth || 1, container.clientHeight || 1, false); }
+    if (LITE) { st.maxRatio = 1.25; st.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.25)); st.renderer.setSize(container.clientWidth || 1, container.clientHeight || 1, false); }
     const { scene, camera, renderer } = st;
     const bg = new T.Color(colors.bg), night = new T.Color("#140c10");
     scene.background = bg.clone();

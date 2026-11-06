@@ -24,9 +24,21 @@
     return tex;
   }
 
+  /* الأداء: بنقدّر قوة الجهاز من أول لحظة، وبعدين بنقيس الإطارات فعلياً وبنخفّض الدقة لحالها لما يدقّر
+     (2 → 1.5 → 1.25 → 1 → 0.85 → 0.7، وبعدها 30 إطار بالثانية)، وبنرجّعها لما يرتاح الجهاز. */
+  const PERF = (() => {
+    const n = navigator, cores = n.hardwareConcurrency || 4, mem = n.deviceMemory || 4, conn = n.connection || {};
+    const coarse = matchMedia("(pointer: coarse)").matches, save = conn.saveData || /(^|-)2g|3g/.test(conn.effectiveType || "");
+    const low = save || cores <= 4 || mem <= 3 || (coarse && (cores <= 6 || mem <= 4));
+    const dpr = window.devicePixelRatio || 1;
+    return { low, maxRatio: Math.min(dpr, low ? 1.25 : 2), antialias: !low && dpr < 2 };
+  })();
+  const RATIOS = [2, 1.5, 1.25, 1, 0.85, 0.7];
+
   function stage(container, colors, opts = {}) {
-    const renderer = new T.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const renderer = new T.WebGLRenderer({ antialias: PERF.antialias, alpha: true, powerPreference: "high-performance" });
+    let ratio = PERF.maxRatio, skip = false;
+    renderer.setPixelRatio(ratio);
     renderer.toneMapping = T.ACESFilmicToneMapping;
     renderer.toneMappingExposure = opts.exposure || 1.05;
     container.appendChild(renderer.domElement);
@@ -59,15 +71,38 @@
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let last = performance.now();
+    // قياس الإطارات وتعديل الدقة
+    let acc = 0, frames = 0, odd = false, calm = 0;
+    const setRatio = (r) => { ratio = r; renderer.setPixelRatio(r); renderer.setSize(container.clientWidth || 1, container.clientHeight || 1, false); };
+    const tune = (ms) => {
+      acc += ms; frames++;
+      if (frames < 45) return;
+      const avg = acc / frames; acc = 0; frames = 0;
+      if (avg > 24) { // أقل من ~40 إطار
+        calm = 0;
+        const next = RATIOS.find((r) => r < ratio - 0.01);
+        if (next) setRatio(next); else skip = true;
+      } else if (avg < 13 && ++calm >= 3) { // مرتاح 3 مرات ورا بعض
+        calm = 0;
+        if (skip) skip = false;
+        else { const up = [...RATIOS].reverse().find((r) => r > ratio + 0.01 && r <= Math.min(PERF.maxRatio, st.maxRatio || 9)); if (up) setRatio(up); }
+      }
+    };
+    document.addEventListener("visibilitychange", () => { last = performance.now(); acc = 0; frames = 0; });
     const loop = (now) => {
       requestAnimationFrame(loop);
-      const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      if (!st.running) return;
+      const raw = now - last, dt = Math.min(0.05, raw / 1000);
+      if (!st.running) { last = now; return; }
+      if (skip && (odd = !odd)) return; // نص الإطارات بس على الأجهزة الضعيفة كتير
+      last = now;
+      if (raw < 200) tune(skip ? raw / 2 : raw);
       st.t += reduce ? dt * 0.15 : dt;
-      st.pointer.sx += (st.pointer.x - st.pointer.sx) * 0.05;
-      st.pointer.sy += (st.pointer.y - st.pointer.sy) * 0.05;
+      // التنعيم مربوط بالوقت مو بعدد الإطارات، فالحركة نفسها على 30 أو 60 أو 120 إطار
+      const k5 = 1 - Math.pow(0.95, dt * 60), k9 = 1 - Math.pow(0.91, dt * 60);
+      st.pointer.sx += (st.pointer.x - st.pointer.sx) * k5;
+      st.pointer.sy += (st.pointer.y - st.pointer.sy) * k5;
       if (container.dataset.pinned) st.scroll = +container.dataset.progress || 0;
-      st.sp += (st.scroll - st.sp) * (reduce ? 1 : 0.09);
+      st.sp += (st.scroll - st.sp) * (reduce ? 1 : k9);
       st.update && st.update(dt, st.t);
       renderer.render(scene, camera);
     };
@@ -289,7 +324,7 @@
   window.SAMMEM.scenes = Object.assign(window.SAMMEM.scenes || {}, { petals, helix, blob });
   window.SAMMEM.three = { stage, anchor, makeEnv };
   // للمشاهد الإضافية بملفات تانية (engine/scenes2.js، engine/plexi.js)
-  Object.assign(window.SAMMEM, { stage, makeEnv, anchor });
+  Object.assign(window.SAMMEM, { stage, makeEnv, anchor, perf: PERF });
   window.SAMMEM.mountScene = function (el, type, colors, opts = {}) {
     if (!T) return null;
     try {
