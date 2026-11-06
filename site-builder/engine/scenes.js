@@ -284,7 +284,9 @@
   }
 
   window.SAMMEM = window.SAMMEM || {};
-  window.SAMMEM.scenes = { petals, helix, blob };
+  window.SAMMEM.scenes = Object.assign(window.SAMMEM.scenes || {}, { petals, helix, blob });
+  // للمشاهد الإضافية بملفات تانية (engine/plexi.js)
+  Object.assign(window.SAMMEM, { stage, makeEnv, anchor });
   window.SAMMEM.mountScene = function (el, type, colors, opts = {}) {
     if (!T) return null;
     try {
