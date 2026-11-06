@@ -6,10 +6,14 @@
 <title>دجانة · قطع بلكسي وهدايا بالاسم</title>
 <meta name="description" content="ستاندات خطوبة وعقد قران، دروع تخرج، توزيعات مواليد وهدايا بالاسم من دجانة.">
 <link rel="icon" href="img/logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f7f1ea">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta property="og:image" content="img/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@500;700&family=Tajawal:wght@400;500;700&family=Readex+Pro:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Changa:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="../../engine/engine.css">
 <link rel="stylesheet" href="../../engine/plexi.css">
 </head>
@@ -28,18 +32,16 @@
 <script src="../../engine/render.js"></script>
 <script src="../../engine/plexi.js"></script>
 <script src="../../engine/plexi-studio.js"></script>
+<script src="../../engine/plexi-shop.js"></script>
 <script>
-  // الإعدادات من الرابط (?t=clinic&palette=luxe&name=...) أو من واجهة صمّم عبر postMessage
-  let started = false;
-  const start = (cfg) => { if (started) return; started = true; SAMMEM.render(cfg); };
-  const fromUrl = SAMMEM.readConfig();
-  if (window.SAMMEM_SITE) start(window.SAMMEM_SITE); // موقع منشور: الإعدادات محقونة من الـ Worker
-  else if (!fromUrl.embed && (fromUrl.t || window.parent === window)) start(fromUrl);
-  else {
-    addEventListener("message", (e) => { if (e.data && e.data.type === "sammem:config") start(e.data.cfg); });
-    parent.postMessage({ type: "sammem:ready" }, "*");
-    setTimeout(() => start(fromUrl), 4000);
-  }
+  // دجانة: منحمّل المنتجات الحيّة (بحد أقصى ثانيتين ونص) وبعدين منبني الصفحة
+  DAJANA_LIVE().then((items) => {
+    window.DAJANA_ITEMS = items;
+    const site = SAMMEM.render(DAJANA_CFG(items));
+    // رابط منتج مباشر: /?p=<id>
+    const pid = new URLSearchParams(location.search).get("p");
+    if (pid) { const i = items.findIndex((x) => x.id === pid); if (i > -1) setTimeout(() => document.querySelector(`[data-px-open="${i}"]`)?.click(), 600); }
+  });
 </script>
 </body>
 </html>

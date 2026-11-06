@@ -1,1 +1,9 @@
-{ "name": "dajana-showcase", "compatibility_date": "2025-10-01", "assets": { "directory": "./dist", "not_found_handling": "single-page-application" }, "workers_dev": true }
+{
+  // دجانة: الواجهة الجديدة. المتجر القديم (dojana-store) بيضل يخدم /admin و /api و /img من وراها.
+  "name": "dajana-showcase",
+  "main": "worker.js",
+  "compatibility_date": "2025-10-01",
+  "assets": { "directory": "./dist", "binding": "ASSETS" },
+  "services": [{ "binding": "STORE", "service": "dojana-store" }],
+  "workers_dev": true
+}

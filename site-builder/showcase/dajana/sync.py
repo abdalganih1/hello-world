@@ -29,6 +29,8 @@ def save_img(data_url, name):
     im = Image.open(io.BytesIO(raw)).convert("RGB")
     im.thumbnail((1000, 1000))
     im.save(os.path.join(HERE, "img", name), "WEBP", quality=80)
+    # نسخة مصغّرة للبطاقات والريلز والنفق (أخف بكتير عالموبايل)
+    t = im.copy(); t.thumbnail((480, 480)); t.save(os.path.join(HERE, "img", "t", name), "WEBP", quality=72)
     return "img/" + name
 
 
@@ -37,7 +39,7 @@ def main():
         products, settings = (json.load(open(p)) for p in sys.argv[1:3])
     else:
         products, settings = kv("products"), kv("settings")
-    os.makedirs(os.path.join(HERE, "img"), exist_ok=True)
+    os.makedirs(os.path.join(HERE, "img", "t"), exist_ok=True)
     clean = lambda s: (s or "").replace("​", "").strip()
     items, seen = [], set()
     for p in products:
@@ -45,7 +47,7 @@ def main():
         name = clean(p["name"])
         feat = any(f in name for f in FEATURED) and name not in seen
         seen.add(name)
-        it = {"name": name, "cat": CAT.get(p.get("category"), "plexi"), "price": p.get("price") or 0, "desc": clean(p.get("description")), "details": clean(p.get("details")), "imgs": imgs, "url": f"{STORE}/product/{p['id']}"}
+        it = {"id": p["id"], "name": name, "cat": CAT.get(p.get("category"), "plexi"), "price": p.get("price") or 0, "desc": clean(p.get("description")), "details": clean(p.get("details")), "imgs": imgs, "thumb": imgs[0].replace("img/", "img/t/") if imgs else "", "url": f"{STORE}/product/{p['id']}"}
         if feat: it["featured"] = True
         items.append(it)
     # المميز أول شي
