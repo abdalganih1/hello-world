@@ -37,9 +37,13 @@
     if (!it) return `<section class="px-pp px-pp-miss" id="product"><div class="wrap"><h1 class="h-lg">ما لقينا هالقطعة</h1><p class="lead">يمكن انشالت أو تغيّر رابطها.</p><a class="btn" href="${esc(homeHref())}#catalog">شوف كل المنتجات</a></div></section>`;
     const imgs = it.imgs && it.imgs.length ? it.imgs : U.imgOf(it) ? [U.imgOf(it)] : [];
     const shape = K ? K.guess(it.name, it) : "arch", md = (K && K.SHAPES[shape]) || {}, gm = guessMat(it), mat = gm || md.mat || "clear", ink = md.ink || "gold", pearls = !!md.pearls || /لؤلؤ|لولو/.test(it.name + (it.desc || ""));
+    // مثال مناسب لنوع القطعة (تخرج، مولود، عرس، هدية، شعار) بدل نفس الأسامي بكل مكان
+    const ex = K ? K.exampleFor(it, md) : { kind: "wedding", labels: ["الاسم الأول", "الاسم التاني", "التاريخ أو عبارة"], n1: "محمد", n2: "سارة", line: "14 · 2 · 2027" };
+    const inks = md.inks || (K && K.INKS), lampy = !!md.inks, shapes = K ? (lampy ? Object.keys(K.SHAPES).filter((k) => K.SHAPES[k].inks) : [shape, ...K.STUDIO.filter((k) => k !== shape)]) : [];
+    const lab = (k, opt) => esc(ex.labels[k]).replace(/ \((اختياري)\)/, ' <small>($1)</small>');
     const sw = (obj, key, sel) => Object.entries(obj).map(([k, v]) => `<button type="button" class="px-pp-dot" data-${key}="${k}" aria-pressed="${k === sel}" aria-label="${esc(v[0])}" title="${esc(v[0])}"><i style="background:${v[1]}"></i></button>`).join("");
     return `
-  <section class="px-pp" id="product" data-px-product data-i="${i}" data-shape="${shape}" data-mat="${mat}" data-ink="${ink}" data-pearls="${pearls ? 1 : 0}">
+  <section class="px-pp" id="product" data-px-product data-i="${i}" data-shape="${shape}" data-mat="${mat}" data-ink="${ink}" data-pearls="${pearls ? 1 : 0}" data-kind="${ex.kind}">
     <div class="px-pp-in"><div class="px-pp-screen">
       <div class="px-pp-head">
         <a class="px-pp-back" href="${esc(homeHref())}#catalog" aria-label="رجوع لكل المنتجات">${svg(I.back)}<span>المنتجات</span></a>
@@ -64,15 +68,15 @@
       </div>
       <form class="px-pp-panel" onsubmit="return false" autocomplete="off">
         ${K ? `<div class="px-pp-fields">
-          <label><span>الاسم الأول</span><input name="n1" placeholder="محمد" maxlength="18" enterkeyhint="next"></label>
-          <label><span>الاسم التاني</span><input name="n2" placeholder="سارة" maxlength="18" enterkeyhint="next"></label>
-          <label><span>التاريخ أو عبارة</span><input name="line" dir="auto" placeholder="14 · 2 · 2027" maxlength="28" enterkeyhint="done"></label>
+          <label><span>${lab(0)}</span><input name="n1" dir="auto" placeholder="${esc(ex.n1)}" maxlength="22" enterkeyhint="next"></label>
+          <label><span>${lab(1)}</span><input name="n2" dir="auto" placeholder="${esc(ex.n2)}" maxlength="22" enterkeyhint="next"></label>
+          <label><span>${lab(2)}</span><input name="line" dir="auto" placeholder="${esc(ex.line)}" maxlength="28" enterkeyhint="done"></label>
         </div>
         <div class="px-pp-strip" aria-label="خيارات القطعة">
-          <div class="px-pp-grp" role="group" aria-label="الشكل"><small>الشكل</small>${[shape, ...K.STUDIO.filter((k) => k !== shape)].map((k) => [k, K.SHAPES[k]]).map(([k, v]) => `<button type="button" class="px-pp-shape" data-shape="${k}" aria-pressed="${k === shape}" aria-label="${esc(v.label)}" title="${esc(v.label)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${K.icons[k]}"/></svg></button>`).join("")}</div>
-          <div class="px-pp-grp" role="group" aria-label="لون الحروف"><small>الحروف</small>${sw(K.INKS, "ink", ink)}</div>
-          <div class="px-pp-grp" role="group" aria-label="الخامة"><small>الخامة</small>${sw(K.MATS, "mat", mat)}</div>
-          <div class="px-pp-grp"><label class="px-pp-chip"><input type="checkbox" name="pearls"${pearls ? " checked" : ""}><span>لؤلؤ</span></label>
+          <div class="px-pp-grp" role="group" aria-label="الشكل"><small>الشكل</small>${shapes.map((k) => [k, K.SHAPES[k]]).map(([k, v]) => `<button type="button" class="px-pp-shape" data-shape="${k}" aria-pressed="${k === shape}" aria-label="${esc(v.label)}" title="${esc(v.label)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${K.icons[k]}"/></svg></button>`).join("")}</div>
+          <div class="px-pp-grp" role="group" aria-label="${lampy ? "لون الإضاءة" : "لون الحروف"}"><small>${lampy ? "الإضاءة" : "الحروف"}</small>${sw(inks, "ink", ink)}</div>
+          ${lampy ? "" : `<div class="px-pp-grp" role="group" aria-label="الخامة"><small>الخامة</small>${sw(K.MATS, "mat", mat)}</div>`}
+          <div class="px-pp-grp"><label class="px-pp-chip"${md.rim === "pearl" ? "" : " hidden"}><input type="checkbox" name="pearls"${pearls ? " checked" : ""}><span>لؤلؤ</span></label>
             <label class="px-pp-chip">${svg(I.img)}<span data-file-label>صورتك</span><input type="file" name="photo" accept="image/*"></label></div>
         </div>` : ""}
         <div class="px-pp-acts">
@@ -99,7 +103,9 @@
     document.title = it.name + " · " + site.brand.name;
     const f = sec.querySelector(".px-pp-panel"), view = sec.querySelector(".px-pp-view"), host = sec.querySelector(".px-pp-3d"), flat = sec.querySelector(".px-pp-2d");
     const wa = sec.querySelector(".px-pp-wa"), html = document.documentElement, colors = site.theme.colors;
-    const st = { shape: sec.dataset.shape, mat: sec.dataset.mat, ink: sec.dataset.ink || "gold", pearls: sec.dataset.pearls === "1", photo: null, photoUrl: "" };
+    const st = { shape: sec.dataset.shape, mat: sec.dataset.mat, ink: sec.dataset.ink || "gold", pearls: sec.dataset.pearls === "1", photo: null, photoUrl: "", kind: sec.dataset.kind };
+    const inkName = () => { const o = (K && K.SHAPES[st.shape] && K.SHAPES[st.shape].inks) || (K && K.INKS) || {}; return (o[st.ink] || [""])[0]; };
+    const labs = [...sec.querySelectorAll(".px-pp-fields span")].map((x) => x.firstChild.textContent.trim());
     let v = "photo", eng = null, touched = false, timer = 0;
 
     // معرض الصور: سحب أفقي مع نقاط
@@ -115,8 +121,8 @@
     const msg = () => {
       const n = names(), line = f.line ? f.line.value.trim() : "";
       let t = U.orderText(site, it, cur).replace(/\n\nالاسم والتاريخ اللي بدي ياهن: $/, "");
-      if (n.length || line) t += `\n\n✍️ الأسماء: ${n.join(" و ") || "-"}${line ? `\n📅 التاريخ/العبارة: ${line}` : ""}`;
-      if (touched && K) t += `\n🎨 الحروف: ${K.INKS[st.ink][0]} · الخامة: ${K.MATS[st.mat][0]}${st.pearls ? " · مع لؤلؤ" : ""}${st.shape !== sec.dataset.shape ? ` · الشكل: ${K.SHAPES[st.shape].label}` : ""}${st.photo ? "\n🖼️ مع صورة (رح ابعتها هون)" : ""}`;
+      if (n.length || line) t += "\n" + [[0, f.n1], [1, f.n2], [2, f.line]].filter(([, i]) => i && i.value.trim()).map(([k, i]) => `\n✍️ ${labs[k]}: ${i.value.trim()}`).join("");
+      if (touched && K) t += `\n🎨 ${K.SHAPES[st.shape].inks ? "الإضاءة" : "الحروف"}: ${inkName()}${K.SHAPES[st.shape].inks ? "" : " · الخامة: " + K.MATS[st.mat][0]}${st.pearls ? " · مع لؤلؤ" : ""}${st.shape !== sec.dataset.shape ? ` · الشكل: ${K.SHAPES[st.shape].label}` : ""}${st.photo ? "\n🖼️ مع صورة (رح ابعتها هون)" : ""}`;
       if (!n.length && !line) t += "\n\nالاسم والتاريخ اللي بدي ياهن: ";
       return t;
     };
@@ -178,7 +184,7 @@
     sec.querySelector("[data-pp-add]").addEventListener("click", () => {
       if (!SM.pxCart) return;
       const n = names(), line = f.line ? f.line.value.trim() : "";
-      SM.pxCart.add(it, { names: n.join(" و ") + (line ? " · " + line : ""), color: touched && K ? K.INKS[st.ink][0] : "", design: touched && K ? `${K.MATS[st.mat][0]}${st.pearls ? " · لؤلؤ" : ""}${st.photo ? " · مع صورة" : ""}` : "" });
+      SM.pxCart.add(it, { names: n.join(" و ") + (line ? " · " + line : ""), color: touched && K ? inkName() : "", design: touched && K ? `${K.MATS[st.mat][0]}${st.pearls ? " · لؤلؤ" : ""}${st.photo ? " · مع صورة" : ""}` : "" });
     });
     sec.querySelector("[data-pp-cart]").addEventListener("click", () => SM.pxCart && SM.pxCart.open());
     sec.querySelector("[data-pp-share]").addEventListener("click", () => {
