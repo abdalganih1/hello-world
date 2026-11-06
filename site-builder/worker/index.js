@@ -151,7 +151,7 @@ async function serveSite(req, env, slug) {
   const url = new URL(req.url);
   // ملفات المحرك (engine/ templates/) بتنخدم من نفس الـ Worker
   if (url.pathname !== "/" && url.pathname !== "/index.html") {
-    if (/^\/(engine|templates)\//.test(url.pathname)) return env.ASSETS.fetch(req);
+    if (/^\/(engine|templates|media)\//.test(url.pathname)) return env.ASSETS.fetch(req);
     return new Response("Not found", { status: 404 });
   }
   const rec = await getSite(env, slug);

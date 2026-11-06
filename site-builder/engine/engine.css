@@ -360,3 +360,29 @@ html, body { overflow-x: clip; }
 .dish .price { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .dish-order { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; padding: 5px 10px; border-radius: 999px; text-decoration: none; color: var(--ink); background: color-mix(in srgb, var(--accent) 16%, transparent); transition: background .3s, color .3s; }
 .dish-order:hover { background: var(--accent); color: var(--on-accent); }
+
+/* صور حقيقية: لمحة ضبابية لحد ما تتحمّل */
+.pic-w { position: absolute; inset: 0; overflow: hidden; display: block; background: var(--surface); }
+.pic-w::before { content: ""; position: absolute; inset: -8%; background: var(--lq) center / cover; filter: blur(14px) saturate(1.1); }
+.pic-w .pic { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s ease, transform .8s var(--ease); }
+.pic-w .pic.in { opacity: 1; }
+.s-gallery figure:hover .pic, .dish:hover .pic { transform: scale(1.05); }
+.s-gallery figure .ph-label { position: absolute; z-index: 2; }
+.zoom { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; padding: 16px; background: rgba(8,6,5,.86); backdrop-filter: blur(6px); opacity: 0; transition: opacity .3s; cursor: zoom-out; }
+.zoom.on { opacity: 1; }
+.zoom img { max-width: min(1400px, 100%); max-height: 88vh; border-radius: 14px; box-shadow: 0 30px 80px -20px #000; transform: scale(.96); transition: transform .4s var(--ease), filter .4s; filter: blur(2px); }
+.zoom.on img { transform: none; }
+.zoom.hd img { filter: none; }
+.zoom button { position: absolute; top: calc(14px + env(safe-area-inset-top, 0px)); inset-inline-end: 14px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); color: #fff; font-size: 22px; cursor: pointer; }
+
+/* مراحل مشهد البطل */
+.hero-steps { position: absolute; z-index: 3; left: 25%; bottom: calc(28px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); margin: 0; padding: 6px; list-style: none; display: flex; gap: 6px; border-radius: 999px; background: color-mix(in srgb, var(--surface) 70%, transparent); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px var(--line); }
+.hero-steps li { display: flex; align-items: center; gap: 6px; padding: 6px 12px 6px 8px; border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--muted); transition: background .4s, color .4s; white-space: nowrap; }
+.hero-steps li i { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 11px; box-shadow: inset 0 0 0 1px currentColor; }
+.hero-steps li.on { background: var(--accent); color: var(--on-accent); }
+@media (max-width: 760px) { .hero-steps { left: 50%; transform: translateX(-50%); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); } .hero-steps li { padding: 5px 9px 5px 6px; font-size: 12px; } }
+
+.credits { max-width: 1200px; margin: 18px auto 0; padding: 0 20px; font-size: 12px; color: var(--muted); }
+.credits summary { cursor: pointer; }
+.credits ul { margin: 8px 0 0; padding-inline-start: 18px; display: grid; gap: 4px; }
+.credits a { color: inherit; }

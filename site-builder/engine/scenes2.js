@@ -1,6 +1,6 @@
 /* صمّم · مشاهد 3D إضافية (Three.js r158)
    كل مشهد إلو حركة خاصة بتتقدّم مع الانزلاق (st.sp من 0 لـ 1، والبطل مثبّت لحد ما تخلص):
-   pizza     بيتزا بتنفرط شرائحها وبتدور، وشريحة بتطلع مع خيوط الجبنة
+   pizza     المكونات بتنزل على العجينة، بتنخبز بفرن حطب، وعجلة بتقطعها، وشريحة بتطلع مع خيوط الجبنة
    shawarma  سيخ بيدور وسكين بتقص شرائح بتنزل على الخبز
    products  أدوات مطبخ على صينية دوّارة بتتفكّك وبتطير
    washer    غسالة بينفتح بابها والحلّة بتدور، مع مسنن ومفتاح
@@ -65,65 +65,223 @@
     group.add(p); return p;
   }
 
-  /* ---------- PIZZA ---------- */
+  /* ---------- PIZZA ----------
+     قصة كاملة مع الانزلاق (st.sp من 0 لـ 1):
+     0.00 عجينة نيّة وصلصة بتنفرد · 0.10 جبنة مبشورة بتنزل وبتدوب · 0.22 بيبروني وخضرة بتوقع
+     0.42 فرن حطب بيطلع والبيتزا بتفوت · 0.52 خَبز: الحواف بتحمر والجبنة بتفقّع · 0.68 بتطلع سخنة
+     0.76 عجلة التقطيع بتقص 4 خطوط · 0.92 الشرائح بتنفرط وشريحة بتطلع مع خيوط الجبنة */
   function pizza(el, colors, o) {
-    const st = stage(el, colors, { exposure: 1.1 }), { scene, camera } = st;
-    lights(scene, colors);
+    const st = stage(el, colors, { exposure: 1.08 }), { scene, camera } = st;
+    lights(scene, colors, 0.95);
     const root = new T.Group(); scene.add(root);
-    const pz = new T.Group(); pz.rotation.x = 0.62; root.add(pz);
-    const board = new T.Mesh(new T.CylinderGeometry(2.55, 2.55, 0.12, 64), phys({ color: C("#7a4b28"), roughness: 0.75 }));
-    board.position.y = -0.2; pz.add(board);
-    const sh = shadowDisc(3.2); sh.position.y = -0.27; pz.add(sh);
-    const N = 8, A = (Math.PI * 2) / N, R = 2.1, slices = [];
-    const mCrust = phys({ color: C("#d9a25a"), roughness: 0.85 }), mSauce = phys({ color: C("#b8321e"), roughness: 0.5 }),
-      mCheese = phys({ color: C("#f6d36f"), roughness: 0.45, clearcoat: 0.3, emissive: C("#5a3a00"), emissiveIntensity: 0.15 }),
-      mPep = phys({ color: C("#a72a1a"), roughness: 0.55, clearcoat: 0.4 }), mOl = phys({ color: C("#1c1a17"), roughness: 0.3, clearcoat: 0.8 }), mBas = phys({ color: C("#3f7d2b"), roughness: 0.6 });
+    const tray = new T.Group(); tray.rotation.x = 0.66; root.add(tray);
+    const R = 2.05, N = 8, A = (Math.PI * 2) / N;
+    const seg = (a, b, k) => clamp((k - a) / (b - a));
+    const mix = (c1, c2, k) => new T.Color(c1).lerp(new T.Color(c2), k);
+
+    /* خامات مرسومة: عجينة، صلصة، جبنة، تحمير، بيبروني، طوب، أرضية حجر */
+    const noise = (x, w, h, n, f) => { for (let i = 0; i < n; i++) { f(x, rnd() * w, rnd() * h, rnd()); } };
+    const tDough = canvasTex(512, 512, (x, w, h) => {
+      x.fillStyle = "#f1dcb2"; x.fillRect(0, 0, w, h);
+      noise(x, w, h, 2600, (x, a, b, r) => { x.fillStyle = r > 0.5 ? "rgba(255,250,236,.5)" : "rgba(170,120,60,.14)"; x.beginPath(); x.arc(a, b, 0.6 + r * 2.2, 0, 7); x.fill(); });
+      noise(x, w, h, 60, (x, a, b, r) => { x.fillStyle = "rgba(255,255,255,.35)"; x.beginPath(); x.ellipse(a, b, 4 + r * 10, 2 + r * 4, r * 3, 0, 7); x.fill(); });
+    });
+    const tChar = canvasTex(512, 512, (x, w, h) => {
+      x.clearRect(0, 0, w, h);
+      noise(x, w, h, 320, (x, a, b, r) => { const g = x.createRadialGradient(a, b, 0, a, b, 3 + r * 16); g.addColorStop(0, `rgba(${40 + r * 30},${22 + r * 10},8,${0.55 + r * 0.4})`); g.addColorStop(1, "rgba(80,40,10,0)"); x.fillStyle = g; x.beginPath(); x.arc(a, b, 3 + r * 16, 0, 7); x.fill(); });
+      noise(x, w, h, 900, (x, a, b, r) => { x.fillStyle = `rgba(120,64,20,${0.18 + r * 0.2})`; x.fillRect(a, b, 2 + r * 6, 1 + r * 3); });
+    });
+    const tSauce = canvasTex(512, 512, (x, w, h) => {
+      const g = x.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 2); g.addColorStop(0, "#c2371f"); g.addColorStop(1, "#9e2412"); x.fillStyle = g; x.fillRect(0, 0, w, h);
+      noise(x, w, h, 500, (x, a, b, r) => { x.strokeStyle = `rgba(${r > 0.5 ? "230,90,50" : "110,20,10"},.35)`; x.lineWidth = 1 + r * 3; x.beginPath(); x.arc(a, b, 6 + r * 30, r * 6, r * 6 + 1.2); x.stroke(); });
+      noise(x, w, h, 420, (x, a, b, r) => { x.fillStyle = r > 0.4 ? "rgba(40,80,20,.8)" : "rgba(70,110,30,.7)"; x.fillRect(a, b, 1.5 + r * 2.5, 1 + r * 1.5); });
+    });
+    const tCheese = canvasTex(512, 512, (x, w, h) => {
+      x.fillStyle = "#fff4d6"; x.fillRect(0, 0, w, h);
+      noise(x, w, h, 700, (x, a, b, r) => { const g = x.createRadialGradient(a, b, 0, a, b, 6 + r * 18); g.addColorStop(0, "rgba(255,255,245,.9)"); g.addColorStop(1, "rgba(240,215,150,0)"); x.fillStyle = g; x.beginPath(); x.arc(a, b, 6 + r * 18, 0, 7); x.fill(); });
+      noise(x, w, h, 260, (x, a, b, r) => { x.fillStyle = "rgba(230,190,110,.35)"; x.beginPath(); x.ellipse(a, b, 8 + r * 20, 3 + r * 8, r * 3, 0, 7); x.fill(); });
+    });
+    const tBlister = canvasTex(512, 512, (x, w, h) => {
+      x.clearRect(0, 0, w, h);
+      noise(x, w, h, 260, (x, a, b, r) => { const rr = 4 + r * 14, g = x.createRadialGradient(a, b, rr * 0.2, a, b, rr); g.addColorStop(0, `rgba(${150 + r * 40},${80 + r * 20},20,${0.65 + r * 0.3})`); g.addColorStop(0.7, "rgba(200,120,30,.35)"); g.addColorStop(1, "rgba(200,120,30,0)"); x.fillStyle = g; x.beginPath(); x.arc(a, b, rr, 0, 7); x.fill(); });
+    });
+    const tPep = canvasTex(256, 256, (x, w, h) => {
+      const g = x.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 2); g.addColorStop(0, "#b8321f"); g.addColorStop(0.85, "#9a2214"); g.addColorStop(1, "#6e150b"); x.fillStyle = g; x.fillRect(0, 0, w, h);
+      noise(x, w, h, 140, (x, a, b, r) => { x.fillStyle = `rgba(255,${200 + r * 40},${180 + r * 40},${0.5 + r * 0.3})`; x.beginPath(); x.ellipse(a, b, 2 + r * 5, 1.5 + r * 3, r * 3, 0, 7); x.fill(); });
+      noise(x, w, h, 200, (x, a, b) => { x.fillStyle = "rgba(40,10,5,.45)"; x.fillRect(a, b, 2, 2); });
+    });
+    const tBrick = canvasTex(1024, 512, (x, w, h) => {
+      x.fillStyle = "#3a2018"; x.fillRect(0, 0, w, h);
+      const bh = 32, bw = 84;
+      for (let r = 0; r * bh < h; r++) for (let c = -1; c * bw < w; c++) {
+        const ox = (r % 2) * bw / 2, l = 30 + rnd() * 16;
+        x.fillStyle = `hsl(${12 + rnd() * 10}, ${45 + rnd() * 15}%, ${l}%)`; x.fillRect(c * bw + ox + 3, r * bh + 3, bw - 6, bh - 6);
+        x.fillStyle = "rgba(0,0,0,.18)"; x.fillRect(c * bw + ox + 3, r * bh + bh - 9, bw - 6, 6);
+      }
+      noise(x, w, h, 2000, (x, a, b, r) => { x.fillStyle = `rgba(0,0,0,${r * 0.25})`; x.fillRect(a, b, 2, 2); });
+    });
+    tBrick.wrapS = tBrick.wrapT = T.RepeatWrapping; tBrick.repeat.set(3, 1.5);
+    const tStone = canvasTex(512, 512, (x, w, h) => {
+      x.fillStyle = "#5b4a3d"; x.fillRect(0, 0, w, h);
+      noise(x, w, h, 3000, (x, a, b, r) => { x.fillStyle = `rgba(${r > 0.5 ? "255,240,220" : "0,0,0"},${0.05 + r * 0.08})`; x.fillRect(a, b, 2 + r * 3, 2 + r * 3); });
+      noise(x, w, h, 80, (x, a, b, r) => { x.fillStyle = `rgba(20,10,5,${0.15 + r * 0.25})`; x.beginPath(); x.arc(a, b, 4 + r * 18, 0, 7); x.fill(); });
+    });
+    const tFlame = canvasTex(128, 256, (x, w, h) => {
+      const g = x.createRadialGradient(w / 2, h * 0.72, 4, w / 2, h * 0.6, h * 0.55);
+      g.addColorStop(0, "rgba(255,250,210,1)"); g.addColorStop(0.25, "rgba(255,190,70,.95)"); g.addColorStop(0.6, "rgba(240,90,20,.55)"); g.addColorStop(1, "rgba(160,30,0,0)");
+      x.fillStyle = g; x.beginPath(); x.moveTo(w / 2, 0); x.quadraticCurveTo(w * 1.05, h * 0.65, w / 2, h); x.quadraticCurveTo(-w * 0.05, h * 0.65, w / 2, 0); x.fill();
+    });
+
+    /* لوح الخشب */
+    const board = new T.Mesh(new T.CylinderGeometry(2.6, 2.6, 0.12, 72), phys({ color: C("#86552d"), roughness: 0.7, clearcoat: 0.2 }));
+    board.position.y = -0.2; tray.add(board);
+    const handle = new T.Mesh(new T.BoxGeometry(0.7, 0.1, 1.5), board.material); handle.position.set(0, -0.2, 3.1); tray.add(handle);
+    const sh = shadowDisc(3.3); sh.position.y = -0.27; tray.add(sh);
+
+    /* البيتزا: 8 شرائح، كل وحدة فيها طبقاتها ومكوناتها (حتى تتحرك سوا لما تنقطع) */
+    const pz = new T.Group(); tray.add(pz);
+    const mCrust = phys({ color: C("#f0d9ae"), map: tDough, roughness: 0.85 });
+    const mChar = new T.MeshStandardMaterial({ map: tChar, transparent: true, opacity: 0, depthWrite: false, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -2 });
+    const mSauce = phys({ map: tSauce, roughness: 0.45, clearcoat: 0.5 });
+    const mCheese = phys({ color: C("#fff7e0"), map: tCheese, roughness: 0.5, clearcoat: 0.35, transparent: true, opacity: 0 });
+    const mBlister = new T.MeshStandardMaterial({ map: tBlister, transparent: true, opacity: 0, depthWrite: false, roughness: 0.6, polygonOffset: true, polygonOffsetFactor: -3 });
+    const mPep = phys({ map: tPep, roughness: 0.5, clearcoat: 0.6 });
+    const mOl = phys({ color: C("#17140f"), roughness: 0.25, clearcoat: 1 });
+    const mMush = phys({ color: C("#d9c3a2"), roughness: 0.7 });
+    const mPepper = phys({ color: C("#3f8a2b"), roughness: 0.35, clearcoat: 0.6 });
+    const mBasil = phys({ color: C("#2f6e22"), roughness: 0.5, clearcoat: 0.3, side: T.DoubleSide });
+    const slices = [], drops = [];
+    const at = (r, th, y) => new T.Vector3(r * Math.sin(th), y, r * Math.cos(th));
+    const addDrop = (g, mesh, pos, a, b, spin = 1) => { mesh.position.copy(pos); g.add(mesh); drops.push({ mesh, to: pos.clone(), a, b, spin: (rnd() - 0.5) * 8 * spin, rot0: mesh.rotation.clone(), h: 2.6 + rnd() * 1.4 }); };
     for (let i = 0; i < N; i++) {
-      const s0 = i * A + 0.012, len = A - 0.024, g = new T.Group(), mid = s0 + len / 2;
-      const layer = (r, h, y, m) => { const mm = new T.Mesh(new T.CylinderGeometry(r, r, h, 10, 1, false, s0, len), m); mm.position.y = y; g.add(mm); };
-      layer(R, 0.18, 0, mCrust); layer(R - 0.16, 0.04, 0.1, mSauce); layer(R - 0.2, 0.05, 0.135, mCheese);
+      const s0 = i * A, len = A, mid = s0 + len / 2, g = new T.Group();
+      const wedge = (r, h, y, m, radial = 24) => { const mm = new T.Mesh(new T.CylinderGeometry(r, r, h, radial, 1, false, s0, len), m); mm.position.y = y; g.add(mm); return mm; };
+      wedge(R, 0.16, 0, mCrust); const charTop = wedge(R + 0.002, 0.162, 0, mChar);
+      const sauce = wedge(R - 0.2, 0.03, 0.095, mSauce);
+      const cheese = wedge(R - 0.24, 0.05, 0.125, mCheese); const blister = wedge(R - 0.24, 0.052, 0.126, mBlister);
       const rimW = new T.Group(); rimW.rotation.y = s0 - Math.PI / 2;
-      const rim = new T.Mesh(new T.TorusGeometry(R - 0.09, 0.12, 10, 14, len), mCrust); rim.rotation.x = -Math.PI / 2; rim.position.y = 0.08; rimW.add(rim); g.add(rimW);
-      const at = (r, th, y) => new T.Vector3(r * Math.sin(th), y, r * Math.cos(th));
-      for (let k = 0; k < 2; k++) { const p = new T.Mesh(new T.CylinderGeometry(0.27, 0.27, 0.05, 24), mPep); p.position.copy(at(0.75 + k * 0.6 + rnd() * 0.15, s0 + 0.18 + rnd() * (len - 0.36), 0.18)); g.add(p); }
-      const ol = new T.Mesh(new T.TorusGeometry(0.075, 0.035, 8, 16), mOl); ol.rotation.x = Math.PI / 2; ol.position.copy(at(1.15 + rnd() * 0.4, s0 + 0.12 + rnd() * (len - 0.24), 0.19)); g.add(ol);
-      const bs = new T.Mesh(new T.SphereGeometry(0.15, 12, 8), mBas); bs.scale.set(1, 0.15, 0.6); bs.rotation.y = rnd() * 3; bs.position.copy(at(0.45 + rnd() * 0.5, mid, 0.2)); g.add(bs);
-      g.userData = { dir: new T.Vector3(Math.sin(mid), 0, Math.cos(mid)), mid, ph: rnd() };
+      const rim = new T.Mesh(new T.TorusGeometry(R - 0.1, 0.14, 12, 10, len), mCrust); rim.rotation.x = -Math.PI / 2; rim.position.y = 0.09; rim.scale.z = 0.8; rimW.add(rim);
+      const rimC = new T.Mesh(rim.geometry, mChar); rimC.rotation.copy(rim.rotation); rimC.position.copy(rim.position); rimC.scale.set(1.01, 1.01, 0.81); rimW.add(rimC); g.add(rimW);
+      // مكونات بتنزل من فوق
+      for (let k = 0; k < 2; k++) { const pp = new T.Mesh(new T.CylinderGeometry(0.26, 0.26, 0.05, 28), mPep); addDrop(g, pp, at(0.7 + k * 0.62 + rnd() * 0.12, s0 + 0.2 + rnd() * (len - 0.4), 0.17), 0.22 + rnd() * 0.06, 0.32 + rnd() * 0.04); }
+      const ol = new T.Mesh(new T.TorusGeometry(0.075, 0.035, 8, 18), mOl); ol.rotation.x = Math.PI / 2; addDrop(g, ol, at(1.2 + rnd() * 0.4, s0 + 0.12 + rnd() * (len - 0.24), 0.18), 0.28 + rnd() * 0.05, 0.38);
+      const mu = new T.Mesh(new T.SphereGeometry(0.17, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), mMush); mu.scale.set(1, 0.35, 0.8); mu.rotation.y = rnd() * 3; addDrop(g, mu, at(0.4 + rnd() * 0.5, mid + (rnd() - 0.5) * 0.3, 0.16), 0.3 + rnd() * 0.05, 0.4);
+      const pr = new T.Mesh(new T.TorusGeometry(0.14, 0.022, 6, 20, Math.PI * 1.4), mPepper); pr.rotation.x = Math.PI / 2; pr.rotation.z = rnd() * 6; addDrop(g, pr, at(1.5 + rnd() * 0.15, mid, 0.17), 0.32 + rnd() * 0.05, 0.42);
+      const bs = new T.Mesh(new T.SphereGeometry(0.16, 14, 8), mBasil); bs.scale.set(1, 0.08, 0.55); bs.rotation.y = rnd() * 3; addDrop(g, bs, at(0.95 + rnd() * 0.3, s0 + 0.15 + rnd() * (len - 0.3), 0.2), 0.36 + rnd() * 0.03, 0.44, 0.5);
+      g.userData = { dir: new T.Vector3(Math.sin(mid), 0, Math.cos(mid)), mid, ph: rnd(), sauce, cheese, blister, charTop };
       pz.add(g); slices.push(g);
     }
-    // خيوط الجبنة بين الشريحة الأولى والبيتزا
-    const strings = [], mStr = phys({ color: C("#f8dc86"), roughness: 0.4 });
-    for (let k = 0; k < 4; k++) { const m = new T.Mesh(new T.CylinderGeometry(0.025, 0.025, 1, 6), mStr); pz.add(m); strings.push(m); }
-    const vapor = steam(pz, 90, "#ffffff", 2.4, 2.6);
-    const a = new T.Vector3(), b = new T.Vector3();
+    // جبنة مبشورة بتنزل (InstancedMesh واحد خفيف)
+    const NS = 260, shreds = new T.InstancedMesh(new T.BoxGeometry(0.03, 0.03, 0.22), phys({ color: C("#fff3cf"), roughness: 0.5 }), NS);
+    const shredD = []; const M4 = new T.Matrix4(), Q = new T.Quaternion(), E = new T.Euler(), V = new T.Vector3(), S1 = new T.Vector3(1, 1, 1);
+    for (let i = 0; i < NS; i++) { const r = Math.sqrt(rnd()) * (R - 0.3), th = rnd() * Math.PI * 2; shredD.push({ to: at(r, th, 0.16), a: 0.1 + rnd() * 0.1, rot: [rnd() * 3, rnd() * 3, rnd() * 3], h: 2.4 + rnd() * 1.6 }); }
+    pz.add(shreds);
+
+    /* فرن الحطب: قبة طوب مفتوحة من قدام، أرضية حجر، ونار بالخلف */
+    const oven = new T.Group(); oven.position.set(0, -0.26, -1.9); tray.add(oven);
+    const mBrick = phys({ map: tBrick, roughness: 0.9, side: T.DoubleSide, transparent: true, opacity: 0 });
+    const dome = new T.Mesh(new T.SphereGeometry(2.8, 56, 22, Math.PI * 0.72, Math.PI * 1.56, 0, Math.PI / 2), mBrick); dome.scale.y = 0.6; oven.add(dome);
+    const arch = new T.Mesh(new T.TorusGeometry(1.8, 0.2, 12, 40, Math.PI), mBrick); arch.position.set(0, 0, 2.15); arch.scale.y = 0.75; oven.add(arch);
+    const mStone = new T.MeshStandardMaterial({ map: tStone, roughness: 0.95, transparent: true, opacity: 0 });
+    const floor = new T.Mesh(new T.CircleGeometry(2.8, 56), mStone); floor.rotation.x = -Math.PI / 2; floor.position.y = 0.01; oven.add(floor);
+    const flames = [], mFl = new T.SpriteMaterial({ map: tFlame, transparent: true, blending: T.AdditiveBlending, depthWrite: false, opacity: 0 });
+    for (let i = 0; i < 9; i++) { const f = new T.Sprite(mFl); f.position.set((i - 4) * 0.34 + (rnd() - 0.5) * 0.2, 0.6, -2.1 + Math.abs(i - 4) * 0.12); f.userData = { s: 0.8 + rnd() * 0.8, ph: rnd() * 6 }; oven.add(f); flames.push(f); }
+    const logs = new T.Group(); for (let i = 0; i < 3; i++) { const l = new T.Mesh(new T.CylinderGeometry(0.16, 0.18, 1.8, 10), phys({ color: C("#3a2414"), roughness: 0.9, emissive: C("#ff5a10"), emissiveIntensity: 0, transparent: true, opacity: 0 })); l.rotation.z = Math.PI / 2; l.rotation.y = (i - 1) * 0.5; l.position.set((i - 1) * 0.3, 0.18 + (i === 1) * 0.22, -2.2); logs.add(l); } oven.add(logs);
+    const fireL = new T.PointLight(C("#ff8a2a"), 0, 9, 1.4); fireL.position.set(0, 1.0, -1.4); oven.add(fireL);
+    const embers = steam(oven, 70, "#ffb45a", 3, 2.6); embers.material.size = 0.06; embers.material.opacity = 0; embers.material.blending = T.AdditiveBlending; embers.position.z = -1.2;
+    oven.visible = false;
+
+    /* عجلة التقطيع وخطوط القص */
+    const cutter = new T.Group(); tray.add(cutter);
+    const wheel = new T.Mesh(new T.CylinderGeometry(0.42, 0.42, 0.04, 48), phys({ color: C("#d8dde3"), metalness: 1, roughness: 0.18 })); wheel.rotation.z = Math.PI / 2; wheel.position.y = 0.42; cutter.add(wheel);
+    const hub = new T.Mesh(new T.CylinderGeometry(0.1, 0.1, 0.1, 20), phys({ color: C("#222"), roughness: 0.4 })); hub.rotation.z = Math.PI / 2; hub.position.y = 0.42; cutter.add(hub);
+    const hnd = new T.Mesh(new T.CapsuleGeometry(0.09, 1.1, 6, 12), phys({ color: C(colors.accent), roughness: 0.35, clearcoat: 0.8 })); hnd.position.set(0, 0.95, 0.55); hnd.rotation.x = 0.9; cutter.add(hnd);
+    cutter.visible = false;
+    const cuts = [], mCut = new T.MeshBasicMaterial({ color: C("#5a2d0e"), transparent: true, opacity: 0.85 });
+    for (let j = 0; j < 4; j++) { const c = new T.Mesh(new T.BoxGeometry(0.035, 0.02, R * 2), mCut); c.rotation.y = j * A; c.position.y = 0.155; c.scale.z = 0.001; pz.add(c); cuts.push(c); }
+
+    // خيوط الجبنة للشريحة اللي بتطلع
+    const strings = [], mStr = phys({ color: C("#f8d97c"), roughness: 0.4 });
+    for (let k = 0; k < 5; k++) { const m = new T.Mesh(new T.CylinderGeometry(0.022, 0.022, 1, 6), mStr); m.visible = false; pz.add(m); strings.push(m); }
+    const vapor = steam(pz, 90, "#ffffff", 2.4, 2.6); vapor.material.opacity = 0;
+    const va = new T.Vector3(), vb = new T.Vector3();
+    const crustRaw = C("#f0d9ae"), crustBaked = C("#e0a861"), cheeseRaw = C("#fff7e0"), cheeseBaked = C("#f6c858");
+
+    let spinA = 0;
     st.update = (dt, t) => {
       const p = st.sp;
-      place(st, root, o, p * 0.5);
-      pz.rotation.y = t * 0.12 + p * Math.PI * 1.1 + st.pointer.sx * 0.3;
-      pz.rotation.x = 0.62 + st.pointer.sy * 0.12 - p * 0.15;
+      place(st, root, o, 0.1); root.scale.multiplyScalar(0.74);
+      const into = ease(seg(0.44, 0.52, p)) * (1 - ease(seg(0.66, 0.74, p))); // البيتزا جوّا الفرن
+      const ovenIn = ease(seg(0.4, 0.48, p)) * (1 - ease(seg(0.7, 0.78, p)));
+      const bake = ease(seg(0.52, 0.68, p));
+      // دوران هادي بيوقف وقت التقطيع حتى تبيّن الخطوط
+      if (p < 0.74) spinA += dt * 0.12;
+      pz.rotation.y = spinA + Math.min(p, 0.74) * 1.2 + st.pointer.sx * 0.15;
+      tray.rotation.x = 0.66 + st.pointer.sy * 0.08 - ovenIn * 0.12;
+      pz.position.set(0, into * 0.06, -into * 1.9);
+
+      // الصلصة بتنفرد، والجبنة بتدوب، والطبقات بتحمر
+      const sauceK = ease(seg(0.02, 0.1, p)), cheeseK = ease(seg(0.16, 0.3, p));
+      mCrust.color.copy(crustRaw).lerp(crustBaked, bake);
+      mChar.opacity = bake * 0.95;
+      mCheese.opacity = cheeseK; mCheese.color.copy(cheeseRaw).lerp(cheeseBaked, bake);
+      mBlister.opacity = bake * 0.9;
+      mPep.color.setRGB(1 - bake * 0.18, 1 - bake * 0.22, 1 - bake * 0.22);
       slices.forEach((g, i) => {
-        const hero = i === 0, k = ease(p * 1.3 - (hero ? 0 : 0.08 + (i % 3) * 0.05));
-        const off = hero ? ease(p * 1.2) * 2.0 : k * (0.55 + 0.25 * g.userData.ph);
-        g.position.copy(g.userData.dir).multiplyScalar(off);
-        g.position.y = hero ? ease(p * 1.2) * 1.6 : k * 0.25 * Math.sin(t * 2 + i) + k * 0.15;
-        g.rotation.x = hero ? -ease(p) * 0.5 * g.userData.dir.z : 0;
-        g.rotation.z = hero ? ease(p) * 0.5 * g.userData.dir.x : 0;
-        g.rotation.y = hero ? 0 : k * 0.25 * Math.sin(i);
+        const u = g.userData;
+        u.sauce.scale.set(Math.max(0.01, sauceK), 1, Math.max(0.01, sauceK));
+        u.cheese.scale.set(0.6 + 0.4 * cheeseK, Math.max(0.02, cheeseK), 0.6 + 0.4 * cheeseK); u.blister.scale.copy(u.cheese.scale);
+        // بعد القص: الشرائح بتنفرط، وشريحة وحدة بتطلع
+        const hero = i === 0, sep = ease(seg(0.9, 1, p)), lift = ease(seg(0.92, 1, p));
+        g.position.copy(u.dir).multiplyScalar(hero ? sep * 0.3 + lift * 1.5 : sep * (0.16 + 0.1 * u.ph));
+        g.position.y = hero ? lift * 1.2 : 0;
+        g.rotation.x = hero ? -lift * 0.45 * u.dir.z : 0; g.rotation.z = hero ? lift * 0.45 * u.dir.x : 0;
       });
-      // الخيوط بتمتد وبتنقطع
-      const h = slices[0], show = p > 0.04 && p < 0.75;
+      // المكونات بتوقع وبتنط شوي
+      drops.forEach((d) => {
+        const k = seg(d.a, d.b, p), fall = 1 - k, bounce = k > 0.85 ? Math.sin((k - 0.85) / 0.15 * Math.PI) * 0.08 : 0;
+        d.mesh.visible = k > 0.001;
+        d.mesh.position.set(d.to.x, d.to.y + fall * fall * d.h + bounce, d.to.z);
+        d.mesh.rotation.set(d.rot0.x + fall * d.spin, d.rot0.y + fall * d.spin * 0.7, d.rot0.z);
+      });
+      // الجبنة المبشورة: بتنزل وبتختفي جوّا طبقة الجبنة
+      const shredVis = p > 0.09 && p < 0.33; shreds.visible = shredVis;
+      if (shredVis) for (let i = 0; i < NS; i++) {
+        const d = shredD[i], k = seg(d.a, d.a + 0.08, p), fall = 1 - k, melt = ease(seg(0.2, 0.32, p));
+        V.set(d.to.x, d.to.y + fall * fall * d.h, d.to.z); E.set(d.rot[0] + fall * 4, d.rot[1], d.rot[2] * (1 - k) + Math.PI / 2 * k * 0); Q.setFromEuler(E);
+        const s = k > 0.001 ? 1 - melt * 0.9 : 0.0001; S1.set(s, s * (1 - melt), s); M4.compose(V, Q, S1); shreds.setMatrixAt(i, M4);
+      }
+      shreds.instanceMatrix.needsUpdate = true;
+
+      // الفرن
+      oven.visible = ovenIn > 0.001;
+      if (oven.visible) {
+        const fade = ovenIn; mBrick.opacity = fade; mStone.opacity = fade; mFl.opacity = fade * 0.95;
+        oven.scale.setScalar(0.75 + 0.25 * fade); oven.position.y = -0.26 - (1 - fade) * 1.2;
+        logs.children.forEach((l) => { l.material.opacity = fade; l.material.emissiveIntensity = 0.4 + 0.3 * Math.sin(t * 7 + l.position.x * 9); });
+        fireL.intensity = fade * (20 + 5 * Math.sin(t * 13) + 3 * Math.sin(t * 29));
+        flames.forEach((f) => { const u = f.userData, fl = 0.85 + 0.25 * Math.sin(t * 9 + u.ph) + 0.1 * Math.sin(t * 23 + u.ph); f.scale.set(u.s * 0.55 * fl, u.s * 1.1 * fl, 1); f.position.y = 0.55 + u.s * 0.45 * fl; });
+        embers.material.opacity = fade * 0.8; embers.userData.tick(dt * 1.5);
+      }
+      // عجلة التقطيع: 4 خطوط من الحافة للحافة
+      const cutK = seg(0.76, 0.9, p); cutter.visible = cutK > 0 && cutK < 1;
+      cuts.forEach((c, j) => { const k = clamp(cutK * 4 - j); c.scale.z = Math.max(0.001, k); c.position.x = 0; c.position.z = 0; c.visible = k > 0; });
+      if (cutter.visible) {
+        const j = Math.min(3, Math.floor(cutK * 4)), k = clamp(cutK * 4 - j), ang = j * A + pz.rotation.y, d = (k - 0.5) * 2 * (R + 0.2);
+        cutter.position.set(Math.sin(ang) * -d + pz.position.x, 0.13 + pz.position.y, Math.cos(ang) * -d + pz.position.z);
+        cutter.rotation.y = ang; wheel.rotation.x = -k * 18; hub.rotation.x = wheel.rotation.x;
+      }
+      // خيوط الجبنة
+      const hs = slices[0], showS = p > 0.92;
       strings.forEach((m, k) => {
-        m.visible = show;
-        if (!show) return;
-        const th = h.userData.mid + (k - 1.5) * 0.08, r0 = 0.25 + k * 0.12;
-        a.set(Math.sin(th) * r0, 0.16, Math.cos(th) * r0).applyEuler(h.rotation).add(h.position);
-        b.set(Math.sin(th) * (r0 * 0.3), 0.15, Math.cos(th) * (r0 * 0.3));
-        orient(m, b, a);
-        const th2 = clamp(1 - p / 0.75) * (0.9 + 0.1 * Math.sin(t * 5 + k));
-        m.scale.x = m.scale.z = Math.max(0.15, th2);
+        m.visible = showS; if (!showS) return;
+        const th = hs.userData.mid + (k - 2) * 0.07, r0 = 0.3 + k * 0.1;
+        va.set(Math.sin(th) * r0, 0.15, Math.cos(th) * r0).applyEuler(hs.rotation).add(hs.position);
+        vb.set(Math.sin(th) * r0 * 0.4, 0.15, Math.cos(th) * r0 * 0.4);
+        orient(m, vb, va); const th2 = 0.6 + 0.4 * Math.sin(t * 4 + k); m.scale.x = m.scale.z = th2;
       });
-      vapor.userData.tick(dt);
-      camera.position.x = st.pointer.sx * 0.4; camera.position.y = st.pointer.sy * 0.25; camera.lookAt(0, 0, 0);
+      vapor.material.opacity = 0.5 * ease(seg(0.66, 0.74, p)); vapor.userData.tick(dt);
+      camera.position.x = st.pointer.sx * 0.35; camera.position.y = st.pointer.sy * 0.22; camera.lookAt(0, 0, 0);
     };
     return st;
   }

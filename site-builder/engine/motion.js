@@ -28,9 +28,15 @@
     root.querySelectorAll(".s-hero[data-pin]").forEach((hero) => {
       const stage = hero.querySelector(".stage"), hint = hero.querySelector(".scroll-hint"), copy = hero.querySelector(".copy");
       stage.dataset.pinned = "1"; stage.dataset.progress = "0";
-      ST.create({ trigger: hero, start: "top top", end: () => "+=" + Math.round(innerHeight * 1.3), pin: true, scrub: true, invalidateOnRefresh: true,
-        onUpdate: (s) => { stage.dataset.progress = s.progress.toFixed(4); if (hint) hint.style.opacity = String(1 - Math.min(1, s.progress * 4)); } });
-      if (copy) g.to(copy, { yPercent: -6, ease: "none", scrollTrigger: { trigger: hero, start: "top top", end: () => "+=" + Math.round(innerHeight * 1.3), scrub: true } });
+      const len = parseFloat(hero.dataset.pinLen) || 1.3, steps = [...hero.querySelectorAll(".hero-steps li")];
+      ST.create({ trigger: hero, start: "top top", end: () => "+=" + Math.round(innerHeight * len), pin: true, scrub: true, invalidateOnRefresh: true,
+        onUpdate: (s) => {
+          stage.dataset.progress = s.progress.toFixed(4); if (hint) hint.style.opacity = String(1 - Math.min(1, s.progress * 4));
+          // مراحل المشهد (مثلاً: المكونات، الفرن، التقطيع)
+          let on = -1; steps.forEach((li, i) => { if (s.progress >= parseFloat(li.dataset.at)) on = i; });
+          steps.forEach((li, i) => li.classList.toggle("on", i === on));
+        } });
+      if (copy) g.to(copy, { yPercent: -6, ease: "none", scrollTrigger: { trigger: hero, start: "top top", end: () => "+=" + Math.round(innerHeight * len), scrub: true } });
     });
 
     // عناوين الأقسام كلمة كلمة
@@ -103,6 +109,21 @@
         sec.querySelectorAll(".prod").forEach((p) => { p.hidden = b.dataset.cat !== "*" && p.dataset.c !== b.dataset.cat; });
         window.ScrollTrigger && window.ScrollTrigger.refresh();
       }));
+    });
+    // تكبير الصور: بتظهر فوراً بالدقة اللي محمّلة، وبعدين بتتبدل بالدقة الكاملة
+    root.querySelectorAll(".pic-w").forEach((w) => {
+      const img = w.querySelector("img[data-zoom]"); if (!img) return;
+      w.style.cursor = "zoom-in"; w.style.pointerEvents = "auto";
+      w.addEventListener("click", (e) => {
+        e.preventDefault();
+        const box = document.createElement("div"); box.className = "zoom"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", img.alt || "صورة");
+        box.innerHTML = `<img src="${img.currentSrc || img.src}" alt=""><button type="button" aria-label="سكّر">×</button>`;
+        document.body.appendChild(box); requestAnimationFrame(() => box.classList.add("on"));
+        const big = new Image(); big.onload = () => { const z = box.querySelector("img"); if (z) z.src = big.src; box.classList.add("hd"); }; big.src = img.dataset.zoom;
+        const close = () => { box.classList.remove("on"); setTimeout(() => box.remove(), 300); removeEventListener("keydown", onKey); };
+        const onKey = (ev) => { if (ev.key === "Escape") close(); };
+        box.addEventListener("click", close); addEventListener("keydown", onKey);
+      });
     });
     // نموذج التواصل: بيفتح واتساب برسالة جاهزة (إذا في رقم)، وإلا بس بيبيّن رسالة الشكر
     root.querySelectorAll("[data-form]").forEach((f) => f.addEventListener("submit", (e) => {

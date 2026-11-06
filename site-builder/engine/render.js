@@ -49,10 +49,18 @@
       site.sections.map((s) => (S[s.type] ? S[s.type](Object.assign({ variant: s.variant }, s.data || {}), site) : "")).join("");
     // صور الزبون بتاخد مكان الصور البديلة بالترتيب
     const slots = [...mount.querySelectorAll(".s-about .art .ph, .s-gallery figure .ph, .s-team .ph")];
-    site.images.forEach((src, i) => { const el = slots[i]; if (!el) return; el.classList.add("has-img"); el.style.backgroundImage = `url("${src}")`; const lab = el.parentElement.querySelector(".ph-label"); if (lab) lab.remove(); });
+    site.images.forEach((src, i) => { const el = slots[i]; if (!el) return; const old = el.querySelector("img.pic"); if (old) old.remove(); el.classList.add("has-img"); el.style.backgroundImage = `url("${src}")`; const lab = el.parentElement.querySelector(".ph-label"); if (lab) lab.remove(); });
     if (site.brand.logo) mount.querySelectorAll(".logo .mark").forEach((m) => { m.classList.add("img"); m.innerHTML = `<img src="${site.brand.logo}" alt="">`; });
     const stageEl = mount.querySelector("[data-scene]");
     if (stageEl) window.SAMMEM.mountScene(stageEl, site.theme.scene, site.theme.colors, { center: (site.sections.find((s) => s.type === "hero") || {}).variant === "center" });
+    // حقوق الصور الحرة (ويكيميديا): المؤلف والرخصة بأسفل الصفحة
+    const used = [...new Set([...mount.querySelectorAll("img[data-zoom]")].map((i) => i.dataset.zoom.replace(/^media\//, "").replace(/-\d+\.webp$/, "")))].map((k) => [k, (window.SAMMEM_MEDIA || {})[k]]).filter((x) => x[1] && x[1].credit);
+    const foot = mount.querySelector("footer, .s-footer");
+    if (used.length && foot) {
+      const e = window.SAMMEM.esc, d = document.createElement("details"); d.className = "credits";
+      d.innerHTML = "<summary>مصادر الصور</summary><ul>" + used.map(([, m]) => `<li><a href="${e(m.credit.url)}" target="_blank" rel="noopener">${e(m.credit.title)}</a> · ${e(m.credit.author || "")} · ${e(m.credit.license)}</li>`).join("") + "</ul>";
+      foot.appendChild(d);
+    }
     window.SAMMEM.motion.init(mount);
     return site;
   }

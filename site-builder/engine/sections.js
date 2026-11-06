@@ -35,6 +35,14 @@
     wa: '<path d="M20.5 3.5A11.8 11.8 0 0 0 1.8 17.7L.2 23.5l6-1.6A11.8 11.8 0 0 0 20.5 3.5zM12 21.5a9.6 9.6 0 0 1-4.9-1.3l-.4-.2-3.6.9 1-3.5-.2-.4A9.6 9.6 0 1 1 12 21.5zm5.3-7.2c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1l-.9 1.2c-.2.2-.3.2-.6.1a7.9 7.9 0 0 1-3.9-3.4c-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6a1.1 1.1 0 0 0-.8.4 3.4 3.4 0 0 0-1 2.5c0 1.5 1.1 2.9 1.2 3.1.1.2 2.1 3.2 5.1 4.5 1.9.8 2.6.9 3.6.7.6-.1 1.7-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3z" fill="currentColor" stroke="none"/>',
   };
   const icon = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n] || I.spark}</svg>`;
+  // صورة حقيقية سريعة: لمحة ضبابية فورية (24px)، بعدها 480/960/1600 حسب الشاشة، والدقة الكاملة لما يكبّرها الزائر
+  const pic = (key, o = {}) => {
+    const M = window.SAMMEM_MEDIA || {}, m = M[key]; if (!m) return "";
+    const b = "media/" + key, ws = [480, 960, 1600].filter((w) => w <= Math.max(480, m.max || 1600));
+    const src = o.sq ? `${b}-sq.webp` : `${b}-480.webp`;
+    const set = o.sq ? `${b}-sq.webp 240w, ${b}-480.webp 480w` : ws.map((w) => `${b}-${w}.webp ${w}w`).join(", ");
+    return `<span class="ph pic-w" style="--lq:url(${m.lqip})"${o.parallax === false ? "" : ' data-parallax="-0.08"'}><img class="pic" src="${src}" srcset="${set}" sizes="${o.sizes || "(max-width: 760px) 100vw, 50vw"}" width="${o.sq ? 240 : m.w}" height="${o.sq ? 240 : m.h}" loading="lazy" decoding="async" alt="${esc(o.alt || "")}" data-zoom="${b}-${ws[ws.length - 1]}.webp" onload="this.classList.add('in')"></span>`;
+  };
   const ph = (label, x = 30, y = 30) => `<div class="ph" style="--px:${x}%;--py:${y}%" data-parallax="-0.12"></div>${label ? `<span class="ph-label">${esc(label)}</span>` : ""}`;
   const head = (d, center) => `
     <div class="sec-head${center ? " center" : ""}" data-reveal>
@@ -55,8 +63,9 @@
   </header>`;
 
   S.hero = (d, site) => `
-  <section class="s-hero${d.variant === "center" ? " center" : ""}" id="hero"${d.pin ? " data-pin" : ""}>
+  <section class="s-hero${d.variant === "center" ? " center" : ""}" id="hero"${d.pin ? " data-pin" : ""}${d.pinLen ? ` data-pin-len="${+d.pinLen}"` : ""}>
     <div class="stage" data-scene="${esc(site.theme.scene)}"></div>
+    ${d.steps ? `<ol class="hero-steps" aria-hidden="true">${d.steps.map((t, i) => `<li data-at="${esc(t.at)}"><i>${i + 1}</i>${esc(t.label)}</li>`).join("")}</ol>` : ""}
     <div class="veil"></div>
     <div class="wrap">
       <div class="copy">
@@ -87,7 +96,7 @@
         ${(d.paragraphs || []).map((p) => `<p class="lead">${esc(p)}</p>`).join("")}
         ${d.stats ? `<div class="stats" data-stagger>${d.stats.map((s) => `<div class="stat"><b data-count="${esc(s.n)}">${esc(s.n)}</b><span>${esc(s.label)}</span></div>`).join("")}</div>` : ""}
       </div>
-      <div class="art" data-reveal="scale">${ph(d.image, 35, 25)}</div>
+      <div class="art" data-reveal="scale">${d.img ? pic(d.img, { alt: d.image || d.title }) : ph(d.image, 35, 25)}</div>
     </div>
   </section>`;
 
@@ -120,7 +129,7 @@
         <div class="menu-list" role="tabpanel" aria-labelledby="tab-${i}" data-panel="${i}" ${i ? "hidden" : ""}>
           ${c.items.map((it, j) => `
             <div class="dish" data-reveal>
-              <div class="thumb"><div class="ph" style="--px:${30 + j * 9}%;--py:${60 - j * 7}%"></div></div>
+              <div class="thumb">${it.img ? pic(it.img, { sq: true, alt: it.name, sizes: "120px", parallax: false }) : `<div class="ph" style="--px:${30 + j * 9}%;--py:${60 - j * 7}%"></div>`}</div>
               <div><h4>${esc(it.name)}${it.tag ? `<span class="tag">${esc(it.tag)}</span>` : ""}</h4><p>${esc(it.desc)}</p></div>
               <span class="price">${esc(it.price)}${site.brand.whatsapp ? `<a class="dish-order" ${waAttrs(waLink(site, orderMsg(site, it, d.orderLabel || "اطلب")))} aria-label="${esc(d.orderLabel || "اطلب")} ${esc(it.name)} ع واتساب">${icon("wa")}${esc(d.orderLabel || "اطلب")}</a>` : ""}</span>
             </div>`).join("")}
@@ -170,7 +179,7 @@
     <div class="wrap">
       ${head(d)}
       <div class="gallery" data-stagger>
-        ${(d.items || []).slice(0, 5).map((t, i) => `<figure>${ph(t, 20 + i * 15, 70 - i * 12)}</figure>`).join("")}
+        ${(d.items || []).slice(0, 5).map((t, i) => typeof t === "object" && t.img ? `<figure>${pic(t.img, { alt: t.label, sizes: "(max-width: 760px) 100vw, 40vw" })}<figcaption class="ph-label">${esc(t.label || "")}</figcaption></figure>` : `<figure>${ph(typeof t === "object" ? t.label : t, 20 + i * 15, 70 - i * 12)}</figure>`).join("")}
       </div>
     </div>
   </section>`;
@@ -299,5 +308,6 @@
   window.SAMMEM.icon = icon;
   window.SAMMEM.esc = esc;
   window.SAMMEM.waNum = waNum;
+  window.SAMMEM.pic = pic;
   window.SAMMEM.waLink = waLink;
 })();

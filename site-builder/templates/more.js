@@ -4,7 +4,7 @@
   const NAV = { menu: "المنيو", products: "المنتجات", services: "الخدمات", about: "عنا", process: "كيف منشتغل", gallery: "معرض", team: "الفريق", pricing: "الأسعار", reviews: "الآراء", faq: "أسئلة" };
   function mk(s) {
     const sec = [];
-    sec.push({ type: "hero", variant: s.heroVariant || "split", data: Object.assign({ pin: true }, s.hero) });
+    sec.push({ type: "hero", variant: s.heroVariant || "split", data: Object.assign({ pin: true, pinLen: s.pinLen }, s.hero) });
     if (s.marquee) sec.push({ type: "marquee", data: { items: s.marquee } });
     s.main.forEach((m) => sec.push(m));
     if (s.about) sec.push({ type: "about", data: Object.assign({ id: "about" }, s.about) });
@@ -32,20 +32,20 @@
   const T = {};
 
   T.pizza = mk({
-    id: "pizza", label: "بيتزا وفطاير", scene: "pizza", fonts: F.lalezar,
+    id: "pizza", label: "بيتزا وفطاير", scene: "pizza", fonts: F.lalezar, pinLen: 3.2,
     keywords: ["بيتزا", "فطاير", "فطائر", "معجنات", "مناقيش", "منقوشة", "فرن", "صفيحة", "كالزوني", "عجينة"],
     palettes: { luxe: P("#140d09", "#21150f", "#fff3e4", "#c9ad92", "#ffb23e", "#d63b25", "#1c0f05"), calm: P("#fbf3e7", "#ffffff", "#2b1b10", "#7c6655", "#c2451f", "#5f8f3a", "#ffffff", 1), bold: P("#1d0a07", "#2b110c", "#fff1e0", "#d1a693", "#ff5a2a", "#ffd23e", "#1d0a07") },
     brand: { name: "فرن الضيعة", mark: "ف", tagline: "بيتزا وفطاير على الحطب، طازة من الفرن لبابك", phone: "011 444 2211", whatsapp: "0944 221 100", address: "دمشق، المزرعة، جنب جامع الإيمان", hours: "كل يوم من 10 الصبح لـ 2 بالليل" },
     navCta: "اطلب هلق",
-    hero: { eyebrow: "فرن حطب · توصيل خلال 30 دقيقة", title: "عجينة مخمّرة 48 ساعة، وجبنة بتمطّ", lead: "انزل لتحت وشوف كيف بتنقطع الشريحة. كل بيتزا بتنخبز قدامك على الحطب، وبتوصلك سخنة.", primary: "اطلب بيتزتك", secondary: "المنيو", secondaryTarget: "menu", badges: [{ k: "30 دقيقة", v: "توصيل" }, { k: "4.8", v: "تقييم الزباين" }] },
+    hero: { eyebrow: "فرن حطب · توصيل خلال 30 دقيقة", title: "عجينة مخمّرة 48 ساعة، وجبنة بتمطّ", lead: "انزل لتحت وتفرّج: المكونات بتنزل على العجينة، بتدخل فرن الحطب، وبتطلع لتنقطع قدامك. وبعدها اطلبها ع واتساب.", primary: "اطلب بيتزتك", secondary: "المنيو", secondaryTarget: "menu", badges: [{ k: "30 دقيقة", v: "توصيل" }, { k: "4.8", v: "تقييم الزباين" }], steps: [{ label: "العجينة", at: 0 }, { label: "المكونات", at: 0.1 }, { label: "الفرن", at: 0.45 }, { label: "التقطيع", at: 0.76 }] },
     marquee: ["مارغريتا", "بيبروني", "فطاير سبانخ", "مناقيش زعتر", "صفيحة بعلبكية", "كالزوني", "بيتزا خضرة"],
     main: [{ type: "menu", data: { id: "menu", eyebrow: "المنيو", title: "شو جاي عبالك اليوم؟", lead: "كل الأسعار للحجم الوسط. الكبير بزيادة 30%.", categories: [
-      { name: "بيتزا", items: [{ name: "مارغريتا", desc: "صلصة بندورة، موزاريلا، حبق", price: "45,000 ل.س" }, { name: "بيبروني", desc: "بيبروني بقري، موزاريلا مضاعفة", price: "60,000 ل.س", tag: "الأكتر طلباً" }, { name: "خضرة مشوية", desc: "فليفلة، فطر، زيتون، بصل أحمر", price: "50,000 ل.س" }, { name: "أربع أجبان", desc: "موزاريلا، شيدر، حلوم، جبنة زرقا", price: "70,000 ل.س" }] },
-      { name: "فطاير ومناقيش", items: [{ name: "فطيرة سبانخ", desc: "سبانخ بالسماق والبصل", price: "8,000 ل.س" }, { name: "منقوشة زعتر", desc: "زعتر حلبي وزيت زيتون", price: "6,000 ل.س" }, { name: "صفيحة لحمة", desc: "لحمة بلدية بدبس الرمان", price: "12,000 ل.س", tag: "جديد" }, { name: "جبنة وعسل", desc: "عكاوي مع رشة عسل", price: "10,000 ل.س" }] },
-      { name: "مشروبات", items: [{ name: "عيران", desc: "لبن بلدي بارد", price: "5,000 ل.س" }, { name: "ليموناضة بالنعنع", desc: "ليمون طازة", price: "9,000 ل.س" }] },
+      { name: "بيتزا", items: [{ img: "pizza/margherita", name: "مارغريتا", desc: "صلصة بندورة، موزاريلا، حبق", price: "45,000 ل.س" }, { img: "pizza/pepperoni", name: "بيبروني", desc: "بيبروني بقري، موزاريلا مضاعفة", price: "60,000 ل.س", tag: "الأكتر طلباً" }, { img: "pizza/veggie", name: "خضرة مشوية", desc: "فليفلة، فطر، زيتون، بصل أحمر", price: "50,000 ل.س" }, { img: "pizza/cheese4", name: "أربع أجبان", desc: "موزاريلا، شيدر، حلوم، جبنة زرقا", price: "70,000 ل.س" }] },
+      { name: "فطاير ومناقيش", items: [{ img: "pizza/spinach", name: "فطيرة سبانخ", desc: "سبانخ بالسماق والبصل", price: "8,000 ل.س" }, { img: "pizza/zaatar", name: "منقوشة زعتر", desc: "زعتر حلبي وزيت زيتون", price: "6,000 ل.س" }, { img: "pizza/sfiha", name: "صفيحة لحمة", desc: "لحمة بلدية بدبس الرمان", price: "12,000 ل.س", tag: "جديد" }, { img: "pizza/cheesehoney", name: "جبنة وعسل", desc: "عكاوي مع رشة عسل", price: "10,000 ل.س" }] },
+      { name: "مشروبات", items: [{ img: "pizza/ayran", name: "عيران", desc: "لبن بلدي بارد", price: "5,000 ل.س" }, { img: "pizza/lemonade", name: "ليموناضة بالنعنع", desc: "ليمون طازة", price: "9,000 ل.س" }] },
     ] } }],
-    about: { eyebrow: "قصتنا", title: "من فرن الضيعة لقلب الشام", paragraphs: ["بلّشنا بفرن حطب صغير بالضيعة، وكانت الناس تجي من القرى اللي حولنا مشان المنقوشة. هلق صرنا بالشام، وبعده نفس الفرن ونفس العجينة."], stats: [{ n: "48", label: "ساعة تخمير" }, { n: "400", label: "درجة حرارة الفرن" }, { n: "12,000+", label: "طلب بالشهر" }], image: "صورة الفرن" },
-    gallery: { eyebrow: "من الفرن", title: "سخنة وطازة", items: ["الفرن عالحطب", "مدّ العجينة", "بيتزا بيبروني", "صينية فطاير", "طاولاتنا"] },
+    about: { eyebrow: "قصتنا", title: "من فرن الضيعة لقلب الشام", paragraphs: ["بلّشنا بفرن حطب صغير بالضيعة، وكانت الناس تجي من القرى اللي حولنا مشان المنقوشة. هلق صرنا بالشام، وبعده نفس الفرن ونفس العجينة."], stats: [{ n: "48", label: "ساعة تخمير" }, { n: "400", label: "درجة حرارة الفرن" }, { n: "12,000+", label: "طلب بالشهر" }], image: "فرن الحطب", img: "pizza/oven" },
+    gallery: { eyebrow: "من الفرن", title: "سخنة وطازة", items: [{ label: "النار عالحطب", img: "pizza/fire" }, { label: "على باب الفرن", img: "pizza/chef" }, { label: "بيبروني طالعة هلق", img: "pizza/pepperoni-wood" }, { label: "صينية فطاير", img: "pizza/fatayer-tray" }, { label: "طاولاتنا", img: "pizza/tables" }] },
     reviews: { items: [{ text: "العجينة خفيفة والأطراف مقرمشة، أحسن من أي بيتزا جربتها بالشام.", name: "لمى قاسم", meta: "طلبت توصيل" }, { text: "فطاير السبانخ متل تبع ستي بالضبط. صرنا نطلب كل جمعة.", name: "أبو عمر", meta: "زبون دائم" }, { text: "وصل الطلب بـ 25 دقيقة وكان سخن. شكراً.", name: "رامي ديب", meta: "طلب عشا" }] },
     faq: { items: [{ q: "لوين بتوصلوا؟", a: "لكل دمشق، والتوصيل مجاني فوق 100,000 ل.س." }, { q: "في عجينة بدون غلوتين؟", a: "إي، بطلب مسبق قبل ساعة." }] },
     cta: { title: "جوعان؟", lead: "اطلب هلق، ومنكون عندك خلال نص ساعة.", button: "اطلب على واتساب" },
