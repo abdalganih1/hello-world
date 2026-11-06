@@ -24,11 +24,11 @@
   let started = false;
   const start = (cfg) => { if (started) return; started = true; SAMMEM.render(cfg); };
   const fromUrl = SAMMEM.readConfig();
-  if (fromUrl.t || window.parent === window) start(fromUrl);
+  if (!fromUrl.embed && (fromUrl.t || window.parent === window)) start(fromUrl);
   else {
     addEventListener("message", (e) => { if (e.data && e.data.type === "sammem:config") start(e.data.cfg); });
     parent.postMessage({ type: "sammem:ready" }, "*");
-    setTimeout(() => start(fromUrl), 1500);
+    setTimeout(() => start(fromUrl), 4000);
   }
 </script>
 </body>

@@ -109,8 +109,20 @@
   const TR = { ا: "a", أ: "a", إ: "e", آ: "a", ب: "b", ت: "t", ث: "th", ج: "j", ح: "h", خ: "kh", د: "d", ذ: "th", ر: "r", ز: "z", س: "s", ش: "sh", ص: "s", ض: "d", ط: "t", ظ: "z", ع: "a", غ: "gh", ف: "f", ق: "q", ك: "k", ل: "l", م: "m", ن: "n", ه: "h", ة: "a", و: "w", ي: "y", ى: "a", ء: "", ئ: "e", ؤ: "o", " ": "-" };
   const slugify = (s) => (s || "").trim().split("").map((ch) => (TR[ch] !== undefined ? TR[ch] : /[a-z0-9-]/i.test(ch) ? ch.toLowerCase() : "")).join("").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 30) || "mysite";
 
+  // تصغير الصورة بالمتصفح قبل ما تنبعت (أخف للمعاينة وللرفع لاحقاً على R2)
+  function shrink(file, max, type) {
+    return new Promise((res) => {
+      const img = new Image(), url = URL.createObjectURL(file);
+      img.onload = () => { const k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement("canvas");
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url); res(c.toDataURL(type, 0.85)); };
+      img.onerror = () => res("");
+      img.src = url;
+    });
+  }
+
   /* ---------- المعالج ---------- */
-  const st = { idea: "", t: "agency", palette: "bold", name: "", tagline: "", off: [], phone: "", whatsapp: "", slug: "", step: 0 };
+  const st = { logo: "", images: [], morePal: false, idea: "", t: "agency", palette: "bold", name: "", tagline: "", off: [], phone: "", whatsapp: "", slug: "", step: 0 };
   const layer = $("#layer");
 
   function steps() {
@@ -125,8 +137,32 @@
           <div class="fld"><label for="w-tag">جملة قصيرة بتوصفه (اختياري)</label><input id="w-tag" value="${esc(st.tagline)}" placeholder="${esc(TPL[st.t].brand.tagline)}"></div>`,
         bind: (el) => { const n = $("#w-name", el), g = $("#w-tag", el); n.oninput = () => { st.name = n.value; navState(); }; g.oninput = () => (st.tagline = g.value); setTimeout(() => n.focus(), 350); } },
       { key: "الطابع", title: "أي طابع بيشبهك؟", hint: "الألوان والخطوط بتتغير، والتصميم بيضل متناسق.", valid: () => !!st.palette,
-        html: () => `<div class="opts three">${Object.entries(TPL[st.t].palettes).map(([k, p]) => `<button class="opt" data-p="${k}" aria-pressed="${k === st.palette}"><span class="pal"><i style="background:${p.bg}"></i><i style="background:${p.surface}"></i><i style="background:${p.accent}"></i><i style="background:${p.accent2}"></i></span><b>${PAL_NAMES[k][0]}</b><small>${PAL_NAMES[k][1]}</small></button>`).join("")}</div>`,
-        bind: (el) => el.querySelectorAll("[data-p]").forEach((b) => b.onclick = () => { st.palette = b.dataset.p; paint(); }) },
+        html: () => {
+          const card = (k, p, name, desc) => `<button class="opt" data-p="${k}" aria-pressed="${k === st.palette}"><span class="pal"><i style="background:${p.bg}"></i><i style="background:${p.surface}"></i><i style="background:${p.accent}"></i><i style="background:${p.accent2}"></i></span><b>${esc(name)}</b><small>${esc(desc)}</small></button>`;
+          const base = Object.entries(TPL[st.t].palettes).map(([k, p]) => card(k, p, PAL_NAMES[k][0], PAL_NAMES[k][1]));
+          const extra = Object.entries(window.SAMMEM_EXTRA_PALETTES || {}).map(([k, p]) => card(k, p, p.label, p.desc));
+          const showAll = st.morePal || extra.some((x) => x.includes(`data-p="${st.palette}"`));
+          return `<div class="opts three">${base.join("")}${showAll ? extra.join("") : ""}</div>
+            ${extra.length && !showAll ? `<button class="more" data-more>اعرض المزيد <span>(${extra.length} طوابع)</span></button>` : ""}`;
+        },
+        bind: (el) => { el.querySelectorAll("[data-p]").forEach((b) => b.onclick = () => { st.palette = b.dataset.p; paint(); });
+          const m = $("[data-more]", el); if (m) m.onclick = () => { st.morePal = true; paint(); animIn(); }; } },
+      { key: "الصور", title: "عندك لوغو أو صور؟", hint: "اختياري. إذا ما رفعت شي، منحطلك صور بديلة بتمشي مع الألوان.", valid: () => true,
+        html: () => `<div class="up-grid">
+            <label class="drop logo-drop" for="w-logo">${st.logo ? `<img src="${st.logo}" alt="اللوغو">` : `<b>اللوغو</b><small>PNG أو JPG</small>`}</label>
+            <input id="w-logo" type="file" accept="image/*" hidden>
+            <div class="photos">
+              ${st.images.map((src, i) => `<span class="thumb"><img src="${src}" alt="صورة ${i + 1}"><button data-rm="${i}" aria-label="شيل الصورة">×</button></span>`).join("")}
+              ${st.images.length < 6 ? `<label class="drop" for="w-imgs"><b>+ صور</b><small>لحد 6 صور</small></label>` : ""}
+            </div>
+            <input id="w-imgs" type="file" accept="image/*" multiple hidden>
+          </div>
+          <p class="fine">أول صورة بتطلع بقسم «من نحن»، والباقي بمعرض الصور والفريق.</p>`,
+        bind: (el) => {
+          $("#w-logo", el).onchange = async (e) => { const f = e.target.files[0]; if (f) { st.logo = await shrink(f, 400, "image/png"); paint(); } };
+          $("#w-imgs", el).onchange = async (e) => { for (const f of [...e.target.files].slice(0, 6 - st.images.length)) st.images.push(await shrink(f, 1400, "image/jpeg")); paint(); };
+          el.querySelectorAll("[data-rm]").forEach((b) => b.onclick = () => { st.images.splice(+b.dataset.rm, 1); paint(); });
+        } },
       { key: "الأقسام", title: "شو بدك يكون بموقعك؟", hint: "شلنا المطلوب لنوع مشروعك. طفّي اللي ما بدك ياه.", valid: () => true,
         html: () => `<div class="toggles">${optional.map((k) => `<button data-s="${k}" aria-pressed="${!st.off.includes(k)}">${SECTION_NAMES[k]}</button>`).join("")}</div><p class="fine">التواصل والخريطة وزر الواتساب موجودين دايماً.</p>`,
         bind: (el) => el.querySelectorAll("[data-s]").forEach((b) => b.onclick = () => { const k = b.dataset.s; st.off = st.off.includes(k) ? st.off.filter((x) => x !== k) : [...st.off, k]; b.setAttribute("aria-pressed", !st.off.includes(k)); }) },
@@ -141,7 +177,7 @@
 
   function startWizard(idea, forceT) {
     st.idea = idea.trim(); st.ai = chooseTemplate(st.idea); st.t = forceT || st.ai; st.palette = TPL[st.t].defaultPalette;
-    st.name = guessName(st.idea); st.slug = slugify(st.name) || TPL[st.t].id; st.off = []; st.step = 0;
+    st.name = guessName(st.idea); st.slug = slugify(st.name) || TPL[st.t].id; st.off = []; st.step = 0; st.logo = ""; st.images = []; st.morePal = false;
     layer.hidden = false; document.body.classList.add("busy"); document.body.style.overflow = "hidden";
     paint(true);
   }
@@ -154,7 +190,7 @@
 
   function paint(first) {
     const S = steps(), s = S[st.step];
-    if (st.step === 4 && !st.slug) st.slug = slugify(st.name) || st.t;
+    if (!st.slug) st.slug = slugify(st.name) || st.t;
     layer.innerHTML = shell(`
       <div class="deck">
         <div class="dots" style="position:absolute;top:0;inset-inline:0">${S.map((_, i) => `<i class="${i === st.step ? "on" : i < st.step ? "done" : ""}"></i>`).join("")}</div>
@@ -187,7 +223,7 @@
   }
 
   /* ---------- المعاينة ---------- */
-  function cfg() { return { t: st.t, palette: st.palette, name: st.name.trim(), tagline: st.tagline.trim(), phone: st.phone.trim(), whatsapp: st.whatsapp.trim(), off: st.off }; }
+  function cfg() { return { t: st.t, palette: st.palette, name: st.name.trim(), tagline: st.tagline.trim(), phone: st.phone.trim(), whatsapp: st.whatsapp.trim(), off: st.off, logo: st.logo, images: st.images }; }
   function siteUrl() { const c = cfg(), q = new URLSearchParams(); Object.entries(c).forEach(([k, v]) => { if (Array.isArray(v) ? v.length : v) q.set(k, Array.isArray(v) ? v.join(",") : v); }); return "site.html?" + q.toString(); }
 
   function preview() {
@@ -199,7 +235,7 @@
           <div class="url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>https://<b>${esc(host)}</b></span></div>
           <div class="seg" role="group" aria-label="حجم المعاينة"><button aria-pressed="true" data-dev="desk">كمبيوتر</button><button aria-pressed="false" data-dev="mob">موبايل</button></div>
         </div>
-        <div class="frame-wrap" id="fw"><iframe id="pf" title="معاينة موقعك" src="${siteUrl()}"></iframe></div>
+        <div class="frame-wrap" id="fw"><iframe id="pf" title="معاينة موقعك" src="site.html?embed=1"></iframe></div>
       </div>
       <aside class="pv-side">
         <span class="status" id="stt">مسودة · بانتظار إرسالها للمراجعة</span>
@@ -210,7 +246,7 @@
           <div><span>3</span><p><b>تشغيل تجريبي 3 أيام</b>على الرابط ${esc(host)}</p></div>
           <div><span>4</span><p><b>منتواصل معك</b>منحددلك التكلفة، والدومين الخاص بـ 20$ بالسنة.</p></div>
         </div>
-        <div class="edit-box"><label class="fine" for="ask-edit">بدك تعديل؟ اكتبه بكلماتك</label><textarea id="ask-edit" placeholder="مثلاً: خلي الألوان أفتح، وزيد قسم عروض"></textarea><button class="pbtn ghost" data-redo>طبّق التعديل</button></div>
+        <div class="edit-box"><label class="fine" for="ask-edit">بدك تعديل؟ اكتبه بكلماتك</label><textarea id="ask-edit" placeholder="مثلاً: خلي الألوان أفتح، وزيد قسم عروض"></textarea><button class="pbtn ghost" data-redo>طبّق التعديل</button><p class="fine" id="edit-msg" role="status"></p></div>
         <div class="acts"><button class="pbtn accent" data-send>أرسل للمراجعة</button></div>
         <p class="note">هاد نموذج أولي للتجربة: الإرسال والتعديل بالكلمات رح يشتغلوا لما نربط المنصة بالذكاء الاصطناعي ولوحة الأدمن.</p>
       </aside></div>`;
@@ -220,8 +256,13 @@
     $("[data-edit]", layer).onclick = () => { st.step = 0; paint(true); };
     $("[data-redo]", layer).onclick = () => {
       const v = $("#ask-edit").value;
+      const before = st.palette;
       if (/فاتح|أفتح|افتح|هادي|ابيض|أبيض/.test(v)) st.palette = "calm"; else if (/غامق|فخم|ذهبي|اسود|أسود/.test(v)) st.palette = "luxe"; else if (/جريء|قوي|حماس|ملفت/.test(v)) st.palette = "bold";
-      f.src = siteUrl();
+      const changed = st.palette !== before;
+      const msg = $("#edit-msg");
+      if (v.trim().length < 3) { msg.textContent = "اكتب شو بدك نغيّر."; return; }
+      if (changed) { f.src = "site.html?embed=1&r=" + Date.now(); msg.textContent = "غيّرنا الألوان. باقي أنواع التعديل (المنيو والنصوص والأقسام) بتشتغل لما نربط الذكاء الاصطناعي."; }
+      else msg.textContent = "وصل طلبك. بهالنسخة التجريبية ما في ذكاء اصطناعي مربوط لسا، فالتعديلات على النصوص والمنيو بتشتغل بالمرحلة الجاية.";
     };
     $("[data-send]", layer).onclick = (e) => { e.target.disabled = true; e.target.textContent = "انبعت للمراجعة"; const s = $("#stt"); s.textContent = "قيد المراجعة · منبعتلك إشعار لما ينفتح"; };
     if (window.gsap && !reduce) { gsap.from(".pv-side > *", { x: -30, opacity: 0, stagger: 0.06, duration: 0.6, ease: "power3.out" }); gsap.from("#fw", { scale: 0.96, opacity: 0, duration: 0.8, ease: "expo.out" }); }

@@ -9,10 +9,12 @@
     const all = window.SAMMEM_TEMPLATES;
     const base = all[cfg.t] || all[Object.keys(all)[0]];
     const site = clone(base);
-    const pal = site.palettes[cfg.palette] || site.palettes[site.defaultPalette];
+    const pal = site.palettes[cfg.palette] || (window.SAMMEM_EXTRA_PALETTES || {})[cfg.palette] || site.palettes[site.defaultPalette];
     site.theme.colors = Object.assign({}, site.theme.colors, pal);
     if (cfg.name) { site.brand.name = cfg.name; site.brand.mark = cfg.name.trim().replace(/^(ال)/, "")[0] || site.brand.mark; }
     if (cfg.tagline) site.brand.tagline = cfg.tagline;
+    if (cfg.logo) site.brand.logo = cfg.logo;
+    site.images = Array.isArray(cfg.images) ? cfg.images : [];
     ["phone", "whatsapp", "email", "address", "hours"].forEach((k) => { if (cfg[k]) site.brand[k] = cfg[k]; });
     const off = new Set(cfg.off || []);
     site.sections = site.sections.filter((s) => !off.has(s.type) && !off.has(s.data && s.data.id));
@@ -43,6 +45,10 @@
     const S = window.SAMMEM.sections;
     mount.innerHTML = '<div class="progress" aria-hidden="true"></div>' +
       site.sections.map((s) => (S[s.type] ? S[s.type](Object.assign({ variant: s.variant }, s.data || {}), site) : "")).join("");
+    // صور الزبون بتاخد مكان الصور البديلة بالترتيب
+    const slots = [...mount.querySelectorAll(".s-about .art .ph, .s-gallery figure .ph, .s-team .ph")];
+    site.images.forEach((src, i) => { const el = slots[i]; if (!el) return; el.classList.add("has-img"); el.style.backgroundImage = `url("${src}")`; const lab = el.parentElement.querySelector(".ph-label"); if (lab) lab.remove(); });
+    if (site.brand.logo) mount.querySelectorAll(".logo .mark").forEach((m) => { m.classList.add("img"); m.innerHTML = `<img src="${site.brand.logo}" alt="">`; });
     const stageEl = mount.querySelector("[data-scene]");
     if (stageEl) window.SAMMEM.mountScene(stageEl, site.theme.scene, site.theme.colors, { center: (site.sections.find((s) => s.type === "hero") || {}).variant === "center" });
     window.SAMMEM.motion.init(mount);

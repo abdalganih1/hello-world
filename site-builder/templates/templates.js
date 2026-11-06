@@ -92,3 +92,13 @@ window.SAMMEM_TEMPLATES = {
     ],
   },
 };
+
+/* طوابع إضافية بتنفع لأي قالب (بتطلع بزر «اعرض المزيد») */
+window.SAMMEM_EXTRA_PALETTES = {
+  olive: { label: "زيتوني", desc: "أخضر زيتون مع نحاسي", bg: "#12140d", surface: "#1b1e14", ink: "#f1f0e2", muted: "#aeb09a", accent: "#b9c46a", accent2: "#c9874a", line: "rgba(241,240,226,.13)", onAccent: "#15170c" },
+  sea: { label: "بحري", desc: "أزرق عميق وفيروزي", bg: "#07131c", surface: "#0e1e2b", ink: "#e9f4fb", muted: "#93aebf", accent: "#36c2d6", accent2: "#4a7dff", line: "rgba(233,244,251,.12)", onAccent: "#04141b" },
+  rose: { label: "وردي", desc: "فاتح وناعم بلمسة وردية", bg: "#fbf3f3", surface: "#ffffff", ink: "#3a1d27", muted: "#86656f", accent: "#d2557a", accent2: "#e8a36b", line: "rgba(58,29,39,.11)", onAccent: "#ffffff" },
+  sand: { label: "رملي", desc: "بيج دافي وبني", bg: "#efe6d8", surface: "#f8f1e6", ink: "#2b2118", muted: "#7a6a58", accent: "#8a5a2b", accent2: "#5f7d6e", line: "rgba(43,33,24,.13)", onAccent: "#f8f1e6" },
+  night: { label: "ليلي", desc: "كحلي غامق مع فضي", bg: "#0a0c16", surface: "#121626", ink: "#eceef8", muted: "#9aa0bb", accent: "#c9ceea", accent2: "#6c7cff", line: "rgba(236,238,248,.12)", onAccent: "#0a0c16" },
+  ruby: { label: "ياقوتي", desc: "أحمر غامق وذهبي", bg: "#16080b", surface: "#221015", ink: "#fbecee", muted: "#c79ea6", accent: "#e0b45a", accent2: "#c22f4f", line: "rgba(251,236,238,.13)", onAccent: "#1a0d06" },
+};
