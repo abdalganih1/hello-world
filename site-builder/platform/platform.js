@@ -141,21 +141,21 @@
     const t = TPL[st.t];
     const optional = [...new Set(t.sections.map((s) => s.type))].filter((k) => SECTION_NAMES[k]);
     return [
-      { key: "النوع", title: "شو نوع مشروعك؟", hint: "اخترنالك الأقرب حسب فكرتك. غيّرو إذا بدك.", valid: () => !!st.t,
+      { key: "النوع", title: "شو نوع مشروعك؟", get hint() { return st.thinking ? "الذكاء الاصطناعي عم يقرا فكرتك ويختار الأنسب…" : (st.aiWhy ? "اخترنالك: " + esc(st.aiWhy.replace(/[.،]\s*$/, "")) + ". غيّرو إذا بدك." : "اخترنالك الأقرب حسب فكرتك. غيّرو إذا بدك."); }, valid: () => !!st.t,
         html: () => {
           // الاقتراح والمختار أولاً، وبعدين الباقي؛ منعرض 6 وبزر «اعرض المزيد» الباقي
           const all = Object.values(TPL), first = [st.ai, st.t].filter((v, i, a) => a.indexOf(v) === i);
           const list = [...first.map((id) => TPL[id]), ...all.filter((x) => !first.includes(x.id))];
           const shown = st.moreT ? list : list.slice(0, 6), rest = list.length - shown.length;
-          return `<div class="opts">${shown.map((x) => `<button class="opt" data-t="${x.id}" aria-pressed="${x.id === st.t}">${x.id === st.ai ? '<span class="tagai">اقتراح الذكاء الاصطناعي</span>' : ""}<b>${esc(x.label)}</b><small>${esc(x.keywords.slice(0, 5).join("، "))}</small></button>`).join("")}</div>
+          return `<div class="opts">${shown.map((x) => `<button class="opt" data-t="${x.id}" aria-pressed="${x.id === st.t}">${x.id === st.ai ? `<span class="tagai">${st.thinking ? "عم نفهم فكرتك…" : "اقتراح الذكاء الاصطناعي"}</span>` : ""}<b>${esc(x.label)}</b><small>${esc(x.keywords.slice(0, 5).join("، "))}</small></button>`).join("")}</div>
             ${rest ? `<button class="more" data-more>اعرض المزيد <span>(${rest} أنواع)</span></button>` : ""}`;
         },
-        bind: (el) => { el.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => { st.t = b.dataset.t; st.palette = TPL[st.t].defaultPalette; st.off = []; paint(); });
+        bind: (el) => { el.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => { st.picked = true; st.t = b.dataset.t; st.palette = TPL[st.t].defaultPalette; st.off = []; paint(); });
           const m = $("[data-more]", el); if (m) m.onclick = () => { st.moreT = true; paint(); animIn(); }; } },
       { key: "الاسم", title: "شو اسم مشروعك؟", hint: "هالاسم رح يطلع باللوغو وبعنوان الموقع.", valid: () => st.name.trim().length > 1,
         html: () => `<div class="fld"><label for="w-name">اسم المشروع</label><input id="w-name" value="${esc(st.name)}" placeholder="${esc(TPL[st.t].brand.name)}" autocomplete="organization"></div>
           <div class="fld"><label for="w-tag">جملة قصيرة بتوصفه (اختياري)</label><input id="w-tag" value="${esc(st.tagline)}" placeholder="${esc(TPL[st.t].brand.tagline)}"></div>`,
-        bind: (el) => { const n = $("#w-name", el), g = $("#w-tag", el); n.oninput = () => { st.name = n.value; navState(); }; g.oninput = () => (st.tagline = g.value); setTimeout(() => n.focus(), 350); } },
+        bind: (el) => { const n = $("#w-name", el), g = $("#w-tag", el); n.oninput = () => { st.name = n.value; st.nameTouched = true; navState(); }; g.oninput = () => (st.tagline = g.value); setTimeout(() => n.focus(), 350); } },
       { key: "الطابع", title: "أي طابع بيشبهك؟", hint: "الألوان والخطوط بتتغير، والتصميم بيضل متناسق.", valid: () => !!st.palette,
         html: () => {
           const card = (k, p, name, desc) => `<button class="opt" data-p="${k}" aria-pressed="${k === st.palette}"><span class="pal"><i style="background:${p.bg}"></i><i style="background:${p.surface}"></i><i style="background:${p.accent}"></i><i style="background:${p.accent2}"></i></span><b>${esc(name)}</b><small>${esc(desc)}</small></button>`;
@@ -191,15 +191,37 @@
           <div class="fld"><label for="w-wa">رقم الواتساب</label><input id="w-wa" inputmode="tel" dir="ltr" style="text-align:right" value="${esc(st.whatsapp)}" placeholder="09xx xxx xxx"></div></div>
           <div class="fld"><label for="w-slug">رابط موقعك المجاني</label><div class="sub-in"><input id="w-slug" value="${esc(st.slug)}" spellcheck="false" autocapitalize="off"><span>.${esc(DOMAIN)}</span></div></div>`,
         bind: (el) => { $("#w-ph", el).oninput = (e) => (st.phone = e.target.value); $("#w-wa", el).oninput = (e) => (st.whatsapp = e.target.value);
-          const s = $("#w-slug", el); s.oninput = () => { st.slug = slugify(s.value.replace(/\./g, "-")); navState(); }; s.onblur = () => (s.value = st.slug); } },
+          const s = $("#w-slug", el); s.oninput = () => { st.slug = slugify(s.value.replace(/\./g, "-")); st.slugTouched = true; navState(); }; s.onblur = () => (s.value = st.slug); } },
     ];
   }
 
   function startWizard(idea, forceT) {
     st.idea = idea.trim(); st.ai = chooseTemplate(st.idea); st.t = forceT || st.ai; st.palette = TPL[st.t].defaultPalette;
-    st.name = guessName(st.idea); st.slug = slugify(st.name) || TPL[st.t].id; st.off = []; st.step = 0; st.logo = ""; st.images = []; st.morePal = false; st.moreT = false; st.content = {};
+    st.name = guessName(st.idea); st.slug = slugify(st.name) || TPL[st.t].id; st.off = []; st.step = 0; st.logo = ""; st.images = []; st.morePal = false; st.moreT = false; st.content = {}; st.tagline = ""; st.nameTouched = false; st.slugTouched = false; st.aiWhy = "";
     layer.hidden = false; document.body.classList.add("busy"); document.body.style.overflow = "hidden";
+    st.picked = !!forceT; st.thinking = !forceT;
     paint(true);
+    if (!forceT) askPlan(st.idea);
+  }
+  // الذكاء الاصطناعي بيقرا الفكرة وبيختار القالب والاسم والرابط (الكلمات المفتاحية بس احتياط لحد ما يرد)
+  async function askPlan(idea) {
+    const templates = Object.values(TPL).map((t) => ({ id: t.id, label: t.label, keywords: t.keywords }));
+    let d = null;
+    try {
+      const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 25000);
+      const r = await fetch("/api/plan", { method: "POST", signal: ctrl.signal, headers: { "content-type": "application/json" }, body: JSON.stringify({ idea, templates }) });
+      clearTimeout(timer); if (r.ok) d = await r.json();
+    } catch (e) {}
+    if (st.idea !== idea) return; // الزبون بلّش فكرة تانية
+    st.thinking = false;
+    if (d && TPL[d.t]) {
+      st.ai = d.t; st.aiWhy = d.why || "";
+      if (!st.picked) { st.t = d.t; st.palette = TPL[d.t].defaultPalette; }
+      if (d.name && !st.nameTouched) { st.name = d.name; }
+      if (d.slug && !st.slugTouched) st.slug = d.slug; else if (!st.slugTouched) st.slug = slugify(st.name) || TPL[st.t].id;
+      if (d.tagline && !st.tagline) st.tagline = d.tagline;
+    }
+    if (!layer.hidden && st.step === 0) paint();
   }
 
   function shell(inner) {

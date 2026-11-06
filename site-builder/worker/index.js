@@ -82,7 +82,7 @@ async function overLimit(env, req, kind) {
   const ip = req.headers.get("cf-connecting-ip") || "anon";
   const key = `${kind}:${ip}:${new Date().toISOString().slice(0, 10)}`;
   const n = parseInt((await env.LIMITS.get(key)) || "0", 10);
-  const max = parseInt(env[kind === "write" ? "DAILY_WRITES" : "DAILY_EDITS"] || (kind === "write" ? "5" : "20"), 10);
+  const max = kind === "plan" ? 40 : parseInt(env[kind === "write" ? "DAILY_WRITES" : "DAILY_EDITS"] || (kind === "write" ? "5" : "20"), 10);
   if (n >= max) return true;
   await env.LIMITS.put(key, String(n + 1), { expirationTtl: 90000 });
   return false;
@@ -119,6 +119,26 @@ async function handleAI(req, env, kind) {
   if (!ok.length) return json({ error: "ai unavailable", detail: results[0].err, reply: "الذكاء الاصطناعي مو متاح هلق، جرّب بعد شوي." }, 502);
   const merged = Object.assign({}, ok[0].out, { sections: ok.flatMap((r) => (Array.isArray(r.out.sections) ? r.out.sections : [])) });
   return json({ ...validate(merged, content), via: [...new Set(ok.map((r) => r.via))].join("+"), partial: ok.length < results.length });
+}
+
+/* ---------- فهم الفكرة: الذكاء الاصطناعي بيختار القالب والاسم والرابط ---------- */
+const PLAN_SYSTEM = `إنت مساعد بمنصة مواقع. بيوصلك وصف الزبون لمشروعه وقائمة قوالب. اختار القالب الأنسب لنوع النشاط الفعلي.
+رجّع JSON فقط: {"t":"معرّف القالب","name":"اسم المشروع إذا ذكره الزبون وإلا اقترح اسم عربي قصير","slug":"رابط بأحرف إنكليزية صغيرة وأرقام و - (3-24 حرف)، ترجمة صوتية للاسم","tagline":"جملة قصيرة بالعامية الشامية بتوصف المشروع","fit":"high|low","why":"سبب قصير بالعربي بدون معرّفات القوالب"}
+- إذا ما في قالب مخصص لنوع النشاط، اختار agency للشركات والخدمات العامة، و fit=low.
+- لا تختار قالب أكل لمشروع مو أكل، ولا متجر لمشروع خدمات.`;
+async function handlePlan(req, env) {
+  let b; try { b = await req.json(); } catch { return json({ error: "bad json" }, 400); }
+  const idea = String(b.idea || "").trim().slice(0, 600);
+  const list = Array.isArray(b.templates) ? b.templates.slice(0, 40).map((t) => ({ id: String(t.id).slice(0, 30), label: String(t.label || "").slice(0, 60), keywords: (t.keywords || []).slice(0, 8).map(String) })) : [];
+  if (idea.length < 3 || !list.length) return json({ error: "missing" }, 400);
+  if (await overLimit(env, req, "plan")) return json({ error: "limit" }, 429);
+  const messages = [{ role: "system", content: PLAN_SYSTEM }, { role: "user", content: "القوالب:\n" + list.map((t) => `${t.id}: ${t.label} (${t.keywords.join("، ")})`).join("\n") + "\n\nوصف الزبون: " + idea }];
+  let out, via = "provider";
+  try { out = extractJSON(await callProvider(env, messages)); }
+  catch (e1) { console.warn("plan provider failed:", e1.message); try { out = extractJSON(await callWorkersAI(env, messages)); via = "workers-ai"; } catch { return json({ error: "ai unavailable" }, 502); } }
+  const ids = new Set(list.map((t) => t.id));
+  const slug = String(out.slug || "").toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 24);
+  return json({ t: ids.has(out.t) ? out.t : "agency", name: String(out.name || "").slice(0, 40), slug: slug.length >= 3 ? slug : "", tagline: String(out.tagline || "").slice(0, 120), fit: out.fit === "low" ? "low" : "high", why: String(out.why || "").slice(0, 160), via });
 }
 
 /* ---------- المواقع المنشورة: <slug>.SITE_DOMAIN من R2 ---------- */
@@ -284,6 +304,7 @@ export default {
     if (url.pathname === "/admin/preview") return adminPreview(req, env, url);
     if (req.method === "POST" && url.pathname === "/api/submit") return handleSubmit(req, env, ctx);
     if (url.pathname === "/api/slug") return handleSlug(url, env);
+    if (req.method === "POST" && url.pathname === "/api/plan") return handlePlan(req, env);
     if (url.pathname === "/api/health") return json({ ok: true, domain: env.SITE_DOMAIN, storage: !!env.SITES, model: env.AI_MODEL || "glm-5.3-flash", provider: !!(env.AI_BASE_URL && env.AI_KEY), fallback: !!env.AI });
     if (req.method === "POST" && url.pathname === "/api/edit") return handleAI(req, env, "edit");
     if (req.method === "POST" && url.pathname === "/api/write") return handleAI(req, env, "write");
