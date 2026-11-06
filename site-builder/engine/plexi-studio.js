@@ -103,7 +103,7 @@
       x.font = `400 ${Math.round(big * 0.55)}px ${fam}`; x.fillText("&", R / 2, H * 0.5);
       fit(n2, big, maxW); x.fillText(n2, R / 2, H * 0.64);
     } else if (n1 || n2) { fit(n1 || n2, big * 1.25, maxW); x.fillText(n1 || n2, R / 2, H * 0.45); }
-    if (line) { fit(line, Math.min(70, H * 0.06), maxW * 0.9, 500, '"Tajawal", sans-serif'); x.fillText(line, R / 2, H * 0.8); x.fillRect(R * 0.38, H * 0.73, R * 0.24, Math.max(3, H * 0.004)); }
+    if (line) { x.direction = /[\u0600-\u06FF]/.test(line) ? "rtl" : "ltr"; fit(line, Math.min(70, H * 0.06), maxW * 0.9, 500, '"Tajawal", sans-serif'); x.fillText(line, R / 2, H * 0.8); x.fillRect(R * 0.38, H * 0.73, R * 0.24, Math.max(3, H * 0.004)); }
     return c;
   }
 
@@ -269,6 +269,7 @@
 
   function guess(name) {
     const n = String(name || "");
+    if (/مقو[ّ]?س|قوس/.test(n)) return "arch";
     if (/قلب/.test(n)) return "heart"; if (/فراش/.test(n)) return "butterfly"; if (/درع/.test(n)) return "shield";
     if (/علب|بوكس|صندوق|ضياف|صين/.test(n)) return "box"; if (/مراي|مرآ|دائر|طار|ميدالي/.test(n)) return "circle"; if (/لوح|كانف|استقبال|تعليق/.test(n)) return "plaque";
     return "arch";
@@ -329,6 +330,9 @@
     // من نافذة منتج: «جرّب اسمك على هالقطعة»
     SM.pxStudio = { open(name) { const k = guess(name), b = sec.querySelector(`[data-shape="${k}"]`); if (b) b.click(); sec.scrollIntoView({ behavior: "smooth", block: "start" }); } };
   }
+
+  // صفحة المنتج بتستعمل نفس المحرك والأشكال
+  SM.pxKit = { engine, svg2d, guess, SHAPES, MATS, INKS, icons };
 
   const baseRender = SM.render;
   if (baseRender) SM.render = function (cfg, mount) { const site = baseRender.call(this, cfg, mount); init(mount || document.getElementById("site"), site); return site; };

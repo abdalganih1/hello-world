@@ -1,5 +1,5 @@
 /* دجانة: تخزين مؤقت حتى يفتح الموقع بسرعة وكأنه تطبيق */
-const V = "dajana-v3";
+const V = "dajana-v4";
 self.addEventListener("install", (e) => { self.skipWaiting(); e.waitUntil(caches.open(V).then((c) => c.addAll(["./", "products.js", "dajana.js"]).catch(() => {}))); });
 self.addEventListener("activate", (e) => e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== V).map((k) => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener("fetch", (e) => {

@@ -6,9 +6,13 @@ const BOT = /whatsapp|facebookexternalhit|telegrambot|twitterbot|slackbot|discor
 export default {
   async fetch(req, env) {
     const u = new URL(req.url);
-    // رابط منتج قديم بيفتح نفس المنتج بالواجهة الجديدة (والمعاينات بالواتساب بتضل من الصفحة القديمة)
-    const m = u.pathname.match(/^\/product\/([\w-]+)/);
-    if (m && req.method === "GET" && !BOT.test(req.headers.get("user-agent") || "") && !u.searchParams.has("old")) return Response.redirect(`${u.origin}/?p=${m[1]}`, 302);
+    // صفحة المنتج: /product/<id> بتفتح صفحة المنتج بالواجهة الجديدة (نفس الرابط، بينحفظ وبيتشارك).
+    // روبوتات المعاينة (واتساب، فيسبوك...) بتاخد الصفحة القديمة لأن فيها صورة وعنوان المنتج جاهزين
+    const m = u.pathname.match(/^\/product\/([\w-]+)\/?$/);
+    if (m && req.method === "GET" && env.ASSETS && !BOT.test(req.headers.get("user-agent") || "") && !u.searchParams.has("old")) {
+      const r = await env.ASSETS.fetch(new Request(new URL("/", u)));
+      return new Response(r.body, { status: 200, headers: r.headers });
+    }
     if (env.STORE) return env.STORE.fetch(req);
     return new Response("Not found", { status: 404 });
   },

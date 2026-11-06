@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>دجانة · قطع بلكسي وهدايا بالاسم</title>
 <meta name="description" content="ستاندات خطوبة وعقد قران، دروع تخرج، توزيعات مواليد وهدايا بالاسم من دجانة.">
 <link rel="icon" href="img/logo.png">
@@ -32,15 +32,16 @@
 <script src="../../engine/render.js"></script>
 <script src="../../engine/plexi.js"></script>
 <script src="../../engine/plexi-studio.js"></script>
+<script src="../../engine/plexi-product.js"></script>
 <script src="../../engine/plexi-shop.js"></script>
 <script>
   // دجانة: منحمّل المنتجات الحيّة (بحد أقصى ثانيتين ونص) وبعدين منبني الصفحة
+  // صفحة المنتج: /product/<id> (أو ?p=<id> القديم) بتنفتح كصفحة كاملة بدل نافذة
+  const m = location.pathname.match(/^\/product\/([\w-]+)/), pid = m ? m[1] : new URLSearchParams(location.search).get("p");
   DAJANA_LIVE().then((items) => {
     window.DAJANA_ITEMS = items;
-    const site = SAMMEM.render(DAJANA_CFG(items));
-    // رابط منتج مباشر: /?p=<id>
-    const pid = new URLSearchParams(location.search).get("p");
-    if (pid) { const i = items.findIndex((x) => x.id === pid); if (i > -1) setTimeout(() => document.querySelector(`[data-px-open="${i}"]`)?.click(), 600); }
+    const local = !/technoenjaz|workers\.dev/.test(location.hostname);
+    SAMMEM.render(Object.assign(DAJANA_CFG(items), { product: pid || "", productUrl: local ? "?p={id}" : "/product/{id}", homeUrl: local ? "" : "/" }));
   });
 </script>
 </body>

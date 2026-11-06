@@ -5,5 +5,6 @@ set -euo pipefail
 cd "$(dirname "$0")"
 rm -rf dist && mkdir -p dist
 cp -r ../../engine ../../templates img products.js dajana.js manifest.webmanifest sw.js dist/
-sed -e 's|\.\./\.\./||g' index.html > dist/index.html
+# <base href="/"> حتى المسارات النسبية تشتغل كمان من /product/<id>
+sed -e 's|\.\./\.\./||g' -e 's|<head>|<head>\n<base href="/">|' index.html > dist/index.html
 echo "dist جاهز: $(du -sh dist | cut -f1)"
