@@ -47,10 +47,10 @@
         <form class="px-st-panel" data-reveal onsubmit="return false">
           <fieldset><legend>الشكل</legend><div class="px-st-shapes">${Object.entries(SHAPES).map(([k, v], i) => `<button type="button" data-shape="${k}" aria-pressed="${i === 0}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${icons[k]}"/></svg><span>${v.label}</span></button>`).join("")}</div></fieldset>
           <div class="px-st-two">
-            <label class="field"><span>الاسم الأول</span><input name="n1" maxlength="18" value="${esc(d.n1 || "محمد")}" autocomplete="off"></label>
-            <label class="field"><span>الاسم التاني <small>(اختياري)</small></span><input name="n2" maxlength="18" value="${esc(d.n2 || "سارة")}" autocomplete="off"></label>
+            <label class="field"><span>الاسم الأول</span><input name="n1" enterkeyhint="done" maxlength="18" value="${esc(d.n1 || "محمد")}" autocomplete="off"></label>
+            <label class="field"><span>الاسم التاني <small>(اختياري)</small></span><input name="n2" enterkeyhint="done" maxlength="18" value="${esc(d.n2 || "سارة")}" autocomplete="off"></label>
           </div>
-          <label class="field"><span>التاريخ أو عبارة قصيرة</span><input name="line" maxlength="28" value="${esc(d.line || "14 · 2 · 2027")}" autocomplete="off"></label>
+          <label class="field"><span>التاريخ أو عبارة قصيرة</span><input name="line" enterkeyhint="done" maxlength="28" value="${esc(d.line || "14 · 2 · 2027")}" autocomplete="off"></label>
           <fieldset><legend>الخامة</legend><div class="px-st-sw">${Object.entries(MATS).map(([k, v], i) => `<button type="button" data-mat="${k}" aria-pressed="${i === 0}" title="${v[0]}"><i style="background:${v[1]}"></i><span>${v[0]}</span></button>`).join("")}</div></fieldset>
           <fieldset><legend>لون الحروف</legend><div class="px-st-sw">${Object.entries(INKS).map(([k, v], i) => `<button type="button" data-ink="${k}" aria-pressed="${i === 0}" title="${v[0]}"><i style="background:${v[1]}"></i><span>${v[0]}</span></button>`).join("")}</div></fieldset>
           <div class="px-st-extras">
@@ -60,6 +60,7 @@
           </div>
           <div class="px-st-actions">
             <a class="btn" data-st-order href="#" target="_blank" rel="noopener">${icon("wa")} اطلب هالتصميم</a>
+            <button type="button" class="btn ghost" data-st-cart>أضف تصميمي للسلة</button>
             <button type="button" class="btn ghost" data-st-save>حمّل صورة التصميم</button>
           </div>
           <p class="px-st-note">بعد ما تبعت الطلب، ابعتلنا صورة التصميم${""} بنفس المحادثة لنطلعلك ياها متل ما شفتها.</p>
@@ -109,7 +110,8 @@
   /* ---------- المحرك ثلاثي الأبعاد ---------- */
   function engine(host, colors) {
     const renderer = new T.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+    const LITE = !!SM.pxLite;
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, LITE ? 1.5 : 2));
     renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
     host.appendChild(renderer.domElement);
     const scene = new T.Scene(), bg = new T.Color(colors.surface).lerp(new T.Color(colors.bg), 0.4);
@@ -131,20 +133,21 @@
     const rot = { x: 0.08, y: -0.5, vx: 0, vy: 0, drag: false, idle: 0 };
 
     const resize = () => { const w = host.clientWidth || 1, h = host.clientHeight || 1; renderer.setSize(w, h, false); camera.aspect = w / h; camera.position.z = w / h < 0.9 ? 13 : 10.5; camera.updateProjectionMatrix(); };
-    new ResizeObserver(resize).observe(host); resize();
+    new ResizeObserver(() => { resize(); dirty = 2; }).observe(host); resize();
     // سحب للّف
     let lx = 0, ly = 0;
     host.addEventListener("pointerdown", (e) => { rot.drag = true; lx = e.clientX; ly = e.clientY; host.setPointerCapture(e.pointerId); });
-    host.addEventListener("pointermove", (e) => { if (!rot.drag) return; const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY; rot.vy = dx * 0.008; rot.vx = dy * 0.004; rot.y += rot.vy; rot.x = Math.max(-0.5, Math.min(0.6, rot.x + rot.vx)); rot.idle = 0; });
+    let dirty = 2; const wake = () => (dirty = 2);
+    host.addEventListener("pointermove", (e) => { if (!rot.drag) return; wake(); const dx = e.clientX - lx, dy = e.clientY - ly; lx = e.clientX; ly = e.clientY; rot.vy = dx * 0.008; rot.vx = dy * 0.004; rot.y += rot.vy; rot.x = Math.max(-0.5, Math.min(0.6, rot.x + rot.vx)); rot.idle = 0; });
     const up = () => (rot.drag = false); host.addEventListener("pointerup", up); host.addEventListener("pointercancel", up);
 
     const goldMat = (c) => new T.MeshPhysicalMaterial({ color: new T.Color(c), metalness: 1, roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.06 });
     const sheetMat = (k) => ({
-      clear: () => new T.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.03, transmission: 1, thickness: 0.4, ior: 1.49, clearcoat: 1, specularIntensity: 1, attenuationColor: new T.Color("#eaf6ff"), attenuationDistance: 3, side: T.DoubleSide }),
-      frost: () => new T.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.5, transmission: 0.92, thickness: 0.4, ior: 1.49, clearcoat: 0.6, side: T.DoubleSide }),
+      clear: () => LITE ? new T.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.04, transparent: true, opacity: 0.5, clearcoat: 1, envMapIntensity: 1.8, side: T.DoubleSide, depthWrite: false }) : new T.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.03, transmission: 1, thickness: 0.4, ior: 1.49, clearcoat: 1, specularIntensity: 1, attenuationColor: new T.Color("#eaf6ff"), attenuationDistance: 3, side: T.DoubleSide }),
+      frost: () => LITE ? new T.MeshPhysicalMaterial({ color: 0xf4f4f4, roughness: 0.5, transparent: true, opacity: 0.7, clearcoat: 0.6, side: T.DoubleSide }) : new T.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.5, transmission: 0.92, thickness: 0.4, ior: 1.49, clearcoat: 0.6, side: T.DoubleSide }),
       white: () => new T.MeshPhysicalMaterial({ color: 0xfbfbf8, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.05 }),
       black: () => new T.MeshPhysicalMaterial({ color: 0x0f0c0f, roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.02 }),
-      rose: () => new T.MeshPhysicalMaterial({ color: 0xf2c7d3, roughness: 0.12, transmission: 0.45, thickness: 0.4, clearcoat: 1 }),
+      rose: () => new T.MeshPhysicalMaterial(LITE ? { color: 0xf2c7d3, roughness: 0.15, clearcoat: 1 } : { color: 0xf2c7d3, roughness: 0.12, transmission: 0.45, thickness: 0.4, clearcoat: 1 }),
       gold: () => goldMat("#e2b45c"),
     }[k] || (() => goldMat("#e2b45c")))();
     const inkMat = (k, alpha) => {
@@ -160,7 +163,9 @@
       const D = 0.14;
       if (st.shape === "box") {
         const w = 2.6, dpt = 1.8, h = 1.35, t = 0.07, m = sheetMat(st.mat);
-        const add = (gw, gh, gd, x, y, z, mat = m) => { const b = new T.Mesh(new T.BoxGeometry(gw, gh, gd), mat); b.position.set(x, y, z); piece.add(b); return b; };
+        const edgeMat = new T.LineBasicMaterial({ color: st.mat === "black" ? 0x555555 : 0xc9a25a, transparent: true, opacity: 0.85 });
+        // حواف واضحة لكل لوح حتى يبين شكل العلبة حتى لو الزجاج شفاف كتير
+        const add = (gw, gh, gd, x, y, z, mat = m) => { const geo = new T.BoxGeometry(gw, gh, gd), b = new T.Mesh(geo, mat); b.position.set(x, y, z); b.add(new T.LineSegments(new T.EdgesGeometry(geo), edgeMat)); piece.add(b); return b; };
         add(w, t, dpt, 0, -h / 2, 0); add(w, h, t, 0, 0, -dpt / 2); add(t, h, dpt, -w / 2, 0, 0); add(t, h, dpt, w / 2, 0, 0); add(w, h, t, 0, 0, dpt / 2);
         // حلو جوّا
         const candy = [goldMat("#e2b45c"), new T.MeshPhysicalMaterial({ color: 0xf2c7d3, roughness: 0.3, clearcoat: 1 }), new T.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.3, clearcoat: 1 })];
@@ -180,7 +185,7 @@
         const g = new T.ExtrudeGeometry(shape, { depth: D, bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.025, bevelSegments: 3, curveSegments: 64 }); g.translate(0, 0, -D / 2);
         piece.add(new T.Mesh(g, sheetMat(st.mat)));
         if (st.photo) { const pg = new T.ShapeGeometry(shape, 64); shapeUV(pg, b); const tex = coverTex(st.photo, bw / bh); tex.repeat.set(tex.repeat.x, tex.repeat.y); const ph = new T.Mesh(pg, new T.MeshBasicMaterial({ map: tex, toneMapped: false })); ph.position.z = D / 2 + 0.03; piece.add(ph); }
-        const tw = bw * 0.9, th = bh * 0.9, tx = new T.CanvasTexture(textCanvas(st, tw, th));
+        const tk = st.shape === "butterfly" ? 0.55 : st.shape === "heart" ? 0.8 : 0.9, tw = bw * tk, th = bh * tk, tx = new T.CanvasTexture(textCanvas(st, tw, th));
         const txt = new T.Mesh(new T.PlaneGeometry(tw, th), inkMat(st.ink, tx)); txt.position.set(cx, cy, D / 2 + 0.06); piece.add(txt);
         if (st.pearls) {
           const pts = shape.getSpacedPoints(st.shape === "butterfly" ? 110 : 84), k = Math.min(bw, bh);
@@ -203,12 +208,14 @@
       requestAnimationFrame(loop);
       const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
       if (!running) return; t += dt;
+      const moving = rot.drag || Math.abs(rot.vy) > 0.0004 || pop < 1 || (!LITE && rot.idle > 2);
+      if (!moving && dirty <= 0) return; if (!moving) dirty--; else dirty = 2;
       if (!rot.drag) { rot.idle += dt; rot.vy *= 0.94; rot.y += rot.vy; if (rot.idle > 2) rot.y += Math.sin(t * 0.5) * 0.0025; }
       pop = Math.min(1, pop + dt * 2.2);
       const e = 1 - Math.pow(1 - pop, 3), over = Math.sin(pop * Math.PI) * 0.06;
       holder.rotation.set(rot.x, rot.y, 0); holder.scale.setScalar(0.9 + e * 0.1 + over);
       holder.position.y = (1 - e) * 0.4;
-      if (lid) lid.rotation.x = -(0.5 + 0.5 * Math.sin(t * 0.9)) * 1.1;
+      if (lid) lid.rotation.x = -e * 0.28; // الغطا مسكّر مع فتحة خفيفة لتبين الحلو جوّا
       renderer.render(scene, camera);
     };
     requestAnimationFrame(loop);
@@ -217,6 +224,7 @@
 
   /* ---------- عرض 2D قبل القص ---------- */
   function svg2d(st, colors) {
+    if (st.shape === "box") return boxNet(st, colors);
     const k = st.shape === "box" ? "plaque" : st.shape, shape = shapeOf(k), b = bboxOf(shape), pad = 0.35;
     const vb = [b.min.x - pad, -b.max.y - pad, b.max.x - b.min.x + pad * 2, b.max.y - b.min.y + pad * 2];
     const d = "M" + shape.getPoints(80).map((p) => `${p.x.toFixed(3)} ${(-p.y).toFixed(3)}`).join("L") + "Z";
@@ -235,6 +243,28 @@
         <path d="M${b.min.x} ${-b.min.y + 0.2}H${b.max.x}M${b.min.x} ${-b.min.y + 0.12}v.16M${b.max.x} ${-b.min.y + 0.12}v.16" fill="none"/>
         <text x="${(b.min.x + b.max.x) / 2}" y="${-b.min.y + 0.33}" stroke="none">${esc(SHAPES[st.shape].cm)}</text>
       </g></svg>`;
+  }
+
+  // الفرد الكامل للعلبة: قاع، أربع جوانب، والغطا، مع خطوط الطي
+  function boxNet(st, colors) {
+    const W = 26, D = 18, H = 14, g = 3, pad = 4;
+    const tw = W + 2 * H, th = D + 2 * H + D + g;
+    const cut = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${st.mat === "black" ? "#1a1619" : st.mat === "white" ? "#fff" : st.mat === "rose" ? "#f6d6df" : st.mat === "gold" ? "#e9c37a" : "rgba(220,235,245,.55)"}" stroke="#ff2d55" stroke-width=".25" stroke-dasharray=".9 .5" class="px-cut"/>`;
+    const fold = (x1, y1, x2, y2) => `<path d="M${x1} ${y1}L${x2} ${y2}" stroke="${colors.muted}" stroke-width=".18" stroke-dasharray=".4 .4"/>`;
+    const ox = H, oy = H;
+    const tc = textCanvas(st, W, H);
+    const inkCol = { gold: "#b8893b", silver: "#8d929c", rosegold: "#c27c71", black: "#151215", white: "#ffffff" }[st.ink];
+    const id = "b" + Math.random().toString(36).slice(2, 7);
+    return `<svg viewBox="${-pad} ${-pad} ${tw + pad * 2} ${th + pad * 2 + 4}" aria-hidden="true" font-family="Tajawal, sans-serif">
+      <defs><mask id="${id}"><image href="${tc.toDataURL()}" x="${ox}" y="${oy + D}" width="${W}" height="${H}" preserveAspectRatio="none"/></mask></defs>
+      ${cut(ox, oy, W, D)}${cut(ox, 0, W, H)}${cut(ox, oy + D, W, H)}${cut(0, oy, H, D)}${cut(ox + W, oy, H, D)}${cut(ox - 0.5, oy + D + H + g, W + 1, D + 1)}
+      ${st.photo ? `<image href="${st.photoUrl}" x="${ox}" y="${oy + D}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid slice"/>` : ""}
+      <rect x="${ox}" y="${oy + D}" width="${W}" height="${H}" fill="${inkCol}" mask="url(#${id})"/>
+      ${fold(ox, oy, ox + W, oy)}${fold(ox, oy + D, ox + W, oy + D)}${fold(ox, oy, ox, oy + D)}${fold(ox + W, oy, ox + W, oy + D)}
+      <g fill="${colors.muted}" font-size="1.6" text-anchor="middle">
+        <text x="${ox + W / 2}" y="${oy + D / 2 + 0.6}">القاع</text><text x="${ox + W / 2}" y="${H / 2 + 0.6}">الجانب الخلفي</text><text x="${H / 2}" y="${oy + D / 2 + 0.6}">جانب</text><text x="${ox + W + H / 2}" y="${oy + D / 2 + 0.6}">جانب</text>
+        <text x="${ox + W / 2}" y="${oy + D + H + g + D / 2 + 0.6}">الغطا</text>
+        <text x="${tw / 2}" y="${th + 3.6}">${esc(SHAPES.box.cm)} · خط أحمر = قص، منقّط = طي</text></g></svg>`;
   }
 
   function guess(name) {
@@ -280,6 +310,11 @@
     });
     clr.addEventListener("click", () => { st.photo = null; st.photoUrl = ""; f.photo.value = ""; lab.textContent = "ضيف صورتك عالقطعة (طباعة UV)"; clr.hidden = true; refresh(); });
     sec.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => { sec.querySelectorAll("[data-view]").forEach((x) => x.setAttribute("aria-pressed", x === b)); view = b.dataset.view; refresh(); }));
+    sec.querySelector("[data-st-cart]").addEventListener("click", () => {
+      if (!SM.pxCart) return;
+      SM.pxCart.add({ name: "تصميم خاص: " + SHAPES[st.shape].label, price: 0 }, { names: [st.n1, st.n2].filter((x) => x.trim()).join(" و ") + (st.line ? " · " + st.line : ""), color: INKS[st.ink][0], design: `${MATS[st.mat][0]} · ${SHAPES[st.shape].cm.replace(/[\u2066\u2069]/g, "")}${st.pearls ? " · لؤلؤ" : ""}${st.photo ? " · مع صورة" : ""}` });
+    });
+    f.querySelectorAll("input").forEach((i) => i.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); i.blur(); } }));
     sec.querySelector("[data-st-save]").addEventListener("click", () => {
       const a = document.createElement("a"); a.download = `${site.brand.name}-تصميمي.png`;
       if (eng && view === "3d") { a.href = eng.png(); a.click(); return; }
@@ -292,7 +327,7 @@
     if (has3d) new IntersectionObserver(([e], o) => { if (!e.isIntersecting) return; o.disconnect(); eng = engine(host, colors); refresh(); }, { rootMargin: "300px" }).observe(sec);
     refresh();
     // من نافذة منتج: «جرّب اسمك على هالقطعة»
-    SM.pxStudio = { open(name) { const k = guess(name), b = sec.querySelector(`[data-shape="${k}"]`); if (b) b.click(); sec.scrollIntoView({ behavior: "smooth", block: "start" }); setTimeout(() => f.n1.focus({ preventScroll: true }), 900); } };
+    SM.pxStudio = { open(name) { const k = guess(name), b = sec.querySelector(`[data-shape="${k}"]`); if (b) b.click(); sec.scrollIntoView({ behavior: "smooth", block: "start" }); } };
   }
 
   const baseRender = SM.render;

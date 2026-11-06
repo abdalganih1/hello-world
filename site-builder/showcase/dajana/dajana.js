@@ -1,12 +1,29 @@
 /* دجانة: موقع عرض مبني بقالب البلكسي (templates/plexi.js) ومنتجات المتجر الحقيقية (products.js من sync.py) */
 (function () {
-  const items = window.DAJANA_ITEMS || [];
   const tpl = window.SAMMEM_TEMPLATES.plexi;
   // معلومات ما عنا ياها ما منخترعها: منشيل العنوان والساعات الافتراضية
   delete tpl.brand.address; delete tpl.brand.hours;
-  const pick = (k) => (items.find((x) => x.name.includes(k)) || items[0] || {}).imgs?.[0];
 
-  window.SAMMEM_SITE = {
+  // المنتجات الحيّة من لوحة إدارة المتجر (/api/products) فوق النسخة المحفوظة، حتى أي منتج جديد يبين فوراً
+  const CAT = { plexi: "plexi", "بلكسي": "plexi", mdf: "mdf", MDF: "mdf", uv: "uv", "طباعة UV": "uv", vinyl: "vinyl" };
+  const clean = (s) => String(s || "").replace(/\u200b/g, "").trim();
+  window.DAJANA_LIVE = function (timeout = 2500) {
+    const base = window.DAJANA_ITEMS || [];
+    const byId = Object.fromEntries(base.map((x) => [x.id, x]));
+    const ctl = new AbortController(); setTimeout(() => ctl.abort(), timeout);
+    return fetch("/api/products", { signal: ctl.signal }).then((r) => (r.ok ? r.json() : Promise.reject())).then((live) => {
+      if (!Array.isArray(live) || !live.length) return base;
+      const out = live.map((p) => {
+        const old = byId[p.id] || {}, imgs = old.imgs && old.imgs.length ? old.imgs : (p.images || []).filter(Boolean);
+        return Object.assign({}, old, { id: p.id, name: clean(p.name) || old.name, cat: CAT[p.category] || old.cat || "plexi", price: +p.price || 0, desc: clean(p.description) || old.desc || "", details: clean(p.details) || old.details || "", imgs, thumb: old.thumb || imgs[0] || "", url: "https://dojana.technoenjaz.com/product/" + p.id });
+      });
+      return out.sort((a, b) => !!b.featured - !!a.featured);
+    }).catch(() => base);
+  };
+
+  window.DAJANA_CFG = (items) => {
+  const pick = (k) => (items.find((x) => x.name.includes(k)) || items[0] || {}).imgs?.[0];
+  return {
     t: "plexi",
     palette: "crystal",
     name: "دجانة",
@@ -38,5 +55,6 @@
       footer: { about: "قطع بلكسي وخشب وطباعة UV لكل المناسبات، بالاسم والتاريخ." },
     },
     off: ["testimonials", "reviews"],
+  };
   };
 })();

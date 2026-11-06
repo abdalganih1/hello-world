@@ -9,6 +9,10 @@
   if (!S) return;
 
   /* ---------- أدوات ---------- */
+  // وضع خفيف للموبايل والأجهزة الضعيفة: زجاج بلا transmission، دقة أقل، قطع أقل
+  const LITE = SM.pxLite = matchMedia("(pointer: coarse)").matches || innerWidth < 860 || (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+  document.documentElement.classList.toggle("px-lite", LITE);
+  const thumbOf = (it) => it.thumb || it.img || (it.imgs && it.imgs[0]) || "";
   const clamp01 = (x) => Math.min(1, Math.max(0, x));
   const seg = (p, a, b) => clamp01((p - a) / (b - a));
   const ease = (x) => 1 - Math.pow(1 - clamp01(x), 4);
@@ -28,7 +32,7 @@
     const label = Object.fromEntries(cats.map((c) => [c.id, c.label]));
     const page = d.pageSize || 12;
     const card = (it, i) => {
-      const src = imgOf(it);
+      const src = thumbOf(it);
       return `<article class="px-card${i >= page ? " px-off" : ""}" data-cat="${esc(it.cat || "")}" data-i="${i}" data-tilt>
         <button class="px-img" type="button" data-px-open="${i}" aria-label="تفاصيل ${esc(it.name)}">
           ${src ? `<img src="${esc(src)}" alt="${esc(it.name)}" loading="lazy" decoding="async">` : `<span class="px-ph" aria-hidden="true">${icon("spark")}</span>`}
@@ -37,7 +41,7 @@
         </button>
         <div class="px-meta">
           ${label[it.cat] ? `<span class="px-tag">${esc(label[it.cat])}</span>` : ""}
-          <h3>${esc(it.name)}</h3>
+          <h3><button type="button" class="px-name" data-px-open="${i}">${esc(it.name)}</button></h3>
           ${it.desc ? `<p>${esc(it.desc)}</p>` : ""}
           <div class="px-row">
             ${it.price ? `<b class="px-price">${money(it.price, d.currency)}</b>` : "<span></span>"}
@@ -107,10 +111,11 @@
         ${d.lead ? `<p class="lead">${esc(d.lead)}</p>` : ""}
       </div>
     </div>
+    <div class="px-rail-nav"><button type="button" data-rail-go="1" aria-label="السابق">→</button><button type="button" data-rail-go="-1" aria-label="التالي">←</button></div>
     <div class="px-rail-wrap"><div class="px-rail">
       ${list.map((it) => `<figure class="px-slide">
         <button type="button" class="px-slide-img" ${it.i != null ? `data-px-open="${it.i}"` : ""} aria-label="${esc(it.name)}">
-          ${imgOf(it) ? `<img src="${esc(imgOf(it))}" alt="${esc(it.name)}" loading="lazy" decoding="async">` : `<span class="px-ph">${icon("spark")}</span>`}
+          ${imgOf(it) ? `<img src="${esc(thumbOf(it))}" alt="${esc(it.name)}" loading="lazy" decoding="async">` : `<span class="px-ph">${icon("spark")}</span>`}
           <i class="px-shine" aria-hidden="true"></i>
         </button>
         <figcaption><b>${esc(it.name)}</b>${it.price ? `<span>${money(it.price, cat.currency)}</span>` : ""}</figcaption>
@@ -128,7 +133,7 @@
     const cat = catalogOf(site), items = cat.items || [];
     const feat = items.filter((x) => x.featured && imgOf(x));
     const rest = items.filter((x) => !x.featured && imgOf(x));
-    const tunnel = (feat.length ? feat.concat(rest) : items).slice(0, 16).map((x) => ({ img: imgOf(x), name: x.name }));
+    const tunnel = (feat.length ? feat.concat(rest) : items).slice(0, 16).map((x) => ({ img: thumbOf(x), name: x.name }));
     const n = items.length;
     const L = d.lines || {};
     return `
@@ -155,6 +160,7 @@
       <div class="px-c px-c5 px-mid" data-at="0.9,0.95,2,2"><p class="px-huge">${esc(L.t5 || "اختاروا قطعتكم")}</p><a class="btn" href="#${esc(d.primaryTarget || "catalog")}" data-magnetic>${esc(d.primary)} ${icon("arrow")}</a></div>
       <div class="px-meter" aria-hidden="true"><i></i></div>
       <div class="scroll-hint" aria-hidden="true">انزل لتفوت<i></i></div>
+      <a class="px-skip" href="#${esc(d.primaryTarget || "catalog")}">تخطّى للمنتجات</a>
     </div>
   </section>`;
   };
@@ -179,15 +185,28 @@
         ${it.price ? `<b class="px-price">${money(it.price, d.currency)}</b>` : ""}
         ${it.desc ? `<p class="px-desc">${esc(it.desc)}</p>` : ""}
         ${it.details ? `<div class="px-details">${esc(it.details)}</div>` : ""}
-        <div class="px-dlg-acts"><a class="btn" href="${esc(waLink(site, orderText(site, it, d.currency)))}" target="_blank" rel="noopener">${icon("wa")} اطلب هالقطعة على واتساب</a>
-        ${document.querySelector("[data-px-studio]") ? `<button type="button" class="btn ghost" data-px-try>${icon("pen")} جرّب اسمك عليها</button>` : ""}</div>
+        <div class="px-dlg-note"><label><span>الأسماء أو التاريخ <small>(اختياري)</small></span><input data-note="names" placeholder="مثلاً: محمد و سارة · 14/2" enterkeyhint="done"></label>
+          <label><span>اللون <small>(اختياري)</small></span><input data-note="color" placeholder="ذهبي، فضي، وردي..." enterkeyhint="done"></label></div>
+        <div class="px-dlg-acts"><a class="btn px-wa-btn" href="${esc(waLink(site, orderText(site, it, d.currency)))}" target="_blank" rel="noopener">${icon("wa")} اطلب على واتساب</a>
+          ${SM.pxCart ? `<button type="button" class="btn ghost" data-px-add>أضف للسلة</button>` : ""}</div>
+        <div class="px-dlg-more">${document.querySelector("[data-px-studio]") ? `<button type="button" data-px-try>${icon("pen")} جرّب اسمك عليها</button>` : ""}${SM.pxShare ? `<button type="button" data-px-share>شارك القطعة</button>` : ""}</div>
       </div></div>`;
     dlg.querySelectorAll(".px-thumbs button").forEach((b) => b.addEventListener("click", () => { dlg.querySelector(".px-dlg-main").src = b.dataset.src; dlg.querySelectorAll(".px-thumbs button").forEach((x) => x.setAttribute("aria-pressed", x === b)); }));
+    const note = () => { const v = (k) => (dlg.querySelector(`[data-note="${k}"]`).value || "").trim(); return { names: v("names"), color: v("color") }; };
+    const waBtn = dlg.querySelector(".px-wa-btn");
+    dlg.querySelectorAll("[data-note]").forEach((inp) => {
+      inp.addEventListener("input", () => { const n = note(); waBtn.href = waLink(site, orderText(site, it, d.currency).replace(/\n\nالاسم والتاريخ اللي بدي ياهن: $/, "") + `\n\n✍️ الأسماء/البيانات: ${n.names}\n🎨 اللون: ${n.color}`); });
+      inp.addEventListener("keydown", (e) => { if (e.key === "Enter") inp.blur(); });
+    });
+    const addB = dlg.querySelector("[data-px-add]"); if (addB) addB.addEventListener("click", () => { SM.pxCart.add(it, note()); dlg.close(); });
+    const shB = dlg.querySelector("[data-px-share]"); if (shB) shB.addEventListener("click", () => SM.pxShare(it));
     const tryB = dlg.querySelector("[data-px-try]"); if (tryB) tryB.addEventListener("click", () => { dlg.close(); SM.pxStudio && SM.pxStudio.open(it.name); });
     // عرض 3D للصورة: لوح أكريليك سميك بيلف مع الماوس أو الإصبع
     const media = dlg.querySelector(".px-dlg-media");
-    if (media && !matchMedia("(prefers-reduced-motion: reduce)").matches) media.addEventListener("pointermove", (e) => { const r = media.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5; media.style.setProperty("--rx", (-y * 14).toFixed(2) + "deg"); media.style.setProperty("--ry", (x * 18).toFixed(2) + "deg"); media.style.setProperty("--gx", (x * 100 + 50).toFixed(1) + "%"); });
+    if (media && matchMedia("(hover: hover)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches) media.addEventListener("pointermove", (e) => { const r = media.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5; media.style.setProperty("--rx", (-y * 14).toFixed(2) + "deg"); media.style.setProperty("--ry", (x * 10).toFixed(2) + "deg"); });
+    if (media) media.addEventListener("pointerleave", () => { media.style.setProperty("--rx", "0deg"); media.style.setProperty("--ry", "0deg"); });
     dlg.showModal ? dlg.showModal() : dlg.setAttribute("open", "");
+    dlg.scrollTop = 0; const din = dlg.querySelector(".px-dlg-in"); if (din) din.scrollTop = 0;
     if (window.gsap && !matchMedia("(prefers-reduced-motion: reduce)").matches) window.gsap.from(dlg.querySelector(".px-dlg-in"), { y: 40, rotateX: -10, opacity: 0, duration: 0.7, ease: "expo.out" });
   }
 
@@ -227,7 +246,10 @@
     });
 
     // فتح التفاصيل
-    root.addEventListener("click", (e) => { const b = e.target.closest("[data-px-open]"); if (b) { e.preventDefault(); openProduct(root, site, +b.dataset.pxOpen); } });
+    root.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-px-open]"); if (b) { e.preventDefault(); openProduct(root, site, +b.dataset.pxOpen); return; }
+      const c = e.target.closest(".px-card"); if (c && !e.target.closest("a, button, input")) openProduct(root, site, +c.dataset.i);
+    });
 
     // فلترة ومزيد
     root.querySelectorAll("[data-px-catalog]").forEach((sec) => {
@@ -264,7 +286,7 @@
       const L = (n) => sec.querySelector(".l" + n), steps = [...sec.querySelectorAll(".px-step")], stack = sec.querySelector(".px-stack");
       const setStep = (k) => steps.forEach((s, i) => s.classList.toggle("on", i === k));
       const laser = sec.querySelector(".px-laser");
-      const tl = g.timeline({ defaults: { ease: "power2.inOut" }, scrollTrigger: { trigger: sec, start: "top top", end: "+=260%", pin: true, scrub: 0.8, anticipatePin: 1,
+      const tl = g.timeline({ defaults: { ease: "power2.inOut" }, scrollTrigger: { trigger: sec, start: "top top", end: "+=130%", pin: true, scrub: 0.8, anticipatePin: 1,
         onUpdate: (s) => setStep(Math.min(steps.length - 1, Math.floor(s.progress * steps.length * 0.999))) } });
       g.set(stack, { rotateX: 58, rotateZ: -32, rotateY: 0 });
       g.set([L(1), L(2), L(3), L(4)], { z: 0, opacity: 0 });
@@ -294,14 +316,15 @@
           s.style.setProperty("--lit", (1 - Math.min(1, Math.abs(k))).toFixed(3));
         });
       };
-      if (dist() < 40) { bend(); return; }
-      g.to(rail, { x: () => dist(), ease: "none", scrollTrigger: { trigger: sec, start: "top top", end: () => "+=" + dist(), pin: true, scrub: 0.7, invalidateOnRefresh: true, onUpdate: bend, onRefresh: bend } });
+      // انزلاق أفقي عادي بالإصبع أو الأسهم، بدون ما نثبّت الصفحة
+      wrap.addEventListener("scroll", () => requestAnimationFrame(bend), { passive: true });
+      sec.querySelectorAll("[data-rail-go]").forEach((b) => b.addEventListener("click", () => wrap.scrollBy({ left: +b.dataset.railGo * (slides[0].offsetWidth + 30), behavior: "smooth" })));
       bend();
       addEventListener("resize", bend);
     });
 
     // لمعة على البطاقات مع الانزلاق (متل ضو بيمرق على بلكسي)
-    root.querySelectorAll(".px-card .px-shine").forEach((el) => {
+    if (!LITE) root.querySelectorAll(".px-card .px-shine").forEach((el) => {
       g.fromTo(el, { "--sweep": "-60%" }, { "--sweep": "160%", ease: "none", scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true } });
     });
   }
@@ -379,6 +402,7 @@
   function acrylic(container, colors, o) {
     const cine = container.closest("[data-px-cinema]");
     const st = SM.stage(container, colors, { exposure: 1.15 });
+    if (LITE) { st.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.25)); st.renderer.setSize(container.clientWidth || 1, container.clientHeight || 1, false); }
     const { scene, camera, renderer } = st;
     const bg = new T.Color(colors.bg), night = new T.Color("#140c10");
     scene.background = bg.clone();
@@ -394,9 +418,10 @@
     const root = new T.Group(), group = new T.Group(); root.add(group); scene.add(root);
     const goldC = new T.Color(colors.accent).lerp(new T.Color("#ffd98a"), 0.35);
     const gold = new T.MeshPhysicalMaterial({ color: goldC, metalness: 1, roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.08 });
-    const glass = new T.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.04, transmission: 1, thickness: 0.35, ior: 1.49, clearcoat: 1, clearcoatRoughness: 0.03, specularIntensity: 1, attenuationColor: new T.Color(colors.accent2).lerp(new T.Color("#ffffff"), 0.75), attenuationDistance: 2.5, side: T.DoubleSide });
+    const glass = LITE ? new T.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.05, transparent: true, opacity: 0.38, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.6, side: T.DoubleSide, depthWrite: false })
+      : new T.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.04, transmission: 1, thickness: 0.35, ior: 1.49, clearcoat: 1, clearcoatRoughness: 0.03, specularIntensity: 1, attenuationColor: new T.Color(colors.accent2).lerp(new T.Color("#ffffff"), 0.75), attenuationDistance: 2.5, side: T.DoubleSide });
     const darkMirror = new T.MeshPhysicalMaterial({ color: new T.Color(colors.ink).lerp(new T.Color("#000"), 0.4), metalness: 1, roughness: 0.06, clearcoat: 1, transparent: true });
-    const ex = (shape, depth, bevel = 0.02) => { const g = new T.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 3, curveSegments: 48 }); g.translate(0, 0, -depth / 2); return g; };
+    const ex = (shape, depth, bevel = 0.02) => { const g = new T.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 3, curveSegments: LITE ? 24 : 48 }); g.translate(0, 0, -depth / 2); return g; };
 
     // البابين: كل باب = نص مرآة + نص أكريليك، بيلفّ حول مفصلته
     const doors = [-1, 1].map((side) => {
@@ -413,7 +438,7 @@
     const pts = [], r0 = W / 2 - 0.08;
     for (let i = 0; i <= 34; i++) { const a = Math.PI * (i / 34); pts.push([Math.cos(a) * r0, cy + Math.sin(a) * r0]); }
     for (let y = cy - 0.13; y > -H / 2 + 0.1; y -= 0.13) pts.push([r0, y], [-r0, y]);
-    const pearl = new T.InstancedMesh(new T.SphereGeometry(0.055, 20, 14), new T.MeshPhysicalMaterial({ color: 0xfffaf0, roughness: 0.25, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.1, sheen: 1, sheenColor: new T.Color("#ffe6f0"), iridescence: 0.5 }), pts.length);
+    const pearl = new T.InstancedMesh(new T.SphereGeometry(0.055, LITE ? 10 : 20, LITE ? 8 : 14), new T.MeshPhysicalMaterial({ color: 0xfffaf0, roughness: 0.25, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.1, sheen: 1, sheenColor: new T.Color("#ffe6f0"), iridescence: 0.5 }), pts.length);
     const m4 = new T.Matrix4(); pts.forEach((p, i) => { m4.makeTranslation(p[0], p[1], 0.05); pearl.setMatrixAt(i, m4); });
     frame.add(pearl);
     const base = new T.Mesh(new T.BoxGeometry(W + 0.5, 0.16, 0.7), gold); base.position.y = -H / 2 - 0.08;
@@ -425,7 +450,7 @@
     const star = new T.Shape(); for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2 + Math.PI / 2, r = i % 2 ? 0.08 : 0.19; i ? star.lineTo(Math.cos(a) * r, Math.sin(a) * r) : star.moveTo(Math.cos(a) * r, Math.sin(a) * r); }
     const disc = new T.Shape(); disc.absarc(0, 0, 0.15, 0, Math.PI * 2);
     const bits = [], shapes = [heart, star, disc];
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < (LITE ? 8 : 16); i++) {
       const m = new T.Mesh(ex(shapes[i % 3], 0.05, 0.012), i % 4 === 0 ? gold : glass);
       m.userData = { a: (i / 16) * Math.PI * 2, r: 2.1 + (i % 3) * 0.45, y: Math.sin(i * 2.3) * 1.8, sp: 0.15 + (i % 5) * 0.04, rs: 0.4 + (i % 3) * 0.3 };
       m.scale.setScalar(0.7 + (i % 4) * 0.2);
@@ -439,7 +464,7 @@
       let list = [];
       try { list = JSON.parse((cine.querySelector(".px-cine-data") || {}).textContent || "[]"); } catch (e) {}
       const small = innerWidth < 700;
-      list = list.slice(0, small ? 10 : 16);
+      list = list.slice(0, LITE ? 9 : 16);
       const loader = new T.TextureLoader();
       const frameMat = gold;
       list.forEach((it, i) => {
@@ -459,7 +484,7 @@
       });
       tunnelEnd = Z0 - Math.max(1, list.length) * GAP;
       // غبار ذهبي على طول النفق
-      const n = 900, pos = new Float32Array(n * 3);
+      const n = LITE ? 350 : 900, pos = new Float32Array(n * 3);
       for (let i = 0; i < n; i++) { pos[i * 3] = (Math.random() - 0.5) * 9; pos[i * 3 + 1] = (Math.random() - 0.5) * 6; pos[i * 3 + 2] = 6 - Math.random() * (Math.abs(tunnelEnd) + 14); }
       const dg = new T.BufferGeometry(); dg.setAttribute("position", new T.BufferAttribute(pos, 3));
       dust = new T.Points(dg, new T.PointsMaterial({ color: goldC, size: 0.035, transparent: true, opacity: 0.85, depthWrite: false }));
@@ -489,7 +514,7 @@
       prog += (progress() - prog) * Math.min(1, dt * 6);
       const p = prog, small = !st.wide;
       root.scale.setScalar(small ? 0.74 : 1.12);
-      root.position.set(small ? 0 : -2.55 * (1 - inout(seg(p, 0.36, 0.5))), small ? -1.05 * (1 - inout(seg(p, 0.1, 0.3))) : 0, 0);
+      root.position.set(small ? 0 : -2.55 * (1 - inout(seg(p, 0.36, 0.5))), small ? -1.75 * (1 - inout(seg(p, 0.1, 0.3))) : 0, 0);
       // جوّا القوس: صالة عرض غامقة والمنتجات بتضوي، وبالآخر منرجع للون الصفحة
       const dk = inout(seg(p, 0.47, 0.6)) * (1 - inout(seg(p, 0.9, 0.995)));
       scene.background.copy(bg).lerp(night, dk); scene.fog.color.copy(scene.background); renderer.setClearColor(scene.background, 1);

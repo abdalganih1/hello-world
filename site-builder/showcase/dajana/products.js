@@ -1,6 +1,7 @@
 /* مولّد من sync.py: لا تعدّله بإيدك */
 window.DAJANA_ITEMS = [
 {
+"id": "p_mtjlyvum_0cmadx",
 "name": "ستاند خطبه/ زواج",
 "cat": "plexi",
 "price": 1800,
@@ -10,10 +11,12 @@ window.DAJANA_ITEMS = [
 "img/p_mtjlyvum_0cmadx.webp",
 "img/p_mtjlyvum_0cmadx-1.webp"
 ],
+"thumb": "img/t/p_mtjlyvum_0cmadx.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjlyvum_0cmadx",
 "featured": true
 },
 {
+"id": "p_mtjmc7ov_geedn5",
 "name": "درع تخرج بلكسي",
 "cat": "plexi",
 "price": 700,
@@ -22,10 +25,12 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjmc7ov_geedn5.webp"
 ],
+"thumb": "img/t/p_mtjmc7ov_geedn5.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjmc7ov_geedn5",
 "featured": true
 },
 {
+"id": "p_mtjmnzu3_gch0vh",
 "name": "لوح عقد قران وخطوبة بلكسي بتصميم مقوس مذهب",
 "cat": "plexi",
 "price": 650,
@@ -34,10 +39,12 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjmnzu3_gch0vh.webp"
 ],
+"thumb": "img/t/p_mtjmnzu3_gch0vh.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjmnzu3_gch0vh",
 "featured": true
 },
 {
+"id": "p_mtjmz7f8_g99rk6",
 "name": "ستاند لتوثيق عقد قران بتصميم الفراشة الملكية",
 "cat": "plexi",
 "price": 1300,
@@ -46,10 +53,12 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjmz7f8_g99rk6.webp"
 ],
+"thumb": "img/t/p_mtjmz7f8_g99rk6.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjmz7f8_g99rk6",
 "featured": true
 },
 {
+"id": "p_mtjnhugq_7xx720",
 "name": "مصباح ثلاثي الأبعاد أكريليك مضيء (3D LED Lamp)",
 "cat": "plexi",
 "price": 750,
@@ -58,10 +67,12 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjnhugq_7xx720.webp"
 ],
+"thumb": "img/t/p_mtjnhugq_7xx720.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjnhugq_7xx720",
 "featured": true
 },
 {
+"id": "p_mtjnqqb9_cxupvf",
 "name": "ستاند توثيق عقد قران ملكي (تصميم أجنحة الملاك)",
 "cat": "plexi",
 "price": 1600,
@@ -70,10 +81,12 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjnqqb9_cxupvf.webp"
 ],
+"thumb": "img/t/p_mtjnqqb9_cxupvf.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjnqqb9_cxupvf",
 "featured": true
 },
 {
+"id": "p_mun5k2hw_h0xijx",
 "name": "ستاند مرآة مزين جاهز للخطوبة مع علب الخواتم",
 "cat": "plexi",
 "price": 180000,
@@ -82,10 +95,12 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5k2hw_h0xijx.webp"
 ],
+"thumb": "img/t/p_mun5k2hw_h0xijx.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5k2hw_h0xijx",
 "featured": true
 },
 {
+"id": "p_mun5olk0_j5t1ro",
 "name": "صينية تخرج أبيض مضيئة بالشهادات",
 "cat": "mdf",
 "price": 50000,
@@ -94,10 +109,12 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5olk0_j5t1ro.webp"
 ],
+"thumb": "img/t/p_mun5olk0_j5t1ro.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5olk0_j5t1ro",
 "featured": true
 },
 {
+"id": "p_mun5onf5_7r0nrv",
 "name": "درع تخرج بلكسي ذهبي مطبوع بالاسم",
 "cat": "plexi",
 "price": 75000,
@@ -106,10 +123,12 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5onf5_7r0nrv.webp"
 ],
+"thumb": "img/t/p_mun5onf5_7r0nrv.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5onf5_7r0nrv",
 "featured": true
 },
 {
+"id": "p_mun5vyen_ozo538",
 "name": "ستاند قلب مرآتي لحفلات الزفاف (بدون قاعدة)",
 "cat": "plexi",
 "price": 120000,
@@ -118,10 +137,12 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5vyen_ozo538.webp"
 ],
+"thumb": "img/t/p_mun5vyen_ozo538.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5vyen_ozo538",
 "featured": true
 },
 {
+"id": "p_mv2u0aro_tv3bfd",
 "name": "ستاند ملكي تاج ذهبي — خطوبة و عرس (بدون زينة)",
 "cat": "plexi",
 "price": 170000,
@@ -130,10 +151,12 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mv2u0aro_tv3bfd.webp"
 ],
+"thumb": "img/t/p_mv2u0aro_tv3bfd.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mv2u0aro_tv3bfd",
 "featured": true
 },
 {
+"id": "p_mvfff7gq_61gr2p",
 "name": "دفتر فراشة بلكسي رخام — أسماء العروسين مع لؤلؤ",
 "cat": "plexi",
 "price": 120000,
@@ -142,10 +165,12 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mvfff7gq_61gr2p.webp"
 ],
+"thumb": "img/t/p_mvfff7gq_61gr2p.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mvfff7gq_61gr2p",
 "featured": true
 },
 {
+"id": "p_mvfff9mg_5gs9r6",
 "name": "مراية عروس لؤلؤ — كاليغرافي فضي بتاج",
 "cat": "plexi",
 "price": 25000,
@@ -154,10 +179,12 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mvfff9mg_5gs9r6.webp"
 ],
+"thumb": "img/t/p_mvfff9mg_5gs9r6.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mvfff9mg_5gs9r6",
 "featured": true
 },
 {
+"id": "p_mvoxzy5y_hs7rn8",
 "name": "درع تخرج بلكسي شفاف خدش — You Did It 2026",
 "cat": "plexi",
 "price": 70000,
@@ -167,10 +194,12 @@ window.DAJANA_ITEMS = [
 "img/p_mvoxzy5y_hs7rn8.webp",
 "img/p_mvoxzy5y_hs7rn8-1.webp"
 ],
+"thumb": "img/t/p_mvoxzy5y_hs7rn8.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mvoxzy5y_hs7rn8",
 "featured": true
 },
 {
+"id": "p_mtjm88r1_fg27wb",
 "name": "مراية عروس",
 "cat": "mdf",
 "price": 220,
@@ -179,9 +208,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjm88r1_fg27wb.webp"
 ],
+"thumb": "img/t/p_mtjm88r1_fg27wb.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjm88r1_fg27wb"
 },
 {
+"id": "p_mtjmj3rc_3kl8p4",
 "name": "طقم إكسسوارات وهدايا بلكسي بالاسم (بدون الملحقات)",
 "cat": "plexi",
 "price": 300,
@@ -190,9 +221,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjmj3rc_3kl8p4.webp"
 ],
+"thumb": "img/t/p_mtjmj3rc_3kl8p4.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjmj3rc_3kl8p4"
 },
 {
+"id": "p_mtjmtnbb_q693w1",
 "name": "دفتر توثيق عقد قران ملكي بتصميم كتاب مفتوح",
 "cat": "plexi",
 "price": 1200,
@@ -201,9 +234,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjmtnbb_q693w1.webp"
 ],
+"thumb": "img/t/p_mtjmtnbb_q693w1.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjmtnbb_q693w1"
 },
 {
+"id": "p_mtjn8aeg_azqwc5",
 "name": "ستاند إهداء تخرج بلكسي شفاف",
 "cat": "plexi",
 "price": 600,
@@ -212,9 +247,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjn8aeg_azqwc5.webp"
 ],
+"thumb": "img/t/p_mtjn8aeg_azqwc5.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjn8aeg_azqwc5"
 },
 {
+"id": "p_mtjndwhx_kqk5zf",
 "name": "درع تكريم خاتمات القرآن الكريم",
 "cat": "plexi",
 "price": 700,
@@ -223,9 +260,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjndwhx_kqk5zf.webp"
 ],
+"thumb": "img/t/p_mtjndwhx_kqk5zf.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjndwhx_kqk5zf"
 },
 {
+"id": "p_mtjnlkbq_eo7eao",
 "name": "صواني وبوكسات توزيعات استقبال المولود",
 "cat": "mdf",
 "price": 500,
@@ -234,9 +273,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjnlkbq_eo7eao.webp"
 ],
+"thumb": "img/t/p_mtjnlkbq_eo7eao.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjnlkbq_eo7eao"
 },
 {
+"id": "p_mtjnyifk_2hfq2y",
 "name": "بروشات اسمية مخصصة من مادة الروماك (Rowmark)",
 "cat": "plexi",
 "price": 120,
@@ -245,9 +286,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjnyifk_2hfq2y.webp"
 ],
+"thumb": "img/t/p_mtjnyifk_2hfq2y.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjnyifk_2hfq2y"
 },
 {
+"id": "p_mtjo85mt_l83vmv",
 "name": "ستاند توثيق عقد قران",
 "cat": "plexi",
 "price": 650,
@@ -256,9 +299,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjo85mt_l83vmv.webp"
 ],
+"thumb": "img/t/p_mtjo85mt_l83vmv.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjo85mt_l83vmv"
 },
 {
+"id": "p_mtjobrj0_ge32ld",
 "name": "ستاند خطوبة وتقديم دبل فاخر",
 "cat": "plexi",
 "price": 1400,
@@ -267,9 +312,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjobrj0_ge32ld.webp"
 ],
+"thumb": "img/t/p_mtjobrj0_ge32ld.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjobrj0_ge32ld"
 },
 {
+"id": "p_mtjog7c7_v654oo",
 "name": "لوح تذكاري أكريليك بلوري لحفل الزفاف/الخطوبة",
 "cat": "plexi",
 "price": 550,
@@ -278,9 +325,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjog7c7_v654oo.webp"
 ],
+"thumb": "img/t/p_mtjog7c7_v654oo.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjog7c7_v654oo"
 },
 {
+"id": "p_mtjq81i3_1ny4t6",
 "name": "مسبحه بلكسي",
 "cat": "plexi",
 "price": 30,
@@ -289,9 +338,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjq81i3_1ny4t6.webp"
 ],
+"thumb": "img/t/p_mtjq81i3_1ny4t6.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjq81i3_1ny4t6"
 },
 {
+"id": "p_mtjqdtr1_ddsa72",
 "name": "قلادة بلكسي دهبي/فضي",
 "cat": "plexi",
 "price": 25,
@@ -300,9 +351,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtjqdtr1_ddsa72.webp"
 ],
+"thumb": "img/t/p_mtjqdtr1_ddsa72.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtjqdtr1_ddsa72"
 },
 {
+"id": "p_mtk026b0_55t4ye",
 "name": "لوحة بلكسي كريمي طباعه",
 "cat": "uv",
 "price": 600,
@@ -311,9 +364,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtk026b0_55t4ye.webp"
 ],
+"thumb": "img/t/p_mtk026b0_55t4ye.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtk026b0_55t4ye"
 },
 {
+"id": "p_mtk0amcd_qly7rq",
 "name": "ستاند مكتبي Qr",
 "cat": "plexi",
 "price": 650,
@@ -322,9 +377,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtk0amcd_qly7rq.webp"
 ],
+"thumb": "img/t/p_mtk0amcd_qly7rq.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtk0amcd_qly7rq"
 },
 {
+"id": "p_mtk0jz1c_591zfn",
 "name": "تعليقة باب منزل طباعه بلكسي",
 "cat": "uv",
 "price": 700,
@@ -333,9 +390,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtk0jz1c_591zfn.webp"
 ],
+"thumb": "img/t/p_mtk0jz1c_591zfn.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtk0jz1c_591zfn"
 },
 {
+"id": "p_mtk1ujk8_blmehz",
 "name": "لوحه كانڤس",
 "cat": "uv",
 "price": 600,
@@ -344,9 +403,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtk1ujk8_blmehz.webp"
 ],
+"thumb": "img/t/p_mtk1ujk8_blmehz.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtk1ujk8_blmehz"
 },
 {
+"id": "p_mtla4crd_88okdo",
 "name": "فينيل ستاند",
 "cat": "vinyl",
 "price": 150,
@@ -355,9 +416,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtla4crd_88okdo.webp"
 ],
+"thumb": "img/t/p_mtla4crd_88okdo.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtla4crd_88okdo"
 },
 {
+"id": "p_mtla66ix_j0z9tt",
 "name": "فينيل اسماء",
 "cat": "vinyl",
 "price": 40,
@@ -366,9 +429,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtla66ix_j0z9tt.webp"
 ],
+"thumb": "img/t/p_mtla66ix_j0z9tt.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtla66ix_j0z9tt"
 },
 {
+"id": "p_mtla8afx_uqu5rv",
 "name": "ستاند بلكسي ابيض",
 "cat": "plexi",
 "price": 1200,
@@ -377,9 +442,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtla8afx_uqu5rv.webp"
 ],
+"thumb": "img/t/p_mtla8afx_uqu5rv.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtla8afx_uqu5rv"
 },
 {
+"id": "p_mtlaaegm_6y0bql",
 "name": "ميدالية uv",
 "cat": "uv",
 "price": 220,
@@ -388,9 +455,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtlaaegm_6y0bql.webp"
 ],
+"thumb": "img/t/p_mtlaaegm_6y0bql.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtlaaegm_6y0bql"
 },
 {
+"id": "p_mtlacjb2_89q76x",
 "name": "مسبحه/ ميدالية بلكسي",
 "cat": "plexi",
 "price": 30,
@@ -399,9 +468,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtlacjb2_89q76x.webp"
 ],
+"thumb": "img/t/p_mtlacjb2_89q76x.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtlacjb2_89q76x"
 },
 {
+"id": "p_mtlaicxh_9pk6s7",
 "name": "لوحة كانفس",
 "cat": "uv",
 "price": 650,
@@ -410,9 +481,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtlaicxh_9pk6s7.webp"
 ],
+"thumb": "img/t/p_mtlaicxh_9pk6s7.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtlaicxh_9pk6s7"
 },
 {
+"id": "p_mtmobxew_ihspwq",
 "name": "ستاند بلكسي دائري",
 "cat": "plexi",
 "price": 1300,
@@ -421,9 +494,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtmobxew_ihspwq.webp"
 ],
+"thumb": "img/t/p_mtmobxew_ihspwq.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtmobxew_ihspwq"
 },
 {
+"id": "p_mtmoe7u3_9f8048",
 "name": "درع مخمل",
 "cat": "uv",
 "price": 1200,
@@ -433,9 +508,11 @@ window.DAJANA_ITEMS = [
 "img/p_mtmoe7u3_9f8048.webp",
 "img/p_mtmoe7u3_9f8048-1.webp"
 ],
+"thumb": "img/t/p_mtmoe7u3_9f8048.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtmoe7u3_9f8048"
 },
 {
+"id": "p_mtmofxf9_n9jvmn",
 "name": "لوحة بلكسي مغشى",
 "cat": "plexi",
 "price": 650,
@@ -444,9 +521,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtmofxf9_n9jvmn.webp"
 ],
+"thumb": "img/t/p_mtmofxf9_n9jvmn.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtmofxf9_n9jvmn"
 },
 {
+"id": "p_mtvsr00h_v7p0k1",
 "name": "علبة ضيافة",
 "cat": "plexi",
 "price": 850,
@@ -455,9 +534,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtvsr00h_v7p0k1.webp"
 ],
+"thumb": "img/t/p_mtvsr00h_v7p0k1.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtvsr00h_v7p0k1"
 },
 {
+"id": "p_mtvsso8w_s04w63",
 "name": "توزيعة بلكسي",
 "cat": "plexi",
 "price": 650,
@@ -466,9 +547,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtvsso8w_s04w63.webp"
 ],
+"thumb": "img/t/p_mtvsso8w_s04w63.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtvsso8w_s04w63"
 },
 {
+"id": "p_mtvstlhj_14g5r8",
 "name": "علبة تخرج بلكسي",
 "cat": "plexi",
 "price": 850,
@@ -477,9 +560,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtvstlhj_14g5r8.webp"
 ],
+"thumb": "img/t/p_mtvstlhj_14g5r8.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtvstlhj_14g5r8"
 },
 {
+"id": "p_mtvsvvut_ley3v7",
 "name": "مبخرة مناسبات",
 "cat": "plexi",
 "price": 900,
@@ -488,9 +573,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mtvsvvut_ley3v7.webp"
 ],
+"thumb": "img/t/p_mtvsvvut_ley3v7.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mtvsvvut_ley3v7"
 },
 {
+"id": "p_mu81gkzn_kabbar",
 "name": "ستاند بلكسي دائري",
 "cat": "plexi",
 "price": 1300,
@@ -499,9 +586,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mu81gkzn_kabbar.webp"
 ],
+"thumb": "img/t/p_mu81gkzn_kabbar.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mu81gkzn_kabbar"
 },
 {
+"id": "p_mu81mv2m_08oyxd",
 "name": "ستاند بلكسي مراية",
 "cat": "plexi",
 "price": 1300,
@@ -510,9 +599,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mu81mv2m_08oyxd.webp"
 ],
+"thumb": "img/t/p_mu81mv2m_08oyxd.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mu81mv2m_08oyxd"
 },
 {
+"id": "p_mu81q528_8amcro",
 "name": "ستاند دائري بدون قاعده",
 "cat": "plexi",
 "price": 950,
@@ -521,9 +612,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mu81q528_8amcro.webp"
 ],
+"thumb": "img/t/p_mu81q528_8amcro.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mu81q528_8amcro"
 },
 {
+"id": "p_mun55vzq_00vtap",
 "name": "ستاند بلكسي ذهبي  للخطوبة والزواج",
 "cat": "plexi",
 "price": 130000,
@@ -532,9 +625,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun55vzq_00vtap.webp"
 ],
+"thumb": "img/t/p_mun55vzq_00vtap.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun55vzq_00vtap"
 },
 {
+"id": "p_mun5b578_cb0y8w",
 "name": "لوح بلكسي شفاف للتوقيعات مع زينة اللؤلؤ",
 "cat": "plexi",
 "price": 70000,
@@ -543,9 +638,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5b578_cb0y8w.webp"
 ],
+"thumb": "img/t/p_mun5b578_cb0y8w.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5b578_cb0y8w"
 },
 {
+"id": "p_mun5dkes_djes2x",
 "name": "صينية بلكسي شفافة للضيافة مع ستاند أسماء",
 "cat": "plexi",
 "price": 150000,
@@ -554,9 +651,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5dkes_djes2x.webp"
 ],
+"thumb": "img/t/p_mun5dkes_djes2x.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5dkes_djes2x"
 },
 {
+"id": "p_mun5f0pi_sulkaq",
 "name": "كفر موبايل مطبوع بصورتك الشخصية",
 "cat": "uv",
 "price": 25000,
@@ -565,9 +664,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5f0pi_sulkaq.webp"
 ],
+"thumb": "img/t/p_mun5f0pi_sulkaq.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5f0pi_sulkaq"
 },
 {
+"id": "p_mun5gvok_pyezxi",
 "name": "بوكس خشبي مضيء للمناسبات (20/30 سم)",
 "cat": "mdf",
 "price": 60000,
@@ -576,9 +677,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5gvok_pyezxi.webp"
 ],
+"thumb": "img/t/p_mun5gvok_pyezxi.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5gvok_pyezxi"
 },
 {
+"id": "p_mun5kthh_qkle3k",
 "name": "صينية مولود مخصصة بالاسم (بنت/ولد)",
 "cat": "mdf",
 "price": 50000,
@@ -587,9 +690,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5kthh_qkle3k.webp"
 ],
+"thumb": "img/t/p_mun5kthh_qkle3k.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5kthh_qkle3k"
 },
 {
+"id": "p_mun5lqfe_787gbu",
 "name": "عطر روماك مخصص بالاسم — هدية للهدايا",
 "cat": "plexi",
 "price": 7000,
@@ -598,9 +703,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5lqfe_787gbu.webp"
 ],
+"thumb": "img/t/p_mun5lqfe_787gbu.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5lqfe_787gbu"
 },
 {
+"id": "p_mun5omjw_g2uzy9",
 "name": "غيمة مولود",
 "cat": "mdf",
 "price": 50000,
@@ -609,9 +716,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5omjw_g2uzy9.webp"
 ],
+"thumb": "img/t/p_mun5omjw_g2uzy9.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5omjw_g2uzy9"
 },
 {
+"id": "p_mun5oo7t_8v7ebm",
 "name": "درع تقدير مرآة ذهبي بفريم أسود",
 "cat": "plexi",
 "price": 75000,
@@ -620,9 +729,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5oo7t_8v7ebm.webp"
 ],
+"thumb": "img/t/p_mun5oo7t_8v7ebm.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5oo7t_8v7ebm"
 },
 {
+"id": "p_mun5vvhy_wmeppg",
 "name": "درع تخرج فاخر بلكسي بتصميم هلالي",
 "cat": "plexi",
 "price": 75000,
@@ -631,9 +742,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5vvhy_wmeppg.webp"
 ],
+"thumb": "img/t/p_mun5vvhy_wmeppg.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5vvhy_wmeppg"
 },
 {
+"id": "p_mun5vwll_6uwi3v",
 "name": "درع شكر وتقدير «شكراً» بخط عربي بارز",
 "cat": "mdf",
 "price": 75000,
@@ -642,9 +755,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5vwll_6uwi3v.webp"
 ],
+"thumb": "img/t/p_mun5vwll_6uwi3v.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5vwll_6uwi3v"
 },
 {
+"id": "p_mun5vxk4_kr6u81",
 "name": "درع صغير بكاليغرافي عربي مخصّص",
 "cat": "plexi",
 "price": 60000,
@@ -653,9 +768,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5vxk4_kr6u81.webp"
 ],
+"thumb": "img/t/p_mun5vxk4_kr6u81.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5vxk4_kr6u81"
 },
 {
+"id": "p_mun5vzz7_gps1nu",
 "name": "مراية يد مزينة باللؤلؤ بالاسم",
 "cat": "plexi",
 "price": 50000,
@@ -664,9 +781,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun5vzz7_gps1nu.webp"
 ],
+"thumb": "img/t/p_mun5vzz7_gps1nu.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun5vzz7_gps1nu"
 },
 {
+"id": "p_mun67wq6_e2r97m",
 "name": "لمبة دير بإضاءة LED مخصصة بالاسم",
 "cat": "mdf",
 "price": 80000,
@@ -675,9 +794,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun67wq6_e2r97m.webp"
 ],
+"thumb": "img/t/p_mun67wq6_e2r97m.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun67wq6_e2r97m"
 },
 {
+"id": "p_mun6800a_fd3uii",
 "name": "درع تخرج كاليغرافي ذهبي بالسنة",
 "cat": "plexi",
 "price": 75000,
@@ -686,9 +807,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun6800a_fd3uii.webp"
 ],
+"thumb": "img/t/p_mun6800a_fd3uii.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun6800a_fd3uii"
 },
 {
+"id": "p_mun6b5xj_yx5n99",
 "name": "مراية استاند بلكسي كريستال بالاسم (بدون قاعدة)",
 "cat": "plexi",
 "price": 100000,
@@ -697,9 +820,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mun6b5xj_yx5n99.webp"
 ],
+"thumb": "img/t/p_mun6b5xj_yx5n99.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mun6b5xj_yx5n99"
 },
 {
+"id": "p_mur55ykk_t0et0c",
 "name": "دائرة خدش خشب",
 "cat": "mdf",
 "price": 35000,
@@ -708,9 +833,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mur55ykk_t0et0c.webp"
 ],
+"thumb": "img/t/p_mur55ykk_t0et0c.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mur55ykk_t0et0c"
 },
 {
+"id": "p_muv0v893_bdm9rn",
 "name": "روماكة عروس معلقة بالاسم (فضي/ذهبي)",
 "cat": "plexi",
 "price": 8000,
@@ -719,9 +846,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_muv0v893_bdm9rn.webp"
 ],
+"thumb": "img/t/p_muv0v893_bdm9rn.webp",
 "url": "https://dojana.technoenjaz.com/product/p_muv0v893_bdm9rn"
 },
 {
+"id": "p_muv0x3we_yzcj1x",
 "name": "طارة اسم معلقة خشب وبلكسي (فرح بيتنا / أهلا حجازك)",
 "cat": "mdf",
 "price": 25000,
@@ -730,9 +859,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_muv0x3we_yzcj1x.webp"
 ],
+"thumb": "img/t/p_muv0x3we_yzcj1x.webp",
 "url": "https://dojana.technoenjaz.com/product/p_muv0x3we_yzcj1x"
 },
 {
+"id": "p_muv0zy0p_iy0wmg",
 "name": "ستاند مزين كامل — مرآة كريستال مع علب الخواتم",
 "cat": "plexi",
 "price": 180000,
@@ -741,9 +872,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_muv0zy0p_iy0wmg.webp"
 ],
+"thumb": "img/t/p_muv0zy0p_iy0wmg.webp",
 "url": "https://dojana.technoenjaz.com/product/p_muv0zy0p_iy0wmg"
 },
 {
+"id": "p_muvex58y_yypbia",
 "name": "طباعة UV عكفر موبايلك — أي تصميم بدك ياه",
 "cat": "uv",
 "price": 25000,
@@ -752,9 +885,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_muvex58y_yypbia.webp"
 ],
+"thumb": "img/t/p_muvex58y_yypbia.webp",
 "url": "https://dojana.technoenjaz.com/product/p_muvex58y_yypbia"
 },
 {
+"id": "p_mv0qeejc_xpbe3o",
 "name": "دفتر خطوبة و عرس — دعوة مرآة فاخرة بقص ليزر",
 "cat": "plexi",
 "price": 150000,
@@ -763,9 +898,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mv0qeejc_xpbe3o.webp"
 ],
+"thumb": "img/t/p_mv0qeejc_xpbe3o.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mv0qeejc_xpbe3o"
 },
 {
+"id": "p_mv2u30a6_k63o39",
 "name": "ستاند بيبي أرجوحة خشب — اللهم صل على محمد",
 "cat": "mdf",
 "price": 75000,
@@ -774,9 +911,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mv2u30a6_k63o39.webp"
 ],
+"thumb": "img/t/p_mv2u30a6_k63o39.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mv2u30a6_k63o39"
 },
 {
+"id": "p_mv2u5f2d_7gepno",
 "name": "عبارات بلكسي شفاف خدش — للأعراس و الخطوبة",
 "cat": "plexi",
 "price": 30000,
@@ -785,9 +924,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mv2u5f2d_7gepno.webp"
 ],
+"thumb": "img/t/p_mv2u5f2d_7gepno.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mv2u5f2d_7gepno"
 },
 {
+"id": "p_mvfanmcv_ww68cc",
 "name": "لوحة استقبال كاليغرافي خشب UV — 60×40 سم",
 "cat": "uv",
 "price": 150000,
@@ -796,9 +937,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mvfanmcv_ww68cc.webp"
 ],
+"thumb": "img/t/p_mvfanmcv_ww68cc.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mvfanmcv_ww68cc"
 },
 {
+"id": "p_mvqwtaj8_ts2n2m",
 "name": "توزيعات مناسبات",
 "cat": "plexi",
 "price": 7000,
@@ -809,9 +952,11 @@ window.DAJANA_ITEMS = [
 "img/p_mvqwtaj8_ts2n2m-1.webp",
 "img/p_mvqwtaj8_ts2n2m-2.webp"
 ],
+"thumb": "img/t/p_mvqwtaj8_ts2n2m.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mvqwtaj8_ts2n2m"
 },
 {
+"id": "p_mvqwufdh_pd6eg9",
 "name": "لوحه استقبال طباعه",
 "cat": "uv",
 "price": 150000,
@@ -820,9 +965,11 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mvqwufdh_pd6eg9.webp"
 ],
+"thumb": "img/t/p_mvqwufdh_pd6eg9.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mvqwufdh_pd6eg9"
 },
 {
+"id": "p_mvqwz6rh_kjq5o7",
 "name": "لوحات طباعه uv",
 "cat": "uv",
 "price": 90000,
@@ -831,6 +978,7 @@ window.DAJANA_ITEMS = [
 "imgs": [
 "img/p_mvqwz6rh_kjq5o7.webp"
 ],
+"thumb": "img/t/p_mvqwz6rh_kjq5o7.webp",
 "url": "https://dojana.technoenjaz.com/product/p_mvqwz6rh_kjq5o7"
 }
 ];

@@ -124,7 +124,7 @@
 @keyframes px-shimmer { to { background-position: -260% 0; } }
 
 /* ---------- البطل السينمائي ---------- */
-.s-hero.px-cinema { display: block; min-height: 0; height: 560svh; padding: 0; overflow: clip; }
+.s-hero.px-cinema { display: block; min-height: 0; height: 380svh; padding: 0; overflow: clip; }
 .px-sticky { position: sticky; top: 0; height: 100svh; overflow: hidden; }
 .px-cinema .stage { position: absolute; inset: 0; z-index: 0; }
 .px-cine-veil { position: absolute; inset: 0; z-index: 1; pointer-events: none;
@@ -148,7 +148,7 @@
 .px-cinema.px-flat .px-sticky { position: relative; min-height: 100svh; }
 .px-cinema.px-flat .px-c:not(.px-c1), .px-cinema.px-flat .px-meter { display: none; }
 @media (max-width: 860px) {
-  .s-hero.px-cinema { height: 500svh; }
+  .s-hero.px-cinema { height: 340svh; }
   .px-c1 { align-items: start; padding-top: 104px; }
   .px-c1 .copy { gap: 16px; }
   .px-c1 .h-xl { font-size: clamp(38px, 11vw, 56px); }
@@ -188,11 +188,9 @@
 .px-show .px-slide::after { content: ""; display: block; height: 70px; margin-top: -8px; border-radius: 0 0 30px 30px; opacity: calc(var(--lit) * .35); background: linear-gradient(to bottom, color-mix(in srgb, var(--accent) 40%, transparent), transparent); filter: blur(14px); }
 
 /* ---------- نافذة المنتج: لوح أكريليك بيلف ---------- */
-.px-dlg-media { perspective: 1000px; display: grid; place-items: center; padding: clamp(14px, 2.4vw, 30px);
-  background: radial-gradient(80% 70% at 50% 40%, color-mix(in srgb, var(--accent) 16%, var(--surface)), color-mix(in srgb, var(--ink) 12%, var(--bg))); }
+.px-dlg-media { perspective: 1000px; display: grid; place-items: center; padding: clamp(12px, 2vw, 24px); background: var(--bg); }
 .px-dlg-main { border-radius: 18px; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .5s var(--ease); max-height: calc(100svh - 90px); width: 100%; object-fit: contain;
-  box-shadow: 0 0 0 6px rgba(255,255,255,.55), 0 0 0 7px rgba(255,255,255,.9), 0 2px 0 7px color-mix(in srgb, var(--accent) 50%, transparent), 0 50px 80px -40px rgba(0,0,0,.65); }
-.px-dlg-media::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(110deg, transparent calc(var(--gx, 30%) - 12%), rgba(255,255,255,.28) var(--gx, 30%), transparent calc(var(--gx, 30%) + 10%)); }
+  box-shadow: 0 12px 30px -18px rgba(0,0,0,.45); }
 .px-dlg-acts { display: flex; flex-wrap: wrap; gap: 10px; }
 .px-dlg-acts .btn:first-child { background: #25d366; color: #fff; }
 
@@ -246,3 +244,176 @@
   .px-st-shapes { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .px-st-two { grid-template-columns: 1fr; }
 }
+
+/* ---------- سهولة الاستخدام ---------- */
+.px-card, .px-slide, .px-chip, .px-views, .px-bar, .px-st-shapes, .px-st-sw, .px-st-tabs, .px-reels, .px-step, .px-filters, .px-cinema .px-c:not(.px-c1) { -webkit-user-select: none; user-select: none; }
+.px-card, .px-card *, .px-bar *, .px-reels *, button { -webkit-tap-highlight-color: transparent; }
+.px-card { cursor: pointer; }
+.px-name { all: unset; cursor: pointer; display: block; font: inherit; color: inherit; }
+.px-name:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.px-skip { position: absolute; z-index: 4; bottom: 22px; inset-inline-end: 22px; padding: 9px 16px; border-radius: 999px; font-size: 14px; font-weight: 700; text-decoration: none; color: var(--ink); background: color-mix(in srgb, var(--surface) 85%, transparent); backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px var(--line); }
+.px-dlg-note { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.px-dlg-note label { display: grid; gap: 4px; font-size: 13px; font-weight: 700; }
+.px-dlg-note small { color: var(--muted); font-weight: 400; }
+.px-dlg-note input { padding: 11px 12px; border-radius: 12px; border: 0; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); font-size: 16px; }
+.px-dlg-more { display: flex; flex-wrap: wrap; gap: 16px; }
+.px-dlg-more button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; color: var(--accent); font-weight: 700; font-size: 14px; padding: 6px 0; }
+.px-dlg-more svg { width: 16px; height: 16px; }
+.px-dlg-acts .btn.ghost { color: var(--ink); }
+html.px-lock { overflow: hidden; }
+
+/* عرض قائمة */
+.px-views { display: inline-flex; gap: 4px; padding: 4px; margin: -18px 0 24px; border-radius: 999px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.px-views button { display: inline-flex; align-items: center; gap: 6px; border: 0; cursor: pointer; padding: 8px 14px; border-radius: 999px; background: none; color: var(--muted); font-weight: 700; font-size: 14px; }
+.px-views svg { width: 18px; height: 18px; }
+.px-views button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.px-grid.px-list { grid-template-columns: 1fr; }
+.px-grid.px-list .px-card { grid-template-columns: 120px 1fr; grid-template-rows: auto; align-items: center; }
+.px-grid.px-list .px-meta p { display: -webkit-box; }
+.px-add { display: inline-grid; grid-auto-flow: column; place-items: center; gap: 0; width: 44px; height: 38px; border: 0; border-radius: 999px; cursor: pointer; color: var(--ink); background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
+.px-add svg { width: 17px; height: 17px; } .px-add svg + svg { width: 11px; height: 11px; margin-inline-start: -3px; margin-top: -10px; }
+.px-row { flex-wrap: wrap; }
+.px-row .px-price { flex: 1 0 100%; }
+.px-row .px-order { flex: 1; justify-content: center; }
+
+/* الشريط السفلي */
+.px-bar { position: fixed; z-index: 40; bottom: max(12px, env(safe-area-inset-bottom)); left: 50%; translate: -50% 0; display: flex; gap: 2px; padding: 6px; border-radius: 22px; background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(16px); box-shadow: inset 0 0 0 1px var(--line), 0 20px 40px -20px rgba(0,0,0,.5); }
+.px-bar a, .px-bar button { position: relative; display: grid; justify-items: center; gap: 2px; min-width: 62px; padding: 7px 8px 5px; border: 0; border-radius: 16px; background: none; cursor: pointer; color: var(--ink); text-decoration: none; font-size: 11px; font-weight: 700; }
+.px-bar svg { width: 22px; height: 22px; }
+.px-bar a:active, .px-bar button:active { background: var(--bg); }
+.px-cart-n { position: absolute; top: 2px; inset-inline-end: 10px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; font-size: 11px; line-height: 18px; text-align: center; background: var(--accent2); color: #fff; }
+.px-bar .bump { animation: px-bump .5s var(--ease); }
+@keyframes px-bump { 40% { transform: scale(1.25); } }
+body:has(.px-bar) .wa { display: none; }
+body:has(.px-bar) .s-footer { padding-bottom: 100px; }
+.px-navcart { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; cursor: pointer; background: var(--bg); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.px-navcart svg { width: 20px; height: 20px; } .px-navcart .px-cart-n { top: -2px; inset-inline-end: -2px; }
+.s-nav .bar .px-navcart { margin-inline-start: auto; }
+
+/* درج السلة */
+.px-drawer { position: fixed; inset: 0; z-index: 60; }
+.px-dr-shade { position: absolute; inset: 0; background: rgba(0,0,0,.45); opacity: 0; transition: opacity .35s; }
+.px-dr-in { position: absolute; top: 0; bottom: 0; inset-inline-start: 0; width: min(420px, 100%); display: grid; grid-template-rows: auto 1fr auto; background: var(--surface); box-shadow: 0 0 60px rgba(0,0,0,.3); transform: translateX(100%); transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+.px-drawer.on .px-dr-shade { opacity: 1; } .px-drawer.on .px-dr-in { transform: none; }
+.px-dr-in header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.px-dr-tabs { display: flex; gap: 4px; }
+.px-dr-tabs button { display: inline-flex; gap: 6px; align-items: center; border: 0; cursor: pointer; padding: 9px 14px; border-radius: 999px; background: none; font-weight: 700; color: var(--muted); }
+.px-dr-tabs svg { width: 18px; height: 18px; }
+.px-dr-tabs [aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.px-dr-x { width: 42px; height: 42px; border: 0; border-radius: 50%; cursor: pointer; background: var(--bg); color: var(--ink); display: grid; place-items: center; }
+.px-dr-x svg { width: 20px; height: 20px; }
+.px-dr-body { overflow-y: auto; padding: 12px 16px; display: grid; align-content: start; gap: 12px; overscroll-behavior: contain; }
+.px-ci { display: grid; grid-template-columns: 76px 1fr; gap: 12px; padding: 10px; border-radius: 16px; background: var(--bg); }
+.px-ci img, .px-ci-ph { width: 76px; height: 76px; border-radius: 12px; object-fit: cover; display: grid; place-items: center; background: var(--surface); color: var(--accent); }
+.px-ci-main { display: grid; gap: 4px; font-size: 14px; }
+.px-ci-main small { color: var(--muted); } .px-ci-main > span { color: var(--accent); font-weight: 700; }
+.px-qty { display: inline-flex; align-items: center; gap: 10px; justify-self: start; padding: 3px; border-radius: 999px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.px-qty button { width: 34px; height: 34px; border: 0; border-radius: 50%; cursor: pointer; background: var(--bg); color: var(--ink); display: grid; place-items: center; }
+.px-qty svg { width: 16px; height: 16px; }
+.px-note summary { cursor: pointer; color: var(--accent); font-weight: 700; font-size: 13px; padding: 4px 0; }
+.px-note input { width: 100%; margin-top: 6px; padding: 10px 12px; border: 0; border-radius: 10px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); font-size: 16px; }
+.px-dr-in footer { padding: 14px 16px max(16px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); display: grid; gap: 10px; }
+.px-dr-in footer:empty { display: none; }
+.px-total { display: flex; justify-content: space-between; align-items: baseline; font-size: 16px; } .px-total b { font-size: 22px; }
+.px-send { justify-content: center; background: #25d366 !important; color: #fff !important; }
+.px-fine { font-size: 12px; color: var(--muted); text-align: center; }
+.px-empty { display: grid; justify-items: center; gap: 12px; padding: 50px 10px; color: var(--muted); text-align: center; }
+.px-empty > svg { width: 46px; height: 46px; opacity: .5; }
+.px-order-h { display: grid; gap: 8px; padding: 14px; border-radius: 16px; background: var(--bg); font-size: 14px; }
+.px-order-h > div { display: flex; justify-content: space-between; } .px-order-h small { color: var(--muted); }
+.px-order-h .btn { justify-self: start; padding: 8px 16px; font-size: 14px; }
+
+/* الريلز */
+.px-reels { position: fixed; inset: 0; z-index: 70; background: #000; color: #fff; }
+.px-reels-track { height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; overscroll-behavior: contain; scrollbar-width: none; }
+.px-reels-track::-webkit-scrollbar { display: none; }
+.px-reel { position: relative; height: 100svh; scroll-snap-align: start; scroll-snap-stop: always; overflow: hidden; display: grid; place-items: center; }
+.px-reel-bg { position: absolute; inset: -40px; background-size: cover; background-position: center; filter: blur(30px) brightness(.45) saturate(1.2); }
+.px-reel > img { position: relative; max-width: 100%; max-height: 100%; object-fit: contain; }
+.px-reel-info { position: absolute; bottom: 0; inset-inline: 0; padding: 80px 20px max(24px, env(safe-area-inset-bottom)); padding-inline-end: 96px; background: linear-gradient(transparent, rgba(0,0,0,.8)); display: grid; gap: 4px; }
+.px-reel-info b { font-size: 19px; } .px-reel-info span { color: #f2d48a; font-weight: 700; }
+.px-reel-info p { font-size: 14px; opacity: .85; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.px-reel-acts { position: absolute; inset-inline-end: 12px; bottom: max(30px, env(safe-area-inset-bottom)); display: grid; gap: 14px; }
+.px-reel-acts a, .px-reel-acts button { display: grid; justify-items: center; gap: 3px; border: 0; background: none; color: #fff; cursor: pointer; text-decoration: none; font-size: 11px; font-weight: 700; }
+.px-reel-acts svg { width: 26px; height: 26px; padding: 11px; box-sizing: content-box; border-radius: 50%; background: rgba(255,255,255,.16); backdrop-filter: blur(8px); }
+.px-reel-acts .wa-a svg { background: #25d366; }
+.px-reels-x { position: absolute; z-index: 2; top: max(14px, env(safe-area-inset-top)); inset-inline-end: 14px; width: 44px; height: 44px; border: 0; border-radius: 50%; cursor: pointer; background: rgba(0,0,0,.45); color: #fff; display: grid; place-items: center; }
+.px-reels-x svg { width: 22px; height: 22px; }
+.px-reels-hint { position: absolute; top: 40%; left: 50%; translate: -50% 0; padding: 10px 18px; border-radius: 999px; background: rgba(0,0,0,.55); font-size: 14px; pointer-events: none; transition: opacity .6s; }
+.px-reels-hint.off { opacity: 0; }
+
+/* إشعار صغير */
+.px-toast { position: fixed; z-index: 90; bottom: 96px; left: 50%; translate: -50% 20px; padding: 11px 20px; border-radius: 999px; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .3s, translate .3s; }
+.px-toast.on { opacity: 1; translate: -50% 0; }
+
+@media (max-width: 860px) {
+  .px-dlg-note { grid-template-columns: 1fr; }
+  .px-bar { left: 10px; right: 10px; translate: none; justify-content: space-around; }
+  .px-bar a, .px-bar button { min-width: 0; flex: 1; }
+  .px-views { margin-top: -20px; }
+  .px-views span { display: none; }
+  .px-grid.px-list .px-card { grid-template-columns: 96px 1fr; }
+  /* المعاينة بتضل ظاهرة فوق وانت عم تعدّل */
+  .px-st-view { position: sticky; top: 8px; z-index: 5; aspect-ratio: auto; height: 40svh; }
+  .px-skip { bottom: 92px; inset-inline-end: 12px; font-size: 13px; }
+  .px-cinema .scroll-hint { bottom: 92px; }
+  .s-nav .bar .px-navcart { display: none; }
+}
+
+/* ---------- وضع خفيف (موبايل وأجهزة ضعيفة) ---------- */
+.px-lite .px-card, .px-lite .px-chip, .px-lite .chip, .px-lite .px-skip, .px-lite .s-nav .bar { backdrop-filter: none; -webkit-backdrop-filter: none; }
+.px-lite .px-card { will-change: auto; transform-style: flat; }
+.px-lite .px-card .px-img, .px-lite .px-card .px-meta, .px-lite .px-card .px-order { transform: none !important; }
+.px-lite .px-g > span, .px-lite .px-huge, .px-lite .px-count b { animation: none; background-position: 30% 0; }
+.px-lite .px-card::before { display: none; }
+.px-lite .px-bar { backdrop-filter: none; background: var(--surface); }
+
+/* اقتراح التثبيت */
+.px-install { position: fixed; z-index: 45; left: 12px; right: 12px; bottom: calc(max(12px, env(safe-area-inset-bottom)) + 76px); max-width: 440px; margin-inline: auto; display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 10px; border-radius: 20px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line), 0 24px 50px -24px rgba(0,0,0,.45); opacity: 0; translate: 0 20px; transition: opacity .4s, translate .4s var(--ease); }
+.px-install.on { opacity: 1; translate: 0 0; }
+.px-install img { width: 44px; height: 44px; border-radius: 12px; }
+.px-install div { flex: 1; display: grid; gap: 2px; font-size: 14px; } .px-install small { color: var(--muted); font-size: 12px; }
+.px-in-ok { border: 0; cursor: pointer; padding: 9px 16px; border-radius: 999px; font-weight: 700; background: var(--ink); color: var(--bg); }
+.px-in-no { border: 0; cursor: pointer; width: 34px; height: 34px; border-radius: 50%; background: var(--bg); color: var(--muted); display: grid; place-items: center; }
+.px-in-no svg { width: 16px; height: 16px; }
+
+/* ---------- إصلاحات بعد التجربة ---------- */
+/* نافذة المنتج: الصورة بحجمها الطبيعي، بلا أشرطة رمادية، وما بتغطي العنوان */
+.px-dlg-media { display: block; padding: 0; background: var(--surface); }
+.px-dlg-main { display: block; width: 100%; height: auto; max-height: 72svh; object-fit: contain; border-radius: 0; box-shadow: none; margin-inline: auto; }
+@media (min-width: 861px) { .px-dlg-media { display: grid; place-items: center; background: var(--bg); } .px-dlg-main { max-height: calc(100svh - 24px); } }
+@media (max-width: 860px) {
+  .px-dlg-in { display: block; }
+  .px-dlg-main { max-height: 58svh; aspect-ratio: auto; }
+  .px-thumbs { position: static; padding: 10px 12px 0; justify-content: flex-start; }
+}
+/* أهداف لمس أكبر */
+.px-add { height: 44px; }
+.px-order { min-height: 44px; }
+.px-st-sw button { min-height: 44px; }
+.px-st-tabs button { min-height: 40px; padding-inline: 16px; }
+.px-st-toggle { min-height: 44px; padding-inline-end: 6px; }
+.px-st-toggle input { width: 22px; height: 22px; }
+.px-chip { min-height: 44px; }
+.px-name { padding: 4px 0; }
+/* مسافة تحت الأقسام حتى الشريط السفلي ما يغطي شي */
+body:has(.px-bar) .px-studio, body:has(.px-bar) .px-catalog { padding-bottom: 120px; }
+/* المختارات: سحب أفقي حر بدل التثبيت */
+.px-show { min-height: 0; }
+.px-rail-wrap { overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; padding-block: 30px 10px; }
+.px-rail-wrap::-webkit-scrollbar { display: none; }
+.px-slide { scroll-snap-align: center; transition: transform .25s ease-out; }
+.px-rail-nav { display: flex; justify-content: center; gap: 10px; margin-top: 18px; }
+.px-rail-nav button { width: 48px; height: 48px; border-radius: 50%; border: 0; cursor: pointer; font-size: 20px; background: rgba(255,255,255,.1); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.px-rail-nav button:hover { background: var(--accent); color: var(--on-accent); }
+/* الفتحة أقصر */
+.s-hero.px-cinema { height: 300svh; }
+@media (max-width: 860px) { .s-hero.px-cinema { height: 280svh; } }
+/* زر الطلب ظاهر دايماً بنافذة المنتج */
+.px-dlg-acts { position: sticky; bottom: 0; z-index: 2; padding: 12px 0 4px; margin-top: -4px; background: linear-gradient(transparent, var(--surface) 30%); }
+.px-details { max-height: 260px; overflow-y: auto; }
+/* المعاينة بالاستوديو بتضل ضمن الشاشة */
+@media (min-width: 861px) { .px-st-view { max-height: calc(100svh - 110px); aspect-ratio: auto; height: min(calc(100svh - 110px), 640px); } }
+/* الشريط السفلي للموبايل بس */
+@media (min-width: 900px) { .px-bar { display: none; } body:has(.px-bar) .wa { display: grid; } body:has(.px-bar) .px-studio, body:has(.px-bar) .px-catalog { padding-bottom: clamp(72px, 10vw, 140px); } }
+@media (min-width: 861px) { .px-dlg-body { max-height: calc(100svh - 24px); min-height: 0; } .px-dlg-in { align-items: stretch; } }
