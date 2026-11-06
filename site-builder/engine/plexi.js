@@ -25,6 +25,7 @@
   const archPath = (w, h, inset = 0) => { const r = w / 2 - inset, x0 = inset, x1 = w - inset, yb = h - inset, ya = r + inset; return `M${x0} ${yb}V${ya}A${r} ${r} 0 0 1 ${x1} ${ya}V${yb}Z`; };
   // الكتالوج المشترك بين الأقسام (showcase بياخد منه المختارات)
   const catalogOf = (site) => { const s = site.sections.find((x) => x.type === "catalog"); return s ? s.data : { items: [] }; };
+  SM.pxUtil = { waLink, orderText, money, moneyTxt, imgOf, thumbOf, catalogOf };
 
   /* ---------- قسم المنتجات ---------- */
   S.catalog = (d, site) => {
@@ -169,6 +170,8 @@
   function openProduct(root, site, i) {
     const d = catalogOf(site), it = (d.items || [])[i];
     if (!it) return;
+    // صفحة خاصة لكل منتج (engine/plexi-product.js)، والنافذة بس احتياط إذا الملف مش محمّل
+    if (SM.pxGo) { SM.pxGo(it, i); return; }
     let dlg = document.querySelector(".px-dialog");
     if (!dlg) {
       dlg = document.createElement("dialog"); dlg.className = "px-dialog";
