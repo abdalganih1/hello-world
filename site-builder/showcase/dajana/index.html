@@ -3,14 +3,53 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
-<title>دجانة · قطع بلكسي وهدايا بالاسم</title>
-<meta name="description" content="ستاندات خطوبة وعقد قران، دروع تخرج، توزيعات مواليد وهدايا بالاسم من دجانة.">
+<title>دُجانه | مصممة بلكسي وطباعة وهدايا مخصصة</title>
+<meta name="description" content="متجر دُجانه — مصممة متخصصة بمنتجات البلكسي والطباعة والهدايا المخصصة: ستاندات، لوحات تذكارية، فينيل، طباعة UV. اطلب عبر واتساب مع توصيل.">
+<meta name="keywords" content="دجانه, دُجانه, دوخانه, بلكسي, ستاند بلكسي, هدايا مخصصة, طباعة, فينيل, متجر دجانه, dujana">
+<meta property="og:title" content="دُجانه | مصممة بلكسي وطباعة وهدايا مخصصة">
+<meta property="og:description" content="منتجات بلكسي وطباعة وهدايا مخصصة بالتصميم اللي بتحبه. اطلب عبر واتساب.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ar_AR">
+<link rel="canonical" href="https://dojana.technoenjaz.com/">
+<!-- بيانات البحث (من تعديلات دُجانه على المتجر بـ 8 تشرين التاني) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Store",
+  "name": "دُجانه",
+  "alternateName": ["دجانه", "Dujana", "متجر دجانه"],
+  "description": "مصممة متخصصة بمنتجات البلكسي والطباعة والهدايا المخصصة",
+  "url": "https://dojana.technoenjaz.com/",
+  "logo": "https://dojana.technoenjaz.com/img/logo",
+  "currenciesAccepted": "SYP",
+  "openingHours": "Mo-Su 00:00-24:00",
+  "makesOffer": {
+    "@type": "OfferCatalog",
+    "name": "منتجات البلكسي والطباعة",
+    "itemListElement": [
+      {"@type": "Offer", "itemOffered": {"@type": "Product", "name": "ستاند بلكسي"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Product", "name": "لوح تذكاري أكريليك"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Product", "name": "قص MDF بالليزر"}},
+      {"@type": "Offer", "itemOffered": {"@type": "Product", "name": "طباعة UV وفينيل"}}
+    ]
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "دُجانه",
+  "url": "https://dojana.technoenjaz.com/",
+  "inLanguage": "ar"
+}
+</script>
 <link rel="icon" href="img/logo.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#f7f1ea">
 <link rel="apple-touch-icon" href="img/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta property="og:image" content="img/logo.png">
+<meta property="og:image" content="https://dojana.technoenjaz.com/img/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@400;500;700&display=swap">
@@ -47,6 +86,9 @@
       window.DAJANA_ITEMS = items;
       SAMMEM.render(Object.assign(DAJANA_CFG(items), { product: pid || "", productUrl: local ? "?p={id}" : "/product/{id}", homeUrl: local ? "" : "/" }));
       restore();
+      // العنوان والرابط الأساسي لمحركات البحث
+      if (!pid) document.title = "دُجانه | مصممة بلكسي وطباعة وهدايا مخصصة";
+      else { const c = document.querySelector('link[rel="canonical"]'); if (c) c.href = "https://dojana.technoenjaz.com/product/" + pid; }
     };
     // نفس مكان السحب لما يرجع للخلف
     const SK = "dj_y:" + location.pathname + location.search;
