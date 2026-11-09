@@ -17,14 +17,21 @@ import numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SR = 44100
 MODEL = "eleven_multilingual_v2"
-SETTINGS = {"stability": 0.5, "similarity_boost": 0.8, "style": 0.2, "use_speaker_boost": True}
-LEAD, GAP, SCENE_GAP, TAIL = 0.6, 0.42, 1.25, 4.5
+SETTINGS = {"stability": 0.5, "similarity_boost": 0.8, "style": 0.2, "use_speaker_boost": True, "speed": 1.1}
+LEAD, GAP, SCENE_GAP, TAIL = 0.6, 0.4, 1.2, 4.5
 KEY, VOICE = os.environ.get("ELEVENLABS_API_KEY"), os.environ.get("ELEVENLABS_VOICE_ID")
 
 lines = json.load(open(os.path.join(ROOT, "script/script.json"), encoding="utf8"))["lines"]
 cache = os.path.join(ROOT, "audio/cache"); os.makedirs(cache, exist_ok=True)
 build = os.path.join(ROOT, "build"); os.makedirs(build, exist_ok=True)
-say = [l.get("tts", l["text"]) for l in lines]
+PUN = "،.؟!…:"
+PRON = {k.strip(PUN): v.strip(PUN) for k, v in json.load(open(os.path.join(ROOT, "script/script.json"), encoding="utf8")).get("pron", {}).items()}
+def pron(text):  # whole-word swap to a diacritised spelling: the model reads Syrian words as MSA without it
+    out = []
+    for w in text.split(" "):
+        core = w.rstrip(PUN); out.append(PRON.get(core, core) + w[len(core):])
+    return " ".join(out)
+say = [pron(l.get("tts", l["text"])) for l in lines]
 
 
 def key_of(i):
@@ -56,8 +63,11 @@ def tts(i):
     raise SystemExit(f"TTS failed for line {i + 1}")
 
 
-def decode(path):
-    pcm = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"],
+TEMPO = 1.06  # extra pace on top of the API speed (pitch preserved)
+
+
+def decode(path, tempo=1.0):
+    pcm = subprocess.run(["ffmpeg", "-v", "error", "-i", path, "-af", f"atempo={tempo}", "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"],
                          capture_output=True, check=True).stdout
     return np.frombuffer(pcm, np.float32).copy()
 
@@ -82,7 +92,7 @@ for i, p in enumerate(paths):
     if os.path.exists(rec):
         clips.append(trim(decode(rec)))
     elif os.path.exists(p):
-        clips.append(trim(decode(p)))
+        clips.append(trim(decode(p, TEMPO)))
     else:  # no key, no cache: silence sized like speech (~13 chars/s)
         clips.append(np.zeros(int(SR * max(1.5, len(lines[i]["text"]) / 13))))
 
