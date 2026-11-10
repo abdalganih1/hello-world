@@ -16,8 +16,8 @@ import numpy as np
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SR = 44100
-MODEL = "eleven_multilingual_v2"
-SETTINGS = {"stability": 0.5, "similarity_boost": 0.8, "style": 0.2, "use_speaker_boost": True, "speed": 1.1}
+MODEL = "eleven_v3"   # the user picked v3 with the plain text (no tashkeel, no respelling) as the best-sounding Syrian reading
+SETTINGS = {}          # v3: default voice settings
 LEAD, GAP, SCENE_GAP, TAIL = 0.6, 0.4, 1.2, 4.5
 KEY, VOICE = os.environ.get("ELEVENLABS_API_KEY"), os.environ.get("ELEVENLABS_VOICE_ID")
 
@@ -26,7 +26,7 @@ cache = os.path.join(ROOT, "audio/cache"); os.makedirs(cache, exist_ok=True)
 build = os.path.join(ROOT, "build"); os.makedirs(build, exist_ok=True)
 PUN = "،.؟!…:"
 PRON = {k.strip(PUN): v.strip(PUN) for k, v in json.load(open(os.path.join(ROOT, "script/script.json"), encoding="utf8")).get("pron", {}).items()}
-def pron(text):  # whole-word swap to a diacritised spelling: the model reads Syrian words as MSA without it
+def pron(text):  # optional whole-word swaps from a "pron" map in script.json (empty now: v3 reads the plain text best)
     out = []
     for w in text.split(" "):
         core = w.rstrip(PUN); out.append(PRON.get(core, core) + w[len(core):])
@@ -35,7 +35,7 @@ say = [pron(l.get("tts", l["text"])) for l in lines]
 
 
 def key_of(i):
-    h = hashlib.sha1(json.dumps([say[i], MODEL, SETTINGS, VOICE], ensure_ascii=False).encode()).hexdigest()[:12]
+    h = hashlib.sha1(json.dumps([say[i], MODEL, SETTINGS, VOICE, lines[i].get("take", 1)], ensure_ascii=False).encode()).hexdigest()[:12]
     return os.path.join(cache, f"{h}.mp3")
 
 
@@ -44,9 +44,11 @@ def tts(i):
     if os.path.exists(path) or not (KEY and VOICE):
         return path
     same = lambda j: 0 <= j < len(lines) and lines[j]["scene"] == lines[i]["scene"]
-    body = {"text": say[i], "model_id": MODEL, "voice_settings": SETTINGS}
-    if same(i - 1): body["previous_text"] = say[i - 1]
-    if same(i + 1): body["next_text"] = say[i + 1]
+    body = {"text": say[i], "model_id": MODEL, "seed": 1000 + lines[i].get("take", 1)}
+    if SETTINGS: body["voice_settings"] = SETTINGS
+    if MODEL != "eleven_v3":  # v3 does not take neighbouring text
+        if same(i - 1): body["previous_text"] = say[i - 1]
+        if same(i + 1): body["next_text"] = say[i + 1]
     req = urllib.request.Request(
         f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE}?output_format=mp3_44100_128",
         data=json.dumps(body, ensure_ascii=False).encode(), method="POST",
@@ -63,7 +65,7 @@ def tts(i):
     raise SystemExit(f"TTS failed for line {i + 1}")
 
 
-TEMPO = 1.06  # extra pace on top of the API speed (pitch preserved)
+TEMPO = 1.05  # extra pace after generation (pitch preserved)
 
 
 def decode(path, tempo=1.0):
