@@ -1,0 +1,16 @@
+{
+  "fps": 30,
+  "bpm": 112,
+  "arr": [7, 3, 9, 1, 5, 8, 2],
+  "target": 5,
+  "scenes": [
+    { "name": "hook", "beats": 8 },
+    { "name": "title", "beats": 8 },
+    { "name": "setup", "beats": 12 },
+    { "name": "search", "beats": 24 },
+    { "name": "rule", "beats": 12 },
+    { "name": "code", "beats": 16 },
+    { "name": "speed", "beats": 16 },
+    { "name": "finale", "beats": 16 }
+  ]
+}
