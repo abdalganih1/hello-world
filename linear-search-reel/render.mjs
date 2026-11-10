@@ -1,4 +1,4 @@
-// Renders reel.html + خوارزمو's voice and a soft sound bed into linear-search-khwarizmo.mp4 (1080x1920, 30 fps, Reels).
+// Renders reel.html + an original synthesized score (no voice; timings still come from voice/timeline.json) into linear-search-khwarizmo.mp4 (1080x1920, 30 fps, Reels).
 // Usage: node render.mjs                              full render (parallel headless-Chromium workers)
 //        STILLS=3.5,7,10.5 [STILLS_DIR=dir] node render.mjs   just those frames as JPG
 //        AUDIO_ONLY=1 node render.mjs                 just build/soundtrack.wav
@@ -37,7 +37,7 @@ async function openPage() {
 async function audio(page) { // sound events come from the same schedule the picture uses
   const ev = await page.evaluate(() => window.collectSfx());
   const events = path.join(BUILD, "events.json"), wav = path.join(BUILD, "soundtrack.wav");
-  writeFileSync(events, JSON.stringify(ev)); execFileSync("python3", [path.join(dir, "tools/mix.py"), events, path.join(BUILD, "voice.wav"), wav], { stdio: "inherit" }); return wav;
+  writeFileSync(events, JSON.stringify(ev)); execFileSync("python3", [path.join(dir, "tools/score.py"), events, wav], { stdio: "inherit" }); return wav;  // music only, no voice (tools/mix.py = the narrated version)
 }
 if (process.env.AUDIO_ONLY) { const p = await openPage(); await audio(p); await browser.close(); server.close(); process.exit(0); }
 if (process.env.STILLS) {
