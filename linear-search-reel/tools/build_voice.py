@@ -5,7 +5,7 @@ Usage: ELEVENLABS_API_KEY=... ELEVENLABS_VOICE_ID=... python3 tools/build_voice.
 import hashlib, json, os, subprocess, time, urllib.request, wave
 import numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); SR = 44100
-MODEL = "eleven_v3"; TEMPO = 1.04; TAG = "[Syrian Damascene accent] "
+MODEL = "eleven_v3"; TEMPO = 1.08; TAG = "[Syrian Damascene accent] "
 LEAD, GAP, SCENE_GAP, TAIL = 0.3, 0.18, 0.4, 0.2
 KEY, VOICE = os.environ.get("ELEVENLABS_API_KEY"), os.environ.get("ELEVENLABS_VOICE_ID")
 lines = json.load(open(os.path.join(ROOT, "voice/script.json"), encoding="utf8"))["lines"]
