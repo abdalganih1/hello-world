@@ -2,7 +2,7 @@
 // Deterministic: seek(t) draws frame t from scratch (no Math.random, nothing accumulates between frames).
 "use strict";
 const W = 1080, H = 1920;
-// palette taken from the تكنو انجاز logo: mint-teal (#46c1b3) -> teal (#1cbdbe) -> blue (#468bba) -> indigo (#4762ac), pushed brighter for neon on dark
+// palette taken from the brand mark: mint-teal (#46c1b3) -> teal (#1cbdbe) -> blue (#468bba) -> indigo (#4762ac), pushed brighter
 const C = { text: "#f1fbfa", mut: "#a9c8de", dim: "#4b6a8c", blue: "#1fc8cc", sky: "#9cf0e6", cyan: "#4fe6cd", deep: "#4762ac",
   amber: "#c4caff", green: "#3df2bd", red: "#ff5d7d", violet: "#7f8cf2", panel: "rgba(6,18,52,0.9)" };
 let out, octx, sc, ctx, bl, bctx, tmp, tctx, TL, BEAT, NOW = 0, SC = {}, IMG = {}, META = {};
@@ -157,7 +157,6 @@ window.setup = async (tl) => {
   sc = mk(W, H); ctx = sc.getContext("2d"); bl = mk(W / 4, H / 4); bctx = bl.getContext("2d"); tmp = mk(W, H); tctx = tmp.getContext("2d");
   for (const [fam, file, w] of [["Cairo", "cairo-800.ttf", 800], ["Cairo", "cairo-900.ttf", 900], ["JBMono", "jbmono-800.ttf", 800]]) { const f = new FontFace(fam, `url(assets/${file})`, { weight: String(w) }); await f.load(); document.fonts.add(f); }
   META = await (await fetch("assets/k/meta.json")).json();
-  await new Promise((res, rej) => { const im = new Image(); im.onload = () => { IMG.logo = im; res(); }; im.onerror = rej; im.src = "assets/logo.png"; });
   await Promise.all(Object.keys(META).map((k) => new Promise((res, rej) => { const im = new Image(); im.onload = () => { IMG[k] = im; res(); }; im.onerror = rej; im.src = `assets/k/${k}.png`; })));
   await document.fonts.ready; render(0); return TL.total;
 };
