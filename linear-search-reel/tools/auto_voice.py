@@ -53,12 +53,12 @@ out_p = os.path.join(ROOT, "voice/takes.json"); res = json.load(open(out_p, enco
 for i, l in enumerate(lines):
     if only is not None and i not in only: continue
     if "--auto" in sys.argv and not l.get("auto"): continue
-    text = l.get("tts", l["text"]); rows = []
+    text = l.get("tts", l["text"]); rows = []; sty = (l["style"] + " ") if l.get("style") else ""
     for tg, sd, st in CANDS:
-        p = tts(text, tg, sd, st); a = pcm16(p); sc, d = dialect(a); sim, wr, hyp = match(a, text); dur = len(a) / 16000
+        p = tts(text, tg + sty, sd, st); a = pcm16(p); sc, d = dialect(a); sim, wr, hyp = match(a, text); dur = len(a) / 16000
         rows.append({"file": os.path.relpath(p, ROOT), "tag": tg.strip(), "seed": sd, "stability": st, "syr": round(sc, 3), "SYR": round(d["SYR"], 3), "sim": round(sim, 2), "wr": round(wr, 2), "dur": round(dur, 2), "heard": hyp})
     best_sim = max(r["sim"] for r in rows); med = float(np.median([r["dur"] for r in rows]))
     ok = [r for r in rows if r["sim"] >= best_sim - 0.15 and 0.7 <= r["wr"] <= 1.4 and r["dur"] <= med * 1.35] or rows
-    pick = max(ok, key=lambda r: r["syr"]); res[l.get("tts", l["text"])] = {"text": l["text"], "pick": pick, "all": rows}
+    pick = max(ok, key=lambda r: r["syr"]); res[sty + l.get("tts", l["text"])] = {"text": l["text"], "pick": pick, "all": rows}
     print(f"{i + 1:2d} pick {pick['tag'][:24]:24s} seed {pick['seed']} syr {pick['syr']:+.2f} (SYR {pick['SYR']:.2f}) sim {pick['sim']:.2f} | range {min(r['syr'] for r in rows):+.2f}..{max(r['syr'] for r in rows):+.2f}  {l['text'][:30]}", flush=True)
     json.dump(res, open(out_p, "w", encoding="utf8"), ensure_ascii=False, indent=1)

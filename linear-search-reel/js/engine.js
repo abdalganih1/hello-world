@@ -70,21 +70,46 @@ function sparkle(x, y, t0, o = {}) { const { n = 26, r = 260, dur = 1.0 } = o, u
   for (let i = 0; i < n; i++) { const an = rnd(i + 3) * 6.2832, sp = (0.4 + 0.6 * rnd(i * 5 + 1)) * r, e = eo(u); const px = x + Math.cos(an) * sp * e, py = y + Math.sin(an) * sp * e + 160 * u * u, s = 9 * (1 - u * 0.6);
     withT(px, py, 1, 1, an + u * 5, () => fillRR(-s, -s / 2.5, s * 2, s / 1.25, 3, cols[i % 4], 1 - u * u)); } }
 
-// ---------- captions: the spoken line, big, at the top (fixed zone y 300..470), never two blocks at once
+// ---------- captions: the spoken line, big, at the top (fixed zone y 300..470)
+// Two lines break where the sentence/phrase breaks (after . ؟ ! … then ، :), never mid-phrase, and the 2nd line
+// appears when it is spoken (snapped to the voice's phrase onsets). One caption at a time.
+function phraseWrap(s, size, maxW) {
+  if (s.includes("|")) { const [p1, p2] = s.split("|").map((x) => x.trim()); return { lines: [tokens(p1), tokens(p2)], cut: p1.length / (s.length - 1), rank: 0 }; } // manual break
+  const tk = tokens(s), sp = measure(" ", size), ws = tk.map((k) => measure(k.s, size, 900, k.lat ? "mono" : "Cairo")), tot = ws.reduce((p, q) => p + q, 0) + sp * (tk.length - 1);
+  if (tot <= maxW || tk.length < 2) return { lines: [tk], cut: 0, rank: 0 };
+  let best = null;
+  for (let b = 1; b < tk.length; b++) {
+    const w1 = ws.slice(0, b).reduce((p, q) => p + q, 0) + sp * (b - 1), w2 = tot - w1 - sp; if (w1 > maxW || w2 > maxW) continue;
+    const end = tk[b - 1].s, rank = /[.؟!…]$/.test(end) ? 0 : /[،:]$/.test(end) ? 1 : 2, score = rank * 10000 + Math.abs(w1 - w2);
+    if (!best || score < best.score) best = { b, score, rank };
+  }
+  if (!best) return { lines: wrap(s, size, maxW), cut: 0, rank: 3 };
+  return { lines: [tk.slice(0, best.b), tk.slice(best.b)], cut: tk.slice(0, best.b).map((k) => k.s).join(" ").length / s.length, rank: best.rank };
+}
 function captions(t) {
   for (const l of TL.lines) {
-    const next = TL.lines[l.i + 1], end = next ? Math.min(next.t0 - 0.06, l.t1 + 1.2) : TL.total, size = 66, maxW = 940;
-    const txt = l.caption || l.text; let lines = wrap(txt, size, maxW), t0 = l.instant ? -1 : l.t0 - 0.06, chunks = null;
-    if (lines.length > 2 && l.segs.length > 1) { const parts = txt.split(/،\s*/); if (parts.length === l.segs.length) chunks = parts; }
-    if (chunks) { chunks.forEach((c, j) => { const c0 = l.segs[j] - 0.06, c1 = j + 1 < chunks.length ? l.segs[j + 1] - 0.08 : end; const a = win(t, c0, c1, 0.12); if (a <= 0) return;
-        const ls = wrap(c, size, maxW), ys = ls.length === 1 ? [385] : [340, 430]; ls.forEach((ln, k) => wordsLine(ln, W / 2, ys[k], c0 + k * 0.15, { size, a, hl: l.hl, step: 0.05 })); }); continue; }
-    const a = win(t, t0, end, 0.12); if (a <= 0) continue; const ys = lines.length === 1 ? [385] : [340, 430];
-    lines.forEach((ln, k) => wordsLine(ln, W / 2, ys[k], t0 + k * 0.2, { size, a: l.instant ? (end - t < 0.12 ? a : 1) : a, hl: l.hl, step: 0.06, instant: l.instant }));
+    const next = TL.lines[l.i + 1], end = next ? Math.min(next.t0 - 0.06, l.t1 + 1.2) : TL.total, size = 66, maxW = 940, txt = l.caption || l.text;
+    const t0 = l.instant ? -1 : l.t0 - 0.06, a = win(t, t0, end, 0.12); if (a <= 0) continue;
+    let { lines, cut, rank } = phraseWrap(txt, size, maxW), sz = size;
+    if (rank > 1) for (const s2 of [60, 56]) { const r2 = phraseWrap(txt, s2, maxW); if (r2.rank <= 1) { ({ lines, cut } = r2); sz = s2; break; } }
+    { const lw = (ln, z) => ln.reduce((p, k) => p + measure(k.s, z, 900, k.lat ? "mono" : "Cairo"), 0) + measure(" ", z) * (ln.length - 1); const wmax = Math.max(...lines.map((ln) => lw(ln, sz))); if (wmax > maxW) sz = Math.max(46, Math.floor(sz * maxW / wmax)); }
+    if (lines.length > 2) { // long line: show it phrase by phrase (split at ، ), each when it is spoken, one phrase at a time
+      const parts = txt.split(/،\s*/); let pos = 0; const st = parts.map((p) => { const f = pos / txt.length; pos += p.length + 2; return atFrac(l, f); });
+      parts.forEach((pt, j) => { const c0 = j ? st[j] - 0.06 : t0, c1 = j + 1 < parts.length ? st[j + 1] - 0.08 : end, ca = win(t, c0, c1, 0.12); if (ca <= 0) return;
+        const pw = phraseWrap(pt + (j + 1 < parts.length ? "،" : ""), size, maxW), ys2 = pw.lines.length === 1 ? [385] : [338, 432]; pw.lines.forEach((ln, k) => wordsLine(ln, W / 2, ys2[k], c0 + k * 0.15, { size, a: ca, hl: l.hl, step: 0.05 })); });
+      continue; }
+    let t2 = t0; if (lines.length === 2 && !l.instant) { const est = l.t0 + cut * (l.t1 - l.t0); let bestT = est, bd = 0.8;
+      for (const sg of l.segs.slice(1)) if (Math.abs(sg - est) < bd) { bd = Math.abs(sg - est); bestT = sg; } t2 = Math.max(t0 + 0.25, bestT - 0.05); }
+    const ys = lines.length === 1 ? [385] : [338, 432];
+    lines.forEach((ln, k) => wordsLine(ln, W / 2, ys[k], k ? t2 : t0, { size: sz, a, hl: l.hl, step: 0.06, instant: l.instant }));
   }
 }
 
 // ---------- timing helpers
 const L0 = (i) => TL.lines[i].t0, L1 = (i) => TL.lines[i].t1, SG = (i, j) => TL.lines[i].segs[Math.min(j, TL.lines[i].segs.length - 1)];
+// time a word is spoken: its position in the sentence, snapped to the nearest voiced-phrase onset (robust to how a take pauses)
+function atFrac(l, frac) { const est = l.t0 + (l.t1 - l.t0) * frac; let b = est, bd = 0.4; for (const sg of l.segs) if (Math.abs(sg - est) < bd) { bd = Math.abs(sg - est); b = sg; } return b; }
+const AT = (i, w) => { const l = TL.lines[i], k = l.text.indexOf(w); return atFrac(l, k < 0 ? 0.5 : k / l.text.length); };
 const SCENES = {};
 function render(t) {
   NOW = t; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; ctx.shadowBlur = 0; ctx.filter = "none";

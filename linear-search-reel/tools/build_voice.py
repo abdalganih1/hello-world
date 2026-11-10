@@ -11,13 +11,13 @@ KEY, VOICE = os.environ.get("ELEVENLABS_API_KEY"), os.environ.get("ELEVENLABS_VO
 lines = json.load(open(os.path.join(ROOT, "voice/script.json"), encoding="utf8"))["lines"]
 cache = os.path.join(ROOT, "audio/cache"); os.makedirs(cache, exist_ok=True); os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
 say = [l.get("tts", l["text"]) for l in lines]
-def key_of(i): return os.path.join(cache, hashlib.sha1(json.dumps([TAG + say[i], MODEL, VOICE, lines[i].get("take", 1)] + (["auto"] if lines[i].get("auto") else []), ensure_ascii=False).encode()).hexdigest()[:12] + ".mp3")
+def key_of(i): return os.path.join(cache, hashlib.sha1(json.dumps([TAG + say[i], MODEL, VOICE, lines[i].get("take", 1)] + (["auto", lines[i].get("style", "")] if lines[i].get("auto") else []), ensure_ascii=False).encode()).hexdigest()[:12] + ".mp3")
 def tts(i):
     p = key_of(i)
     if os.path.exists(p): return p
     # the exact takes he approved (variant 10 + the picked line options) live in audio/variants_cache: reuse them as they are
     if lines[i].get("auto"):  # chosen automatically by tools/auto_voice.py (dialect classifier + Whisper check)
-        tk = json.load(open(os.path.join(ROOT, "voice/takes.json"), encoding="utf8")).get(say[i])
+        tk = json.load(open(os.path.join(ROOT, "voice/takes.json"), encoding="utf8")).get(((lines[i]["style"] + " ") if lines[i].get("style") else "") + say[i])
         if tk: open(p, "wb").write(open(os.path.join(ROOT, tk["pick"]["file"]), "rb").read()); print("  auto take", i + 1); return p
     if lines[i].get("take", 1) == 1:
         q = os.path.join(ROOT, "audio/variants_cache", hashlib.sha1(json.dumps([TAG + say[i], MODEL, VOICE]).encode()).hexdigest()[:12] + ".mp3")

@@ -2535,5 +2535,1116 @@
     "heard": " خلّينا نجرب  الرقم 5 مخبّة ورى واحدة من هالبطاقات"
    }
   ]
+ },
+ "[incredulous, disapproving] إذا ما بتعرف هاي الخوارزمية، لا تقول عن حالك مبرمج.": {
+  "text": "إذا ما بتعرف هالخوارزمية… لا تقول عن حالك مبرمج 😬",
+  "pick": {
+   "file": "audio/variants_cache/e2cf45bf96bb.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1002,
+   "stability": null,
+   "syr": 0.961,
+   "SYR": 0.961,
+   "sim": 0.9,
+   "wr": 1.0,
+   "dur": 3.68,
+   "heard": " إذا ما بتعرف هاي الخوارزمية، لا تقول عن حالك مبرمش."
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/48bc7ba6a97f.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.072,
+    "SYR": 0.102,
+    "sim": 0.9,
+    "wr": 1.0,
+    "dur": 5.04,
+    "heard": " إذا ما بتعرف هاي الخوارزمية، لا تقول عن حالك مبرمش."
+   },
+   {
+    "file": "audio/variants_cache/e2cf45bf96bb.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.961,
+    "SYR": 0.961,
+    "sim": 0.9,
+    "wr": 1.0,
+    "dur": 3.68,
+    "heard": " إذا ما بتعرف هاي الخوارزمية، لا تقول عن حالك مبرمش."
+   },
+   {
+    "file": "audio/variants_cache/801dda23a798.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.904,
+    "SYR": 0.904,
+    "sim": 0.9,
+    "wr": 1.0,
+    "dur": 3.92,
+    "heard": " إذا ما بتعرف هاي الخوارزمية، لا تقول عن حالك مبرمش."
+   },
+   {
+    "file": "audio/variants_cache/11f84bfe95c1.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.344,
+    "SYR": 0.335,
+    "sim": 0.63,
+    "wr": 0.9,
+    "dur": 3.84,
+    "heard": " إذا ما تعرف هالخوارزمية، لا تقول عن حالك مبرمش"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] أبسط خوارزمية بالبرمجة، بس عندها مشكلة كبيرة.": {
+  "text": "أبسط خوارزمية بالبرمجة… بس عندها مشكلة كبيرة 👀",
+  "pick": {
+   "file": "audio/variants_cache/27fdfa24c903.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1003,
+   "stability": null,
+   "syr": 0.986,
+   "SYR": 0.986,
+   "sim": 1.0,
+   "wr": 1.0,
+   "dur": 3.68,
+   "heard": " أبسط خوارزمية بالبرمجة  بس عندها مشكلة كبيرة"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/655c2c5ac7e8.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.471,
+    "SYR": 0.007,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 3.68,
+    "heard": " أبسط خوارزمية بالبرمجة  بس عندها مشكلة كبيرة"
+   },
+   {
+    "file": "audio/variants_cache/660453e12db4.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.128,
+    "SYR": 0.264,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 4.4,
+    "heard": " أبسط خوارزمية بالبرمجة، بس عندها مشكلة كبيرة."
+   },
+   {
+    "file": "audio/variants_cache/27fdfa24c903.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.986,
+    "SYR": 0.986,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 3.68,
+    "heard": " أبسط خوارزمية بالبرمجة  بس عندها مشكلة كبيرة"
+   },
+   {
+    "file": "audio/variants_cache/f63261288e13.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.957,
+    "SYR": 0.956,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 3.6,
+    "heard": " أبسط خوارزمية بالبرمجة  بس عندها مشكلة كبيرة"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] خلينا نجرب: الرقم خمسة مخبى ورا وحدة من هالبطاقات.": {
+  "text": "خلينا نجرب: الرقم 5 مخبى ورا وحدة من هالبطاقات",
+  "pick": {
+   "file": "audio/variants_cache/cb1ecaf50074.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1004,
+   "stability": null,
+   "syr": 0.549,
+   "SYR": 0.553,
+   "sim": 0.67,
+   "wr": 1.0,
+   "dur": 4.96,
+   "heard": " خلينا نجرب  الرقم 5 مخبى ورى واحدة من هالبطاقات"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/6472fae2605c.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.178,
+    "SYR": 0.341,
+    "sim": 0.67,
+    "wr": 1.0,
+    "dur": 4.96,
+    "heard": " خلينا نجرب  الرقم خمسة مخبة ورى واحدة من هالبطاقات"
+   },
+   {
+    "file": "audio/variants_cache/02b725a4a9ee.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.396,
+    "SYR": 0.577,
+    "sim": 0.56,
+    "wr": 1.0,
+    "dur": 4.48,
+    "heard": " خلينا نجرب  الرقم 5 مخبأ ورى واحدة من هالبطاقات"
+   },
+   {
+    "file": "audio/variants_cache/07d6ec4d6b7a.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.073,
+    "SYR": 0.138,
+    "sim": 0.56,
+    "wr": 1.0,
+    "dur": 5.6,
+    "heard": " خلّينا نجرب  الرقم 5 مخبّة ورى واحدة من هالبطاقات"
+   },
+   {
+    "file": "audio/variants_cache/cb1ecaf50074.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.549,
+    "SYR": 0.553,
+    "sim": 0.67,
+    "wr": 1.0,
+    "dur": 4.96,
+    "heard": " خلينا نجرب  الرقم 5 مخبى ورى واحدة من هالبطاقات"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] رح نفتح البطاقات وحدة وحدة، من الأول للآخر.": {
+  "text": "رح نفتح البطاقات وحدة وحدة، من الأول للآخر.",
+  "pick": {
+   "file": "audio/variants_cache/d2f21f96b3c0.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": 0.223,
+   "SYR": 0.119,
+   "sim": 0.75,
+   "wr": 1.0,
+   "dur": 3.44,
+   "heard": " رح نفتح البطاقات واحدة واحدة من الأول للاخر"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/d2f21f96b3c0.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.223,
+    "SYR": 0.119,
+    "sim": 0.75,
+    "wr": 1.0,
+    "dur": 3.44,
+    "heard": " رح نفتح البطاقات واحدة واحدة من الأول للاخر"
+   },
+   {
+    "file": "audio/variants_cache/d2dc82c27589.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.102,
+    "SYR": 0.04,
+    "sim": 0.75,
+    "wr": 1.0,
+    "dur": 3.6,
+    "heard": " رح نفتح البطاقات واحدة واحدة من الأول للآخر"
+   },
+   {
+    "file": "audio/variants_cache/3efa5d8f149e.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.0,
+    "SYR": 0.0,
+    "sim": 0.75,
+    "wr": 1.0,
+    "dur": 3.76,
+    "heard": " رح نفتح البطاقات واحدة واحدة من الأول للاخر"
+   },
+   {
+    "file": "audio/variants_cache/0d804d9e8874.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.002,
+    "SYR": 0.003,
+    "sim": 0.62,
+    "wr": 1.0,
+    "dur": 3.36,
+    "heard": " لح نفتح البطاقات واحدة واحدة من الأول للاخر"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] سبعة؟ لأ.": {
+  "text": "سبعة؟ لأ.",
+  "pick": {
+   "file": "audio/variants_cache/5c0aca658050.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1002,
+   "stability": null,
+   "syr": -0.001,
+   "SYR": 0.027,
+   "sim": 0.5,
+   "wr": 1.0,
+   "dur": 1.68,
+   "heard": " سبع لأ"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/0ab0c28af4a0.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.017,
+    "SYR": 0.028,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.92,
+    "heard": " سبعا؟  لا"
+   },
+   {
+    "file": "audio/variants_cache/5c0aca658050.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.001,
+    "SYR": 0.027,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.68,
+    "heard": " سبع لأ"
+   },
+   {
+    "file": "audio/variants_cache/b6bce5a5d3d2.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.035,
+    "SYR": 0.05,
+    "sim": 0.0,
+    "wr": 0.5,
+    "dur": 2.08,
+    "heard": " حسناً؟"
+   },
+   {
+    "file": "audio/variants_cache/b77055442c31.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.171,
+    "SYR": 0.079,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 2.0,
+    "heard": " سببا لأ"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] تلاتة؟ لأ.": {
+  "text": "تلاتة؟ لأ.",
+  "pick": {
+   "file": "audio/variants_cache/1b54e95adb40.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1004,
+   "stability": null,
+   "syr": -0.015,
+   "SYR": 0.001,
+   "sim": 0.5,
+   "wr": 1.0,
+   "dur": 1.68,
+   "heard": " ثلاثة؟  لا"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/0a99db83a5c9.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.311,
+    "SYR": 0.017,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.76,
+    "heard": " ثلاثة  لا"
+   },
+   {
+    "file": "audio/variants_cache/6a16cb96ecfc.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.27,
+    "SYR": 0.013,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.76,
+    "heard": " ثلاثة؟ لا"
+   },
+   {
+    "file": "audio/variants_cache/28f241bb38c1.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.474,
+    "SYR": 0.004,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.68,
+    "heard": " ثلاثة؟ لا"
+   },
+   {
+    "file": "audio/variants_cache/1b54e95adb40.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.015,
+    "SYR": 0.001,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.68,
+    "heard": " ثلاثة؟  لا"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] تسعة؟ لأ.": {
+  "text": "تسعة؟ لأ.",
+  "pick": {
+   "file": "audio/variants_cache/44e5de4fb634.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1003,
+   "stability": null,
+   "syr": 0.004,
+   "SYR": 0.004,
+   "sim": 0.5,
+   "wr": 1.0,
+   "dur": 1.68,
+   "heard": " تسعى؟  لا"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/42d8db89d002.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.117,
+    "SYR": 0.027,
+    "sim": 0.0,
+    "wr": 2.0,
+    "dur": 2.0,
+    "heard": " هل هذا كذلك؟  نعم"
+   },
+   {
+    "file": "audio/variants_cache/287b20e478ca.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.203,
+    "SYR": 0.114,
+    "sim": 0.0,
+    "wr": 1.0,
+    "dur": 1.76,
+    "heard": " تسعى لع"
+   },
+   {
+    "file": "audio/variants_cache/44e5de4fb634.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.004,
+    "SYR": 0.004,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.68,
+    "heard": " تسعى؟  لا"
+   },
+   {
+    "file": "audio/variants_cache/a5679fe42392.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.24,
+    "SYR": 0.026,
+    "sim": 0.0,
+    "wr": 2.0,
+    "dur": 1.36,
+    "heard": " هل كان هذا؟  هنا"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] واحد؟ لأ.": {
+  "text": "واحد؟ لأ.",
+  "pick": {
+   "file": "audio/variants_cache/d557a87307f6.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1004,
+   "stability": null,
+   "syr": -0.009,
+   "SYR": 0.075,
+   "sim": 1.0,
+   "wr": 1.0,
+   "dur": 1.2,
+   "heard": " واحد لا"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/7998a3b08d50.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.111,
+    "SYR": 0.071,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 1.92,
+    "heard": " واحد  لا"
+   },
+   {
+    "file": "audio/variants_cache/85677701455a.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.102,
+    "SYR": 0.045,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 2.16,
+    "heard": " واحد  لا"
+   },
+   {
+    "file": "audio/variants_cache/4c504a18737e.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.298,
+    "SYR": 0.017,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 2.32,
+    "heard": " واحد لا"
+   },
+   {
+    "file": "audio/variants_cache/d557a87307f6.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.009,
+    "SYR": 0.075,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 1.2,
+    "heard": " واحد لا"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] خمسة! لقيناه.": {
+  "text": "خمسة! لقيناه.",
+  "pick": {
+   "file": "audio/variants_cache/b50b5c2de8e9.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": 0.004,
+   "SYR": 0.012,
+   "sim": 0.5,
+   "wr": 1.0,
+   "dur": 1.76,
+   "heard": " خمسة لإنه"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/b50b5c2de8e9.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.004,
+    "SYR": 0.012,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.76,
+    "heard": " خمسة لإنه"
+   },
+   {
+    "file": "audio/variants_cache/afa6b319adc8.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.028,
+    "SYR": 0.009,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 2.24,
+    "heard": " خمسة لإنه"
+   },
+   {
+    "file": "audio/variants_cache/cde1b4adaf68.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.001,
+    "SYR": 0.001,
+    "sim": 0.0,
+    "wr": 1.0,
+    "dur": 1.68,
+    "heard": " 5. لإنه"
+   },
+   {
+    "file": "audio/variants_cache/e48883351378.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.143,
+    "SYR": 0.02,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.84,
+    "heard": " خمسة لإنه"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] هي اسمها خوارزمية البحث الخطّي.": {
+  "text": "هي اسمها خوارزمية البحث الخطّي.",
+  "pick": {
+   "file": "audio/variants_cache/e463642b7486.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": -0.279,
+   "SYR": 0.068,
+   "sim": 1.0,
+   "wr": 1.0,
+   "dur": 2.88,
+   "heard": " هي اسمها خوارزمية البحث الخطي"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/e463642b7486.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.279,
+    "SYR": 0.068,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 2.88,
+    "heard": " هي اسمها خوارزمية البحث الخطي"
+   },
+   {
+    "file": "audio/variants_cache/e8b3f569a934.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.337,
+    "SYR": 0.093,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 2.96,
+    "heard": " هي اسمها خوارزمية البحث الخطي"
+   },
+   {
+    "file": "audio/variants_cache/c4cc977fe93d.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.098,
+    "SYR": 0.342,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 2.72,
+    "heard": " هي اسمها خوارزمية البحف الخطي"
+   },
+   {
+    "file": "audio/variants_cache/cd13ee9781cc.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.465,
+    "SYR": 0.001,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 2.64,
+    "heard": " هي اسمها خوارزمية البحث الخطي"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] قارن كل عنصر بالمطلوب.": {
+  "text": "قارن كل عنصر بالمطلوب.",
+  "pick": {
+   "file": "audio/variants_cache/18b7ae42faf5.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1003,
+   "stability": null,
+   "syr": -0.056,
+   "SYR": 0.008,
+   "sim": 0.75,
+   "wr": 1.0,
+   "dur": 1.6,
+   "heard": " قارن كل أنصر بالمطلوب"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/df6e89240686.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.304,
+    "SYR": 0.006,
+    "sim": 0.75,
+    "wr": 1.0,
+    "dur": 1.68,
+    "heard": " قارن كل أنصر بالمطلوب"
+   },
+   {
+    "file": "audio/variants_cache/6c9b49b4b965.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.0,
+    "SYR": 0.042,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.92,
+    "heard": " قارن كل أنصرين بمطلوب"
+   },
+   {
+    "file": "audio/variants_cache/18b7ae42faf5.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.056,
+    "SYR": 0.008,
+    "sim": 0.75,
+    "wr": 1.0,
+    "dur": 1.6,
+    "heard": " قارن كل أنصر بالمطلوب"
+   },
+   {
+    "file": "audio/variants_cache/f58fa278fc92.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.122,
+    "SYR": 0.05,
+    "sim": 0.75,
+    "wr": 1.0,
+    "dur": 2.08,
+    "heard": " قارن كل عنصر بالمطفوب"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] إذا لقيتو، وقّف. وإذا لأ، كمّل عاللي بعدو.": {
+  "text": "إذا لقيتو، وقّف. وإذا لأ، كمّل عاللي بعدو.",
+  "pick": {
+   "file": "audio/variants_cache/2ccc0cbf846e.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1004,
+   "stability": null,
+   "syr": -0.08,
+   "SYR": 0.005,
+   "sim": 0.71,
+   "wr": 1.12,
+   "dur": 4.32,
+   "heard": " إذا لقيتو واقف، وإذا لا، كمل على اللي بعدو",
+   "override": "whisper (medium) on all takes: this one has every word"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/e3525845905a.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.002,
+    "SYR": 0.012,
+    "sim": 0.71,
+    "wr": 1.12,
+    "dur": 4.64,
+    "heard": " إذا لقيتو واقف  وإذا لا  كمل على اللي بعدو"
+   },
+   {
+    "file": "audio/variants_cache/0e19e10f8b8a.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.005,
+    "SYR": 0.006,
+    "sim": 0.47,
+    "wr": 1.12,
+    "dur": 4.56,
+    "heard": " إذا لقيته، واقف  وإذا لا، كمل على اللي بعده"
+   },
+   {
+    "file": "audio/variants_cache/274b3a1da761.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.005,
+    "SYR": 0.005,
+    "sim": 0.59,
+    "wr": 1.12,
+    "dur": 4.48,
+    "heard": " إذا لقيتو واقف  وإذا لق  كمل على اللي بعدو"
+   },
+   {
+    "file": "audio/variants_cache/2ccc0cbf846e.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.08,
+    "SYR": 0.005,
+    "sim": 0.71,
+    "wr": 1.12,
+    "dur": 4.32,
+    "heard": " إذا لقيتو واقف، وإذا لا، كمل على اللي بعدو",
+    "override": "whisper (medium) on all takes: this one has every word"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] بس انتبه: إذا الرقم بالآخر، لازم تمرق عالكل.": {
+  "text": "بس انتبه: إذا الرقم بالآخر، لازم تمرق عالكل.",
+  "pick": {
+   "file": "audio/variants_cache/4cf1b2118afe.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": 0.583,
+   "SYR": 0.592,
+   "sim": 0.71,
+   "wr": 1.12,
+   "dur": 4.48,
+   "heard": " بس انتبه إذا الرقم بالآخر لازم تمرؤ على الكل"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/4cf1b2118afe.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.583,
+    "SYR": 0.592,
+    "sim": 0.71,
+    "wr": 1.12,
+    "dur": 4.48,
+    "heard": " بس انتبه إذا الرقم بالآخر لازم تمرؤ على الكل"
+   },
+   {
+    "file": "audio/variants_cache/4d6d9c36e2f2.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.024,
+    "SYR": 0.064,
+    "sim": 0.71,
+    "wr": 1.12,
+    "dur": 5.04,
+    "heard": " بس انتبه إذا الرقم بالآخر لازم تمرؤ على الكل"
+   },
+   {
+    "file": "audio/variants_cache/6f42694e318b.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.075,
+    "SYR": 0.119,
+    "sim": 0.59,
+    "wr": 1.12,
+    "dur": 4.0,
+    "heard": " بس انتبه إذا رقم بالآخر لازم تمرؤ على الكل"
+   },
+   {
+    "file": "audio/variants_cache/1fa3200fb5ee.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.008,
+    "SYR": 0.007,
+    "sim": 0.82,
+    "wr": 1.12,
+    "dur": 4.4,
+    "heard": " بس انتبه اذا الرقم بالاخر لازم تمرق على الكل"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] مية عنصر يعني مية مقارنة. ومليون يعني مليون.": {
+  "text": "مية عنصر يعني مية مقارنة. ومليون يعني مليون.",
+  "pick": {
+   "file": "audio/variants_cache/8ba072c871ff.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": 0.531,
+   "SYR": 0.571,
+   "sim": 1.0,
+   "wr": 1.0,
+   "dur": 4.32,
+   "heard": " مية عنصر يعني مية مقارنة  ومليون يعني مليون"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/8ba072c871ff.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.531,
+    "SYR": 0.571,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 4.32,
+    "heard": " مية عنصر يعني مية مقارنة  ومليون يعني مليون"
+   },
+   {
+    "file": "audio/variants_cache/b441b40ad493.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.043,
+    "SYR": 0.053,
+    "sim": 0.62,
+    "wr": 1.0,
+    "dur": 4.16,
+    "heard": " 100 انصر يعني 100 مقارنة  ومليون يعني مليون"
+   },
+   {
+    "file": "audio/variants_cache/92dc6cb0530f.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.052,
+    "SYR": 0.221,
+    "sim": 0.62,
+    "wr": 1.0,
+    "dur": 4.72,
+    "heard": " 100 غنصر يعني 100 مقارنة  ومليون يعني مليون"
+   },
+   {
+    "file": "audio/variants_cache/8c3fcb4bdfbe.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.206,
+    "SYR": 0.236,
+    "sim": 0.75,
+    "wr": 1.0,
+    "dur": 4.56,
+    "heard": " 100 عنصر يعني 100 مقارنة  ومليون يعني مليون"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] وهاد اللي منسمّيه، أو أوف إن.": {
+  "text": "وهاد اللي منسمّيه O(n)",
+  "pick": {
+   "file": "audio/variants_cache/7ea2b9ec2587.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": -0.017,
+   "SYR": 0.168,
+   "sim": 0.0,
+   "wr": 1.0,
+   "dur": 3.12,
+   "heard": " وهذا الذي نسميه o of n",
+   "override": "whisper (medium) on all takes: this one has every word"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/7ea2b9ec2587.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.017,
+    "SYR": 0.168,
+    "sim": 0.0,
+    "wr": 1.0,
+    "dur": 3.12,
+    "heard": " وهذا الذي نسميه o of n",
+    "override": "whisper (medium) on all takes: this one has every word"
+   },
+   {
+    "file": "audio/variants_cache/ed4426411b40.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.409,
+    "SYR": 0.011,
+    "sim": 0.0,
+    "wr": 1.0,
+    "dur": 3.28,
+    "heard": " وهذا ما نسميه o of n"
+   },
+   {
+    "file": "audio/variants_cache/019d3f9c2cdb.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.457,
+    "SYR": 0.011,
+    "sim": 0.0,
+    "wr": 1.0,
+    "dur": 3.44,
+    "heard": " وهذا ما نسميه  O of N"
+   },
+   {
+    "file": "audio/variants_cache/097cfba3e32d.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.471,
+    "SYR": 0.011,
+    "sim": 0.18,
+    "wr": 0.83,
+    "dur": 3.12,
+    "heard": " وهذا اللي نسميه  of N"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] بس إذا القائمة مرتّبة، في خوارزمية بتلاقيه بعشرين خطوة بس، حتى لو فيها مليون عنصر.": {
+  "text": "بس إذا القائمة مرتّبة، في خوارزمية بتلاقيه بعشرين خطوة بس، حتى لو فيها مليون عنصر.",
+  "pick": {
+   "file": "audio/variants_cache/f862a3110ac5.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": 0.243,
+   "SYR": 0.343,
+   "sim": 1.0,
+   "wr": 1.0,
+   "dur": 7.28,
+   "heard": " بس إذا القائمة مرتبة في خوارزمية بتلاقيه بعشرين خطوة بس حتى لو فيها مليون عنصر"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/f862a3110ac5.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.243,
+    "SYR": 0.343,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 7.28,
+    "heard": " بس إذا القائمة مرتبة في خوارزمية بتلاقيه بعشرين خطوة بس حتى لو فيها مليون عنصر"
+   },
+   {
+    "file": "audio/variants_cache/f8753f9aa1fe.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.555,
+    "SYR": 0.606,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 7.12,
+    "heard": " بس إذا القائمة مرتبة في خوارزمية بتلاقيبها 20 خطوة بس حتى لو فيها مليون هنصر"
+   },
+   {
+    "file": "audio/variants_cache/0228975775d9.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.244,
+    "SYR": 0.293,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 7.12,
+    "heard": " بس إذا القائم مرتبة في خوارزمية بتلاقي ب20 خطوة بس حتى لو فيها مليون عنصر"
+   },
+   {
+    "file": "audio/variants_cache/94ce400af704.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.204,
+    "SYR": 0.217,
+    "sim": 0.77,
+    "wr": 1.07,
+    "dur": 7.12,
+    "heard": " بس إذا القائمة مرتبة فيه خوارزمية بتلاقي ب 20 خطوة بس حتى لو فيها مليون عنصر"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] شو هي؟ بالريل الجاي.": {
+  "text": "شو هي؟ بالريل الجاي.",
+  "pick": {
+   "file": "audio/variants_cache/6294e6fbec1d.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1003,
+   "stability": null,
+   "syr": -0.444,
+   "SYR": 0.016,
+   "sim": 0.5,
+   "wr": 1.0,
+   "dur": 2.56,
+   "heard": " شو هي؟ بالريلي جاي",
+   "override": "whisper (medium) on all takes: this one has every word"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/fe5aa349c35f.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.341,
+    "SYR": 0.069,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.76,
+    "heard": " شو هي؟ بري لجاي"
+   },
+   {
+    "file": "audio/variants_cache/5d969123d968.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.175,
+    "SYR": 0.043,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.84,
+    "heard": " شو هي؟ بري لجاي"
+   },
+   {
+    "file": "audio/variants_cache/6294e6fbec1d.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.444,
+    "SYR": 0.016,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 2.56,
+    "heard": " شو هي؟ بالريلي جاي",
+    "override": "whisper (medium) on all takes: this one has every word"
+   },
+   {
+    "file": "audio/variants_cache/efd80d253918.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.104,
+    "SYR": 0.007,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 2.32,
+    "heard": " شو هي؟ بريدت جاي"
+   }
+  ]
  }
 }
