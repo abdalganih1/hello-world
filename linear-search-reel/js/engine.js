@@ -74,8 +74,8 @@ function sparkle(x, y, t0, o = {}) { const { n = 26, r = 260, dur = 1.0 } = o, u
 function captions(t) {
   for (const l of TL.lines) {
     const next = TL.lines[l.i + 1], end = next ? Math.min(next.t0 - 0.06, l.t1 + 1.2) : TL.total, size = 66, maxW = 940;
-    let lines = wrap(l.text, size, maxW), t0 = l.t0 - 0.06, chunks = null;
-    if (lines.length > 2 && l.segs.length > 1) { const parts = l.text.split(/،\s*/); if (parts.length === l.segs.length) chunks = parts; }
+    const txt = l.caption || l.text; let lines = wrap(txt, size, maxW), t0 = l.t0 - 0.06, chunks = null;
+    if (lines.length > 2 && l.segs.length > 1) { const parts = txt.split(/،\s*/); if (parts.length === l.segs.length) chunks = parts; }
     if (chunks) { chunks.forEach((c, j) => { const c0 = l.segs[j] - 0.06, c1 = j + 1 < chunks.length ? l.segs[j + 1] - 0.08 : end; const a = win(t, c0, c1, 0.12); if (a <= 0) return;
         const ls = wrap(c, size, maxW), ys = ls.length === 1 ? [385] : [340, 430]; ls.forEach((ln, k) => wordsLine(ln, W / 2, ys[k], c0 + k * 0.15, { size, a, hl: l.hl, step: 0.05 })); }); continue; }
     const a = win(t, t0, end, 0.12); if (a <= 0) continue; const ys = lines.length === 1 ? [385] : [340, 430];

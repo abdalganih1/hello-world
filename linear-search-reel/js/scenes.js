@@ -132,9 +132,20 @@ SCENES.teaser = (t) => {
     const tk = pop(t, SG(17, 0) + 0.7, 0.4); withT(540, 875, tk, tk, 0, () => { fillRR(-120, -36, 240, 72, 36, C.tealSoft, a * o1); T("مرتّبة ✓", 0, 2, { size: 38, color: C.teal, a: a * o1 }); });
     const k2 = pop(t, SG(17, 1) + 0.6, 0.5); withT(540, 1130, k2, k2, 0, () => { T("20", 0, 0, { size: 250, color: C.teal, fam: "mono", a: a * o1 * clamp(k2 * 2) }); T("خطوة بس", 0, 150, { size: 60, color: C.navy, a: a * o1 * clamp(k2 * 2) }); });
     const k3 = P(t, SG(17, 2) + 0.2, 0.35); T("من بين 1,000,000 عنصر", 540, 1400, { size: 46, color: C.mut, a: a * o1 * k3 }); }
-  if (t > L0(18) - 0.3) { const e = eo(P(t, L0(18) - 0.25, 0.5)); K("wink", 540, 1660 + (1 - e) * 600, 760, { bob: 0.6 });
-    const q = pop(t, L0(18) + 0.1, 0.45); withT(540, 690, q, q, 0, () => { circle(0, 0, 120, C.navy, clamp(q * 2), 30); T("؟", 0, 10, { size: 160, color: "#fff", a: clamp(q * 2) }); });
-    const p = pop(t, SG(18, 1), 0.45); withT(540, 870, p, p, 0, () => { fillRR(-200, -46, 400, 92, 46, C.teal, clamp(p * 2), 20); T("بالريل الجاي 👀", 0, 4, { size: 44, color: "#fff", a: clamp(p * 2) }); }); }
+  // ending: one big "?" -> it flips into a hidden (blurred) name -> "in the next reel" said once, big
+  if (t > L0(18) - 0.3) { const e = eo(P(t, L0(18) - 0.25, 0.5)); K("wink", 540, 1720 + (1 - e) * 600, 700, { bob: 0.6 });
+    const rv = SG(18, 1), f = P(t, rv - 0.12, 0.3), sx = Math.abs(Math.cos(f * Math.PI)), flipped = f > 0.5;
+    if (!flipped) { const q = pop(t, L0(18) + 0.05, 0.45), wob = Math.sin(t * 9) * 0.06 * win(t, L0(18) + 0.4, rv, 0.15);
+      for (let k = 0; k < 2; k++) { const u = ((t - L0(18)) * 1.3 + k / 2) % 1; ring(540, 680, 130 + u * 110, hexA(C.teal, 0.5), 6 * (1 - u), (1 - u) * clamp(q)); }
+      withT(540, 680, q * Math.max(0.02, sx), q, wob, () => { circle(0, 0, 130, C.navy, clamp(q * 2), 30); T("؟", 0, 12, { size: 180, color: "#fff", a: clamp(q * 2) }); }); }
+    else { const k = back(P(t, rv + 0.03, 0.4), 1.4), w = lerp(260, 720, eo(P(t, rv + 0.03, 0.35)));
+      withT(540, 680, Math.max(0.02, sx) * k, k, 0, () => { fillRR(-w / 2, -95, w, 190, 40, C.navy, 1, 36);
+        ctx.save(); rr(-w / 2, -95, w, 190, 40); ctx.clip(); ctx.filter = "blur(11px)"; T("Binary Search", 0, 6, { size: 84, color: "#ffffff", fam: "mono" }); ctx.filter = "none";
+        const sh = ((t - rv) * 0.7) % 1.4; if (sh < 1) { A(0.35); const gx = lerp(-w / 2 - 120, w / 2 + 120, sh); const g = ctx.createLinearGradient(gx - 90, 0, gx + 90, 0); g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(0.5, "rgba(120,240,230,0.9)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(gx - 90, -95, 180, 190); }
+        ctx.restore(); T("🔒", w / 2 - 50, -60, { size: 40 }); });
+      const r = imp(t, rv + 0.1, 0.7); ring(540, 680, 160 + 260 * (1 - r), hexA(C.teal, 0.6), 10 * r + 1, r); sparkle(540, 680, rv + 0.1, { n: 34, r: 420 });
+      const p = pop(t, rv + 0.35, 0.5); withT(540, 880, p, p, 0, () => T("بالريل الجاي 👀", 0, 0, { size: 84, color: C.teal, a: clamp(p * 2) })); }
+  }
 };
 SCENES.order = ["cards", "rule", "code", "speed", "teaser", "khwarizmo"];
 
@@ -145,7 +156,7 @@ window.collectSfx = () => {
   for (let k = 0; k < 5; k++) { ev(L0(4 + k), "flip", k); ev(SG(4 + k, 1), k === 4 ? "found" : "no", k); }
   for (let i = 0; i < 7; i++) ev(L0(3) + 0.15 + i * 0.2, "tick", i); ev(L0(9) + 0.7, "pop"); ev(SG(11, 1), "pop"); ev(SG(11, 3), "pop");
   const scan0 = SG(14, 1) + 0.1, step = Math.max(0.2, (L1(14) - scan0 + 0.15) / 7); for (let i = 0; i < 7; i++) ev(scan0 + i * step, i === 6 ? "found" : "tick", i);
-  ev(SGB(15, 1), "rise"); ev(SG(16, 1) - 0.1, "pop"); ev(SG(17, 1) + 0.6, "pop"); ev(L0(18) + 0.1, "pop"); ev(SG(18, 1), "found", 9);
+  ev(SGB(15, 1), "rise"); ev(SG(16, 1) - 0.1, "pop"); ev(SG(17, 1) + 0.6, "pop"); ev(L0(18) + 0.05, "pop"); ev(SG(18, 1) - 0.12, "swish"); ev(SG(18, 1) + 0.1, "found", 9); ev(SG(18, 1) + 0.35, "pop");
   TL.scenes.slice(1).forEach((s) => ev(s.t0, "swish", 9));
   return { total: TL.total, scenes: TL.scenes, events: e.sort((a, b) => a.t - b.t) };
 };

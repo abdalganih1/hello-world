@@ -48,7 +48,7 @@ for i, (l, c) in enumerate(zip(lines, clips)):
     if not scenes or scenes[-1]["name"] != l["scene"]:
         if scenes: scenes[-1]["t1"] = round(t - 0.12, 3)
         scenes.append({"name": l["scene"], "t0": round(max(0, t - 0.12), 3)})
-    d = len(c) / SR; out.append({"i": i, "scene": l["scene"], "text": l["text"], "hl": l.get("hl", []), "t0": round(t, 3), "t1": round(t + d, 3), "segs": [round(t + x, 3) for x in onsets(c)]})
+    d = len(c) / SR; out.append({"i": i, "scene": l["scene"], "text": l["text"], "caption": l.get("caption", l["text"]), "hl": l.get("hl", []), "t0": round(t, 3), "t1": round(t + d, 3), "segs": [round(t + x, 3) for x in onsets(c)]})
     t += d + GAP + l.get("pause", 0)
 total = round(t - GAP + TAIL, 3); scenes[0]["t0"] = 0.0; scenes[-1]["t1"] = total
 v = np.zeros(int(total * SR) + SR, np.float32)
