@@ -86,22 +86,42 @@ function phraseWrap(s, size, maxW) {
   if (!best) return { lines: wrap(s, size, maxW), cut: 0, rank: 3 };
   return { lines: [tk.slice(0, best.b), tk.slice(best.b)], cut: tk.slice(0, best.b).map((k) => k.s).join(" ").length / s.length, rank: best.rank };
 }
+// Headline lockup (same design in every scene, like the brand posts): a teal dash, a small navy kicker, a big navy punch line
+// with its key words in teal over a highlighter stroke. Fixed slots: dash y 232, kicker y 300, punch y 402.
+// Words rise out of an invisible baseline mask; a word that is the same as in the previous headline stays still.
+const HL = { dashY: 232, kY: 300, pY: 402, kSize: 50, pSize: 96, maxW: 960 };
+function lineLayout(str, size, maxW, fam) {
+  const tk = tokens(str), sp = measure(" ", size), z = (s2) => tk.reduce((p, k) => p + measure(k.s, s2, 900, k.lat ? "mono" : "Cairo"), 0) + measure(" ", s2) * (tk.length - 1);
+  let sz = size, tot = z(sz); if (tot > maxW) { sz = Math.floor(sz * maxW / tot); tot = z(sz); }
+  const ws = tk.map((k) => measure(k.s, sz, 900, k.lat ? "mono" : "Cairo")), sp2 = measure(" ", sz); let cur = W / 2 + tot / 2; const xs = [];
+  tk.forEach((k, i) => { xs.push(cur - ws[i] / 2); cur -= ws[i] + sp2; }); return { tk, ws, xs, sz };
+}
+function headlineLine(str, y, size, t0, a, o) {
+  if (!str || a <= 0) return; const { tk, ws, xs, sz } = lineLayout(str, size, HL.maxW), em = (o.em || "").split(" ").filter(Boolean), prev = o.prev ? tokens(o.prev).map((k) => k.s) : [];
+  const isEm = (w) => em.includes(w) || em.includes(w.replace(/[،.؟!:…]/g, ""));
+  // highlighter stroke behind the emphasised run (grows right -> left, the reading direction)
+  const emIdx = tk.map((k, i) => (isEm(k.s) ? i : -1)).filter((i) => i >= 0);
+  if (emIdx.length && o.marker) { const xr = Math.max(...emIdx.map((i) => xs[i] + ws[i] / 2)) + 14, xl = Math.min(...emIdx.map((i) => xs[i] - ws[i] / 2)) - 14, u = eo(P(NOW, t0 + emIdx[0] * 0.07 + 0.28, 0.42));
+    if (u > 0) { const w = (xr - xl) * u; fillRR(xr - w, y + sz * 0.05, w, sz * 0.38, sz * 0.12, hexA(C.teal, 0.2), a); } }
+  tk.forEach((k, i) => {
+    const still = prev[i] === k.s, u = still || o.instant ? 1 : eo(P(NOW, t0 + i * 0.07, 0.42)); if (u <= 0) return;
+    ctx.save(); rr(xs[i] - ws[i] / 2 - 30, y - sz * 0.95, ws[i] + 60, sz * 1.55, 0); ctx.clip();
+    T(k.s, xs[i], y + (1 - u) * sz * 0.95, { size: sz, color: isEm(k.s) ? (o.emColor || C.teal) : o.color || C.navy, a, fam: k.lat ? "mono" : "Cairo", weight: 900 }); ctx.restore();
+  });
+}
 function captions(t) {
-  for (const l of TL.lines) {
-    const next = TL.lines[l.i + 1], end = next ? Math.min(next.t0 - 0.06, l.t1 + 1.2) : TL.total, size = 66, maxW = 940, txt = l.caption || l.text;
-    const t0 = l.instant ? -1 : l.t0 - 0.06, a = win(t, t0, end, 0.12); if (a <= 0) continue;
-    let { lines, cut, rank } = phraseWrap(txt, size, maxW), sz = size;
-    if (rank > 1) for (const s2 of [60, 56]) { const r2 = phraseWrap(txt, s2, maxW); if (r2.rank <= 1) { ({ lines, cut } = r2); sz = s2; break; } }
-    { const lw = (ln, z) => ln.reduce((p, k) => p + measure(k.s, z, 900, k.lat ? "mono" : "Cairo"), 0) + measure(" ", z) * (ln.length - 1); const wmax = Math.max(...lines.map((ln) => lw(ln, sz))); if (wmax > maxW) sz = Math.max(46, Math.floor(sz * maxW / wmax)); }
-    if (lines.length > 2) { // long line: show it phrase by phrase (split at ، ), each when it is spoken, one phrase at a time
-      const parts = txt.split(/،\s*/); let pos = 0; const st = parts.map((p) => { const f = pos / txt.length; pos += p.length + 2; return atFrac(l, f); });
-      parts.forEach((pt, j) => { const c0 = j ? st[j] - 0.06 : t0, c1 = j + 1 < parts.length ? st[j + 1] - 0.08 : end, ca = win(t, c0, c1, 0.12); if (ca <= 0) return;
-        const pw = phraseWrap(pt + (j + 1 < parts.length ? "،" : ""), size, maxW), ys2 = pw.lines.length === 1 ? [385] : [338, 432]; pw.lines.forEach((ln, k) => wordsLine(ln, W / 2, ys2[k], c0 + k * 0.15, { size, a: ca, hl: l.hl, step: 0.05 })); });
-      continue; }
-    let t2 = t0; if (lines.length === 2 && !l.instant) { const est = l.t0 + cut * (l.t1 - l.t0); let bestT = est, bd = 0.8;
-      for (const sg of l.segs.slice(1)) if (Math.abs(sg - est) < bd) { bd = Math.abs(sg - est); bestT = sg; } t2 = Math.max(t0 + 0.25, bestT - 0.05); }
-    const ys = lines.length === 1 ? [385] : [338, 432];
-    lines.forEach((ln, k) => wordsLine(ln, W / 2, ys[k], k ? t2 : t0, { size: sz, a, hl: l.hl, step: 0.06, instant: l.instant }));
+  const Ls = TL.lines.filter((l) => l.cap && !l.cap.hold);
+  for (let n = 0; n < Ls.length; n++) {
+    const l = Ls[n], c = l.cap, nx = Ls[n + 1], pv = Ls[n - 1] ? Ls[n - 1].cap : null;
+    const tk0 = l.instant ? -1 : l.t0 - 0.12, end = nx ? nx.t0 - 0.12 : TL.total;
+    const pAtT = c.pAt ? Math.max(tk0 + 0.25, AT(l.i, c.pAt) - 0.05) : tk0 + 0.3, tp0 = l.instant ? -1 : (c.k ? pAtT : tk0);
+    const carryNext = nx && nx.cap.k && c.k && tokens(nx.cap.k)[0].s === tokens(c.k)[0].s; // e.g. "محاولة 1" -> "محاولة 2": no fade between them
+    const a = P(t, tk0, 0.12) * (carryNext ? (t < end ? 1 : 0) : 1 - P(t, end - 0.16, 0.16)); if (a <= 0 || t > end) continue;
+    const carry = pv && pv.k && c.k && tokens(pv.k)[0].s === tokens(c.k)[0].s;
+    // teal dash (brand rhythm), always in the same place
+    const du = carry ? 1 : eo(P(t, tk0, 0.3)); fillRR(W / 2 - 34 * du, HL.dashY, 68 * du, 9, 5, C.teal, a);
+    headlineLine(c.k, HL.kY, HL.kSize, tk0, a, { em: c.p ? "" : c.em, prev: carry ? pv.k : null, color: C.ink, instant: l.instant, marker: !c.p });
+    headlineLine(c.p, HL.pY, HL.pSize, tp0, a, { em: c.em, instant: l.instant, marker: true });
   }
 }
 
