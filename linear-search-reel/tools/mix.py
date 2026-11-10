@@ -12,7 +12,7 @@ def put(x, t, g=1.0, pan=0.0):
     i = int(t * SR); j = min(N, i + len(x)); th = (pan + 1) * np.pi / 4
     if i < N: L[i:j] += x[:j - i] * g * np.cos(th) * 1.414; R[i:j] += x[:j - i] * g * np.sin(th) * 1.414
 def lp(x, f): return signal.sosfilt(signal.butter(2, f, "lp", fs=SR, output="sos"), x)
-def env(n, a, r): e = np.ones(n); a, r = max(1, int(a * SR)), max(1, int(r * SR)); e[:a] = np.linspace(0, 1, a); e[-r:] *= np.linspace(1, 0, r); return e
+def env(n, a, r): e = np.ones(n); a, r = max(1, min(n // 2, int(a * SR))), max(1, min(n // 2, int(r * SR))); e[:a] = np.linspace(0, 1, a); e[-r:] *= np.linspace(1, 0, r); return e
 # pad: C - Am - F - G, 4 s each, soft and low-passed
 CH = [[60, 64, 67, 72], [57, 60, 64, 69], [53, 57, 60, 65], [55, 59, 62, 67]]; bed = np.zeros(N); k = 0; t0 = 0.0
 while t0 < TOT:

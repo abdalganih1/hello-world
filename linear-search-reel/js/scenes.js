@@ -1,6 +1,7 @@
 // Scenes. One idea per scene, keyed to the narration: L0(i)/L1(i) = start/end of spoken line i, SG(i, j) = start of its j-th phrase.
 // Lines: 0-1 hook · 2 intro · 3 idea · 4-8 demo · 9 name · 10-11 rule · 12-13 code · 14-16 speed · 17-18 teaser
 "use strict";
+const SGB = (i, k) => { const sg = TL.lines[i].segs; return sg[Math.max(0, sg.length - 1 - k)]; }; // k-th phrase from the end
 const CW = 130, CH = 180, ROWY = 930, cx = (i) => 108 + 144 * i;
 const FINAL = [7, 3, 9, 1, 5, 8, 2];
 // shell game: the 5 hides in the middle card, then 3 swaps leave it at index 4
@@ -112,7 +113,7 @@ SCENES.speed = (t) => {
     const ck = 1 + 0.15 * imp(t, scan0 + (cnt - 1) * step, 0.2); withT(540, ROWY + 210, ck, ck, 0, () => { fillRR(-190, -50, 380, 100, 50, C.tealSoft, a * r1); T(`${cnt} مقارنات`, 0, 3, { size: 50, color: C.navy, a: a * r1 }); }); }
   // 2) 100 elements -> 100 comparisons, a million -> a million
   const r2 = P(t, L0(15) - 0.05, 0.3) * (1 - P(t, L0(16) - 0.15, 0.3));
-  if (r2 > 0) { const m = eio(P(t, SG(15, 2), 0.9)), n = Math.round(lerp(100, 1e6, Math.pow(m, 3))), str = n.toLocaleString("en-US"), big = 1 + 0.08 * imp(t, SG(15, 2) + 0.9, 0.4);
+  if (r2 > 0) { const m = eio(P(t, SGB(15, 1), 0.9)), n = Math.round(lerp(100, 1e6, Math.pow(m, 3))), str = n.toLocaleString("en-US"), big = 1 + 0.08 * imp(t, SGB(15, 1) + 0.9, 0.4);
     const k1 = pop(t, L0(15), 0.4); withT(540, 720, k1, k1, 0, () => { fillRR(-250, -54, 500, 108, 54, C.navy, a * r2, 18); T(`${str} عنصر`, 0, 4, { size: 52, color: "#fff", a: a * r2 }); });
     arrow(540, 800, 540, 880, C.teal, 8, a * r2 * P(t, L0(15) + 0.4, 0.3), 22);
     const k2 = pop(t, L0(15) + 0.5, 0.45) * big; withT(540, 1020, k2, k2, 0, () => { T(str, 0, 0, { size: n > 99999 ? 150 : 200, color: C.teal, fam: "mono", a: a * r2 }); T("مقارنة", 0, 135, { size: 60, color: C.navy, a: a * r2 }); }); }
@@ -144,7 +145,7 @@ window.collectSfx = () => {
   for (let k = 0; k < 5; k++) { ev(L0(4 + k), "flip", k); ev(SG(4 + k, 1), k === 4 ? "found" : "no", k); }
   for (let i = 0; i < 7; i++) ev(L0(3) + 0.15 + i * 0.2, "tick", i); ev(L0(9) + 0.7, "pop"); ev(SG(11, 1), "pop"); ev(SG(11, 3), "pop");
   const scan0 = SG(14, 1) + 0.1, step = Math.max(0.2, (L1(14) - scan0 + 0.15) / 7); for (let i = 0; i < 7; i++) ev(scan0 + i * step, i === 6 ? "found" : "tick", i);
-  ev(SG(15, 2), "rise"); ev(SG(16, 1) - 0.1, "pop"); ev(SG(17, 1) + 0.6, "pop"); ev(L0(18) + 0.1, "pop"); ev(SG(18, 1), "found", 9);
+  ev(SGB(15, 1), "rise"); ev(SG(16, 1) - 0.1, "pop"); ev(SG(17, 1) + 0.6, "pop"); ev(L0(18) + 0.1, "pop"); ev(SG(18, 1), "found", 9);
   TL.scenes.slice(1).forEach((s) => ev(s.t0, "swish", 9));
   return { total: TL.total, scenes: TL.scenes, events: e.sort((a, b) => a.t - b.t) };
 };

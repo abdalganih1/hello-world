@@ -1,20 +1,25 @@
-"""خوارزمو's voice: one ElevenLabs request per line (eleven_v3, plain text, the owner's voice: "file C"), cached in audio/cache/.
+"""خوارزمو's voice: one ElevenLabs request per line (eleven_v3, plain text + a Damascene accent tag, the owner's voice: "file 10",
+the version he picked), cached in audio/cache/.
 Writes build/voice.wav and voice/timeline.json (start/end of every line and scene: the picture is keyed to these).
 Usage: ELEVENLABS_API_KEY=... ELEVENLABS_VOICE_ID=... python3 tools/build_voice.py"""
 import hashlib, json, os, subprocess, time, urllib.request, wave
 import numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); SR = 44100
-MODEL = "eleven_v3"; TEMPO = 1.04
+MODEL = "eleven_v3"; TEMPO = 1.04; TAG = "[Syrian Damascene accent] "
 LEAD, GAP, SCENE_GAP, TAIL = 0.3, 0.18, 0.4, 0.2
 KEY, VOICE = os.environ.get("ELEVENLABS_API_KEY"), os.environ.get("ELEVENLABS_VOICE_ID")
 lines = json.load(open(os.path.join(ROOT, "voice/script.json"), encoding="utf8"))["lines"]
 cache = os.path.join(ROOT, "audio/cache"); os.makedirs(cache, exist_ok=True); os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
 say = [l.get("tts", l["text"]) for l in lines]
-def key_of(i): return os.path.join(cache, hashlib.sha1(json.dumps([say[i], MODEL, VOICE, lines[i].get("take", 1)], ensure_ascii=False).encode()).hexdigest()[:12] + ".mp3")
+def key_of(i): return os.path.join(cache, hashlib.sha1(json.dumps([TAG + say[i], MODEL, VOICE, lines[i].get("take", 1)], ensure_ascii=False).encode()).hexdigest()[:12] + ".mp3")
 def tts(i):
     p = key_of(i)
     if os.path.exists(p): return p
-    body = {"text": say[i], "model_id": MODEL, "seed": 1000 + lines[i].get("take", 1)}
+    # the exact takes he approved (variant 10 + the picked line options) live in audio/variants_cache: reuse them as they are
+    if lines[i].get("take", 1) == 1:
+        q = os.path.join(ROOT, "audio/variants_cache", hashlib.sha1(json.dumps([TAG + say[i], MODEL, VOICE]).encode()).hexdigest()[:12] + ".mp3")
+        if os.path.exists(q): open(p, "wb").write(open(q, "rb").read()); print("  approved take", i + 1); return p
+    body = {"text": TAG + say[i], "model_id": MODEL, "seed": 1000 + lines[i].get("take", 1)}
     req = urllib.request.Request(f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE}?output_format=mp3_44100_128", data=json.dumps(body, ensure_ascii=False).encode(),
                                  headers={"xi-api-key": KEY, "Content-Type": "application/json"})
     for k in range(8):
