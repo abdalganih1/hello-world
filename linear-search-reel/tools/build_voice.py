@@ -11,11 +11,14 @@ KEY, VOICE = os.environ.get("ELEVENLABS_API_KEY"), os.environ.get("ELEVENLABS_VO
 lines = json.load(open(os.path.join(ROOT, "voice/script.json"), encoding="utf8"))["lines"]
 cache = os.path.join(ROOT, "audio/cache"); os.makedirs(cache, exist_ok=True); os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
 say = [l.get("tts", l["text"]) for l in lines]
-def key_of(i): return os.path.join(cache, hashlib.sha1(json.dumps([TAG + say[i], MODEL, VOICE, lines[i].get("take", 1)], ensure_ascii=False).encode()).hexdigest()[:12] + ".mp3")
+def key_of(i): return os.path.join(cache, hashlib.sha1(json.dumps([TAG + say[i], MODEL, VOICE, lines[i].get("take", 1)] + (["auto"] if lines[i].get("auto") else []), ensure_ascii=False).encode()).hexdigest()[:12] + ".mp3")
 def tts(i):
     p = key_of(i)
     if os.path.exists(p): return p
     # the exact takes he approved (variant 10 + the picked line options) live in audio/variants_cache: reuse them as they are
+    if lines[i].get("auto"):  # chosen automatically by tools/auto_voice.py (dialect classifier + Whisper check)
+        tk = json.load(open(os.path.join(ROOT, "voice/takes.json"), encoding="utf8")).get(say[i])
+        if tk: open(p, "wb").write(open(os.path.join(ROOT, tk["pick"]["file"]), "rb").read()); print("  auto take", i + 1); return p
     if lines[i].get("take", 1) == 1:
         q = os.path.join(ROOT, "audio/variants_cache", hashlib.sha1(json.dumps([TAG + say[i], MODEL, VOICE]).encode()).hexdigest()[:12] + ".mp3")
         if os.path.exists(q): open(p, "wb").write(open(q, "rb").read()); print("  approved take", i + 1); return p
@@ -41,7 +44,14 @@ def onsets(x):  # start of each voiced phrase (pauses > 0.15 s split them): lets
             st = i
         elif not on[i] and st is not None: last_off, st = i, None
     return res
-clips = [np.zeros(int(l["dur"] * SR), np.float32) if "dur" in l else trim(decode(tts(i))) for i, l in enumerate(lines)]
+def squeeze(x, mx):  # shorten silences inside the line to at most mx seconds (faster pace, same words)
+    e = np.convolve(np.abs(x), np.ones(441) / 441, "same") > 10 ** (-40 / 20); out, i, n, keep = [], 0, len(x), int(mx * SR)
+    while i < n:
+        j = i
+        while j < n and e[j] == e[i]: j += 1
+        out.append(x[i:j] if e[i] or j - i <= keep else np.concatenate([x[i:i + keep // 2], x[j - keep // 2:j]])); i = j
+    return np.concatenate(out)
+clips = [np.zeros(int(l["dur"] * SR), np.float32) if "dur" in l else (squeeze(trim(decode(tts(i))), l["squeeze"]) if l.get("squeeze") else trim(decode(tts(i)))) for i, l in enumerate(lines)]
 t, out, scenes = (0.0 if "dur" in lines[0] else LEAD), [], []
 for i, (l, c) in enumerate(zip(lines, clips)):
     if i and l["scene"] != lines[i - 1]["scene"]: t += SCENE_GAP - GAP

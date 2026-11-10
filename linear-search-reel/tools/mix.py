@@ -26,7 +26,7 @@ bed = lp(bed, 1600) * 0.012
 def pluck(m, d=0.35, dec=9): x = tt(d); return (np.sin(2 * np.pi * midi(m) * x) + 0.3 * np.sin(4 * np.pi * midi(m) * x)) * np.exp(-x * dec) * env(len(x), 0.003, 0.03)
 def noise(d, lo, hi): return signal.sosfilt(signal.butter(2, [lo, hi], "bp", fs=SR, output="sos"), rng.standard_normal(int(d * SR)))
 def swish(d=0.32): x = tt(d); return noise(d, 600, 5000) * np.sin(np.pi * x / d) ** 2 * 0.5
-SFX = {"pop": lambda v: pluck(84, 0.25, 16) * 0.5, "card": lambda v: noise(0.12, 900, 4000) * np.exp(-tt(0.12) * 30) * 0.5, "drop": lambda v: pluck(55, 0.4, 10),
+SFX = {"hit": lambda v: sum(np.pad(pluck(m, 1.2, 3.5), (int(i * 0.03 * SR), int(0.12 * SR) - int(i * 0.03 * SR))) for i, m in enumerate([72, 79, 84, 88])) * 0.6, "pop": lambda v: pluck(84, 0.25, 16) * 0.5, "card": lambda v: noise(0.12, 900, 4000) * np.exp(-tt(0.12) * 30) * 0.5, "drop": lambda v: pluck(55, 0.4, 10),
        "swish": lambda v: swish(), "flip": lambda v: noise(0.07, 1500, 6000) * np.exp(-tt(0.07) * 50) * 0.6, "tick": lambda v: pluck(76 + 2 * (v % 5), 0.2, 18) * 0.5,
        "no": lambda v: pluck(52, 0.25, 14) * 0.7, "found": lambda v: sum(np.pad(pluck(m, 1.0, 4), (int(i * 0.06 * SR), int(0.3 * SR) - int(i * 0.06 * SR))) for i, m in enumerate([72, 76, 79, 84])) * 0.45,
        "rise": lambda v: np.sin(2 * np.pi * np.cumsum(np.geomspace(300, 1200, int(0.9 * SR))) / SR) * np.linspace(0, 1, int(0.9 * SR)) ** 2 * 0.12}

@@ -37,7 +37,7 @@ async function openPage() {
 async function audio(page) { // sound events come from the same schedule the picture uses
   const ev = await page.evaluate(() => window.collectSfx());
   const events = path.join(BUILD, "events.json"), wav = path.join(BUILD, "soundtrack.wav");
-  writeFileSync(events, JSON.stringify(ev)); execFileSync("python3", [path.join(dir, "tools/score.py"), events, wav], { stdio: "inherit" }); return wav;  // music only, no voice (tools/mix.py = the narrated version)
+  writeFileSync(events, JSON.stringify(ev)); execFileSync("python3", [path.join(dir, "tools/mix.py"), events, path.join(BUILD, "voice.wav"), wav], { stdio: "inherit" }); return wav;  // narrated (tools/score.py = music-only version)
 }
 if (process.env.AUDIO_ONLY) { const p = await openPage(); await audio(p); await browser.close(); server.close(); process.exit(0); }
 if (process.env.STILLS) {
