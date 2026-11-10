@@ -95,17 +95,17 @@ function bust(name, x, base, h, o = {}) {
 
 // ------------------------------------------------------------ 0. HOOK
 SCENES.hook = (t, s) => {
-  background(t, { dim: 0.35 }); const b = (t - s.t0) / BEAT;
+  background(t, { dim: 0.45 }); const b = (t - s.t0) / BEAT;
   // a wall of numbers; a reticle hops over them looking for the amber one
   const cols = 8, rows = 15, cw = 124, ch = 96, x0 = 106, y0 = 470, tgt = 59, hopN = Math.max(0, Math.floor((b - 2) * 2)), seq = [9, 22, 14, 37, 30, 51, 44, 62, 70, 59, 59, 59, 59, 59, 59];
   const curCell = b >= 2 ? seq[Math.min(seq.length - 1, hopN)] : -1, lock = b >= 6.5;
   for (let i = 0; i < cols * rows; i++) { const cx = x0 + (i % cols) * cw, cy = y0 + Math.floor(i / cols) * ch + Math.sin(t * 1.2 + i) * 4, v = Math.floor(rnd(i + 3) * 99), is = i === tgt;
     const a = P(t, s.t0 + 0.25 + rnd(i) * 0.9, 0.4) * (is ? 0.95 : 0.22 + 0.2 * rnd(i + 8)) * (i === curCell ? 2.2 : 1);
-    T(String(is ? 42 : v), cx, cy, { size: 46, fam: "mono", color: is ? C.amber : i === curCell ? "#fff" : C.sky, a: clamp(a), g: is ? 26 : 0 }); }
+    T(String(is ? 42 : v), cx, cy, { size: 46, fam: "mono", color: is ? C.green : "#fff", a: clamp(a * 1.3), g: is ? 26 : 0 }); }
   if (curCell >= 0) { const cx = x0 + (curCell % cols) * cw, cy = y0 + Math.floor(curCell / cols) * ch, k = 1 + 0.35 * imp(t, s.t0 + (2 + hopN / 2) * BEAT, 0.2), col = lock ? C.green : C.cyan;
     add(() => { glow(col, 24, () => { strokeRR(cx - 52 * k, cy - 40 * k, 104 * k, 80 * k, 16, col, 5, 1); }); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([dx, dy]) => seg(cx + dx * 66 * k, cy + dy * 52 * k, cx + dx * 46 * k, cy + dy * 52 * k, col, 5, 1)); });
     if (lock) { shock(cx, cy, s.t0 + 6.5 * BEAT, { r: 420, col: "#b8fff0" }); } }
-  A(1); const g = ctx.createLinearGradient(0, 1040, 0, 1500); g.addColorStop(0, "rgba(2,16,26,0)"); g.addColorStop(1, "rgba(2,16,26,0.96)"); ctx.fillStyle = g; ctx.fillRect(0, 1040, W, 880);
+  A(1); const g = ctx.createLinearGradient(0, 1040, 0, 1500); g.addColorStop(0, "rgba(22,36,110,0)"); g.addColorStop(1, "rgba(22,36,110,0.9)"); ctx.fillStyle = g; ctx.fillRect(0, 1040, W, 880);
   header(["كيف الكمبيوتر بيلاقي", "رقم واحد بين آلاف الأرقام؟"], bt("hook", 0.5), s.t1, { colors: { "واحد": C.amber, "آلاف": C.cyan } });
   const kp = pop(t, bt("hook", 1), 0.55); bust("thinking", 540, 1560 + (1 - kp) * 300, 520, { a: clamp(kp * 2), rot: Math.sin(t * 1.6) * 0.03 });
   for (let i = 0; i < 3; i++) { const an = t * 1.5 + i * 2.1, a = P(t, bt("hook", 1.6 + i * 0.4), 0.3); T("؟", 540 + Math.cos(an) * 300, 1190 + Math.sin(an * 1.3) * 90, { size: 76 + i * 14, color: i === 1 ? C.amber : C.cyan, a: a * 0.9, g: 22 }); }
@@ -165,7 +165,7 @@ function miniMap(t, a, y = 1575) {
   for (let i = 0; i < N; i++) { const st = boxState(i, t), x = 302 + i * 68, col = st === 3 ? C.green : st === 2 ? C.red : st === 1 ? "#fff" : C.dim, k = st === 1 ? 1.15 + 0.08 * Math.sin(t * 10) : 1;
     withT(x + 28, y, k, k, 0, () => { fillRR(-28, -28, 56, 56, 12, st === 0 ? "rgba(8,32,46,0.9)" : hexA(col === "#fff" ? C.sky : col, 0.28), a); strokeRR(-28, -28, 56, 56, 12, col, 3, a); T(st === 0 ? "·" : String(TL.arr[i]), 0, 2, { size: 30, fam: "mono", color: st === 0 ? C.dim : "#fff", a }); }); }
   const p = 1 + 0.35 * Math.max(...[0, 1, 2, 3, 4].map((i) => imp(t, verdT(i), 0.3)));
-  T("عدد المقارنات:", 640, 1650, { size: 38, color: C.mut, a, align: "center" }); withT(446, 1650, p, p, 0, () => T(String(cnt), 0, 2, { size: 54, fam: "mono", color: C.amber, a, g: 16 }));
+  T("عدد المقارنات:", 640, 1650, { size: 38, color: "#fff", a, align: "center", stroke: 8 }); withT(446, 1650, p, p, 0, () => T(String(cnt), 0, 2, { size: 58, fam: "mono", color: C.green, a, stroke: 8 }));
 }
 const OUTK = { x: 850, y: 1660, h: 500 };
 SCENES.search = (t, s) => {
@@ -199,7 +199,7 @@ SCENES.search = (t, s) => {
 
 // ------------------------------------------------------------ 4. RULE
 SCENES.rule = (t, s) => {
-  background(t); cut(t, s.t0); world(t, { a: 1 }); A(0.8); ctx.fillStyle = "#02101a"; ctx.fillRect(0, 430, W, 760);
+  background(t); cut(t, s.t0); world(t, { a: 0.16 });
   header(["الخوارزمية كلها", "بـ 3 خطوات"], s.t0 + 0.1, s.t1, { colors: { "3": C.amber } });
   const R = [["1", "ابدأ من أول عنصر", "i = 0", C.cyan], ["2", "قارنه بالمطلوب", "arr[i] == target", C.amber], ["3", "هو؟ وقّف ✓  ·  مش هو؟ كمّل ➜", "i = i + 1", C.green]];
   R.forEach(([n, ar, code, col], i) => { const t0 = bt("rule", 1 + i * 2.5), u = P(t, t0, 0.45); if (u <= 0) return; const y = 560 + i * 215, e = back(u, 1.5), hi = 1 + 0.05 * imp(t, bt("rule", 9 + i * 0.75), 0.4);
@@ -240,7 +240,7 @@ SCENES.code = (t, s) => {
   // run strip: the array being walked while the code runs
   const ra = P(t, bt("code", 8), 0.4); if (ra > 0) { for (let i = 0; i < N; i++) { const x = 122 + i * 120, y = 1165; let col = C.blue, fillc = "rgba(7,34,48,0.95)", kk = 1;
       const cur = t >= runT(i) && (i === HIT || t < runT(i + 1)) && i <= HIT; if (i <= HIT && t >= runT(i) + BEAT * 0.5) { col = i === HIT ? C.green : C.red; fillc = hexA(col, 0.25); } if (cur) kk = 1.14 + 0.05 * Math.sin(t * 12);
-      withT(x, y, kk * pop(t, bt("code", 8) + i * 0.05, 0.35), kk, 0, () => { fillRR(-50, -50, 100, 100, 18, fillc, ra); glow(col, cur ? 30 : 10, () => strokeRR(-50, -50, 100, 100, 18, cur && col === C.blue ? "#fff" : col, 4, ra)); T(String(TL.arr[i]), 0, 3, { size: 52, fam: "mono", color: "#fff", a: ra }); T(String(i), 0, 78, { size: 24, fam: "mono", color: cur ? C.amber : C.mut, a: ra }); }); }
+      withT(x, y, kk * pop(t, bt("code", 8) + i * 0.05, 0.35), kk, 0, () => { fillRR(-50, -50, 100, 100, 18, fillc, ra); glow(col, cur ? 30 : 10, () => strokeRR(-50, -50, 100, 100, 18, cur && col === C.blue ? "#fff" : col, 4, ra)); T(String(TL.arr[i]), 0, 3, { size: 52, fam: "mono", color: "#fff", a: ra }); T(String(i), 0, 78, { size: 26, fam: "mono", color: cur ? C.green : "#fff", a: ra }); }); }
     const rt = runT(HIT) + BEAT; if (t >= rt) { shock(122 + HIT * 120, 1165, rt, { r: 320, col: "#d0fff4", lw: 14 }); burst(122 + HIT * 120, 1165, rt, { n: 26, r: 380, size: 8, dur: 0.9 }); FX.shake = 10 * imp(t, rt, 0.3); const k = pop(t, rt, 0.45); chip("النتيجة: 4 ✓", 350, 1450, { size: 52, col: C.green, sc: k, a: clamp(k * 2) }); } }
   const kp = pop(t, s.t0 + 0.4, 0.5), typing = t > typeT0() && t < typeT0() + typeDur(); K("working", 850, 1670 + (1 - kp) * 500, 390, { a: clamp(kp * 2), rot: typing ? Math.sin(t * 16) * 0.012 : 0 });
   const lp = pop(t, bt("code", 4), 0.4) * (1 - P(t, bt("code", 7.6), 0.3)); chip("5 سطور بس! 🐍", 350, 1450, { size: 48, col: C.amber, sc: lp, a: clamp(lp * 2) });
@@ -299,11 +299,10 @@ SCENES.finale = (t, s) => {
     FX.flash = Math.max(FX.flash, 0.8 * imp(t, te, 0.35)); FX.shake = 14 * imp(t, te, 0.4);
     add(() => { const r = t * 0.22; for (let k = 0; k < 18; k++) { const an = r + k * 0.349; poly([[540, 1150], [540 + Math.cos(an) * 1500, 1150 + Math.sin(an) * 1500], [540 + Math.cos(an + 0.09) * 1500, 1150 + Math.sin(an + 0.09) * 1500]], null, 0, 0.055, true, C.sky); } halo(540, 1150, 760, "rgba(31,200,204,0.42)", 1); });
     shock(540, 1150, te, { r: 1100 }); confetti(te + 0.1, { n: 70, dur: 3.4 });
-    const kp = eo5(P(t, te, 0.6)); K("hero", 540, 1650 + (1 - kp) * 900, 820, { sx: 1 + 0.06 * imp(t, te + 0.5, 0.3), sy: 1 - 0.06 * imp(t, te + 0.5, 0.3) });
-    TW("تابع تكنو انجاز", 540, 300, te + 0.25, { size: 104, g: 40, gc: "rgba(31,200,204,0.85)", colors: { "تكنو": C.sky, "انجاز": C.sky }, stroke: 12 });
-    TW("وكل ريل… خوارزمية جديدة 🚀", 540, 440, te + 0.9, { size: 54, colors: { "خوارزمية": C.amber }, stroke: 9, g: 16 });
-    { const lk = pop(t, te + 0.7, 0.5); if (lk > 0) { withT(540, 615, lk, lk, 0, () => { add(() => halo(0, 0, 260, "rgba(156,240,230,0.5)", 1)); glow(C.cyan, 40, () => circle(0, 0, 122, "#ffffff", clamp(lk * 2))); }); logo(540, 608, 150, clamp(lk * 2), lk); } } shock(540, 615, te + 0.85, { r: 380, lw: 12, dur: 0.6 });
-    const lp = pop(t, te + 1.5, 0.45); withT(850, 1060, lp, lp, 0.07, () => { card(-175, -58, 350, 116, { col: C.cyan, a: clamp(lp * 2), r: 58 }); T("لايك ومشاركة 💙", 0, 4, { size: 36, a: clamp(lp * 2) }); });
+    const kp = eo5(P(t, te, 0.6)); K("hero", 540, 1650 + (1 - kp) * 900, 900, { sx: 1 + 0.06 * imp(t, te + 0.5, 0.3), sy: 1 - 0.06 * imp(t, te + 0.5, 0.3) });
+    TW("تابع تكنو انجاز", 540, 320, te + 0.25, { size: 112, g: 30, gc: "rgba(8,18,70,0.85)", colors: { "تكنو": C.cyan, "انجاز": C.cyan }, stroke: 14 });
+    TW("وكل ريل… خوارزمية جديدة 🚀", 540, 480, te + 0.9, { size: 54, colors: { "خوارزمية": C.green }, stroke: 10, g: 16, gc: "rgba(8,18,70,0.85)" });
+    const lp = pop(t, te + 1.5, 0.45); withT(850, 1000, lp, lp, 0.07, () => { card(-175, -58, 350, 116, { col: C.cyan, a: clamp(lp * 2), r: 58 }); T("لايك ومشاركة 💙", 0, 4, { size: 36, a: clamp(lp * 2) }); });
   }
 };
 
