@@ -1,323 +1,150 @@
-// Scenes of the Linear Search reel. Times are in beats of each scene: bt(scene, beat) -> seconds.
+// Scenes. One idea per scene, keyed to the narration: L0(i)/L1(i) = start/end of spoken line i, SG(i, j) = start of its j-th phrase.
+// Lines: 0-1 hook · 2 intro · 3 idea · 4-8 demo · 9 name · 10-11 rule · 12-13 code · 14-16 speed · 17-18 teaser
 "use strict";
-const N = 7, PITCH = 142, BOXS = 124, WYC = 880, CY = 900, KH = 130;   // world: 7 boxes on a row, camera looks at (fx, WYC)
-const bxw = (i) => (i - 3) * PITCH;
-const T3 = () => SC.search.t0;
-const openT = (k) => T3() + (1 + 3 * k) * BEAT, verdT = (k) => openT(k) + BEAT, hopT = (k) => openT(k) + 2 * BEAT;
-const FOUND = () => verdT(4), HIT = 4;
-const dropT = (i) => bt("setup", 1 + i * 0.5);
-
-// ------------------------------------------------------------ camera + world
-function camAt(t) {
-  let fx = 0, z = 1;
-  if (t >= T3() && t < SC.rule.t0) {
-    const zin = eio(P(t, T3(), BEAT)); z = lerp(1, 2.1, zin); fx = lerp(0, bxw(0), zin);
-    for (let k = 0; k < HIT; k++) fx += (bxw(k + 1) - bxw(k)) * eio(P(t, hopT(k), BEAT));
-    for (let k = 0; k <= HIT; k++) z += 0.16 * win(t, openT(k) + 0.1, verdT(k) + 0.35, 0.3);
-    const f = FOUND(); if (t >= f) { const back2 = eio(P(t, f + 0.5, 1.5 * BEAT)); z = lerp(z + 0.35 * imp(t, f, 0.5), 1.7, back2); }
-  }
-  return { fx, z };
+const CW = 130, CH = 180, ROWY = 930, cx = (i) => 108 + 144 * i;
+const FINAL = [7, 3, 9, 1, 5, 8, 2];
+// shell game: the 5 hides in the middle card, then 3 swaps leave it at index 4
+const START = [2, 1, 9, 5, 3, 8, 7], SWAPS = [[3, 1], [1, 4], [0, 6]], swapT = (k) => 1.75 + k * 0.6, SWD = 0.5;
+function slotPos(card, t) { // card = index into START; returns x position (float) and lift
+  let slot = card, x = cx(card), lift = 0;
+  for (let k = 0; k < SWAPS.length; k++) { const [a, b] = SWAPS[k], u = P(t, swapT(k), SWD); if (slot !== a && slot !== b) continue;
+    const to = slot === a ? b : a, e = eio(u); x = lerp(cx(slot), cx(to), e); lift = Math.sin(u * Math.PI) * (slot === a ? -70 : 70); if (u >= 1) { slot = to; x = cx(slot); lift = 0; } }
+  return { x, lift, slot };
 }
-const wx = (cam, x) => 540 + (x - cam.fx) * cam.z, wy = (cam, y) => CY + (y - WYC) * cam.z;
-function miniKx(t) { let x = bxw(0); for (let k = 0; k < HIT; k++) x += (bxw(k + 1) - bxw(k)) * eio(P(t, hopT(k), BEAT)); return x; }
-function boxState(i, t) { // 0 closed, 1 open, 2 rejected, 3 found
-  if (i > HIT || t < openT(i)) return 0; if (t < verdT(i)) return 1; return i === HIT ? 3 : 2;
-}
-function drawBox(i, cam, t, o = {}) {
-  const st = boxState(i, t), s = BOXS * cam.z, a0 = o.a ?? 1; let cx = wx(cam, bxw(i)), cy = wy(cam, WYC);
-  // drop-in during setup
-  const d = (t - dropT(i)) / 0.5; if (d < 0) return; if (d < 1) cy -= (1 - back(d, 1.4)) * 900; const land = imp(t, dropT(i) + 0.42, 0.3);
-  if (st === 2) cx += Math.sin((t - verdT(i)) * 60) * 16 * imp(t, verdT(i), 0.4) * cam.z / 2;
-  const wig = t > bt("setup", 8) && t < T3() ? Math.sin(t * 9 + i * 1.3) * 0.05 * win(t, bt("setup", 8), T3(), 0.4) : 0;
-  const col = st === 3 ? C.green : st === 2 ? C.red : st === 1 ? "#ffffff" : C.blue, dimA = st === 2 ? lerp(1, 0.5, P(t, verdT(i) + 0.3, 0.5)) : 1;
-  const flip = st >= 1 ? P(t, openT(i), 0.32) : 0, fsx = Math.abs(Math.cos(flip * Math.PI)), showNum = flip > 0.5, pp = st >= 1 ? 1 + 0.18 * imp(t, openT(i) + 0.16, 0.4) : 1;
-  // floor reflection + light pool
-  add(() => { halo(cx, cy + s * 0.62, s * 0.9, hexA(col === "#ffffff" ? C.sky : col, 0.35), a0 * dimA); });
-  if (st === 3) add(() => { const r = t * 0.8; for (let k = 0; k < 14; k++) { const an = r + k * 0.4488; poly([[cx, cy], [cx + Math.cos(an) * s * 2.6, cy + Math.sin(an) * s * 2.6], [cx + Math.cos(an + 0.14) * s * 2.6, cy + Math.sin(an + 0.14) * s * 2.6]], null, 0, 0.11 * a0 * P(t, FOUND(), 0.3), true, C.green); } halo(cx, cy, s * 1.7, "rgba(61,242,189,0.5)", a0 * (0.75 + 0.25 * Math.sin(t * 6))); });
-  withT(cx, cy + land * 10, (1 + land * 0.1) * pp, (1 - land * 0.12) * pp, wig, () => {
-    ctx.save(); ctx.scale(Math.max(0.03, fsx), 1);
-    // 3D top face
-    const dpt = s * 0.13; poly([[-s / 2, -s / 2], [-s / 2 + dpt, -s / 2 - dpt], [s / 2 + dpt, -s / 2 - dpt], [s / 2, -s / 2]], null, 0, a0 * dimA, true, hexA(col === "#ffffff" ? C.sky : col, 0.35));
-    poly([[s / 2, -s / 2], [s / 2 + dpt, -s / 2 - dpt], [s / 2 + dpt, s / 2 - dpt], [s / 2, s / 2]], null, 0, a0 * dimA, true, hexA(col === "#ffffff" ? C.deep : col, 0.22));
-    ctx.save(); A(a0 * dimA); ctx.shadowColor = col === "#ffffff" ? C.sky : col; ctx.shadowBlur = (st === 1 || st === 3 ? 46 : 22); rr(-s / 2, -s / 2, s, s, s * 0.14);
-    const g = ctx.createLinearGradient(0, -s / 2, 0, s / 2); g.addColorStop(0, st === 3 ? "#0a4a40" : st === 2 ? "#3a0f18" : "#0b3a4a"); g.addColorStop(1, st === 3 ? "#031c18" : st === 2 ? "#17060a" : "#031520"); ctx.fillStyle = g; ctx.fill(); ctx.restore();
-    strokeRR(-s / 2, -s / 2, s, s, s * 0.14, col, Math.max(3, s * 0.035), a0 * dimA);
-    fillRR(-s / 2 + s * 0.08, -s / 2 + s * 0.07, s * 0.84, s * 0.2, s * 0.08, "#ffffff", 0.07 * a0);
-    if (!showNum) { const q = 0.8 + 0.2 * Math.sin(t * 3 + i); T("?", 0, s * 0.04, { size: s * 0.56, color: C.sky, a: a0 * q, g: 20, fam: "mono" }); seg(-s * 0.3, -s * 0.26, s * 0.3, -s * 0.26, hexA(C.sky, 0.5), Math.max(2, s * 0.02), a0 * 0.6); }
-    else T(String(TL.arr[i]), 0, s * 0.05, { size: s * 0.62, color: st === 3 ? "#e6fffa" : st === 2 ? "#ffb9c0" : "#ffffff", a: a0 * dimA, g: 26, gc: col === "#ffffff" ? C.sky : col, fam: "mono" });
-    ctx.restore();
-    if (st === 2) { const k = pop(t, verdT(i), 0.3); withT(s * 0.42, -s * 0.42, k, k, 0, () => { circle(0, 0, s * 0.15, C.red, a0); seg(-s * 0.06, -s * 0.06, s * 0.06, s * 0.06, "#fff", s * 0.035, a0); seg(s * 0.06, -s * 0.06, -s * 0.06, s * 0.06, "#fff", s * 0.035, a0); }); }
-    if (st === 3) { const k = pop(t, FOUND(), 0.35); withT(s * 0.42, -s * 0.42, k, k, 0, () => { circle(0, 0, s * 0.16, C.green, a0); poly([[-s * 0.07, 0], [-s * 0.02, s * 0.05], [s * 0.08, -s * 0.06]], "#03241c", s * 0.04, a0); }); }
+function drawCard(x, y, s, o = {}) {
+  const { face = 0, val = "", state = "", a = 1, rot = 0 } = o; if (a <= 0 || s <= 0) return; // face: 0 down, 1 up
+  const fx = Math.abs(Math.cos(face * Math.PI)), up = face > 0.5;
+  withT(x, y, s * Math.max(0.02, fx), s, rot, () => {
+    if (!up) { fillRR(-CW / 2, -CH / 2, CW, CH, 20, C.card, a, 22); A(a); rr(-CW / 2, -CH / 2, CW, CH, 20); const g = ctx.createLinearGradient(0, -CH / 2, 0, CH / 2); g.addColorStop(0, C.card2); g.addColorStop(1, C.card); ctx.fillStyle = g; ctx.fill();
+      strokeRR(-CW / 2 + 8, -CH / 2 + 8, CW - 16, CH - 16, 14, "rgba(255,255,255,0.14)", 2, a); T("?", 0, 4, { size: 86, color: "#ffffff", a, fam: "mono" }); fillRR(-26, CH / 2 - 22, 52, 7, 4, C.teal, a); }
+    else { const bg = state === "found" ? C.teal : state === "no" ? C.redSoft : "#ffffff"; fillRR(-CW / 2, -CH / 2, CW, CH, 20, bg, a, state === "found" ? 34 : 18);
+      strokeRR(-CW / 2, -CH / 2, CW, CH, 20, state === "found" ? C.teal : state === "no" ? hexA(C.red, 0.55) : C.line, 3, a);
+      T(String(val), 0, 6, { size: 94, color: state === "found" ? "#ffffff" : state === "no" ? hexA(C.red, 0.75) : C.navy, a, fam: "mono" }); }
   });
-  // index tag
-  const ia = P(t, bt("setup", 4.6) + i * 0.07, 0.3) * a0, cur = o.cur === i, ty = wy(cam, WYC) + s * 0.5 + 30 * cam.z;
-  if (ia > 0) { const k = cur ? 1.18 + 0.06 * Math.sin(t * 8) : 1; withT(wx(cam, bxw(i)), ty, k, k, 0, () => { fillRR(-22 * cam.z, -15 * cam.z, 44 * cam.z, 30 * cam.z, 8 * cam.z, cur ? C.amber : "rgba(14,52,70,0.9)", ia); T(String(i), 0, 1, { size: 20 * cam.z, fam: "mono", color: cur ? "#0a0f2e" : C.sky, a: ia }); }); }
 }
-function world(t, o = {}) {
-  const cam = camAt(t), a = o.a ?? 1;
-  // platform line under the boxes
-  const py = wy(cam, WYC) + BOXS * cam.z * 0.5 + 6 * cam.z, x0 = wx(cam, bxw(0) - 100), x1 = wx(cam, bxw(6) + 100), pa = P(t, bt("setup", 0.4), 0.5) * a;
-  glow(C.blue, 30, () => seg(x0, py, x0 + (x1 - x0) * eo(P(t, bt("setup", 0.4), 0.7)), py, C.sky, 5 * Math.min(cam.z, 1.6), pa));
-  const curI = t >= T3() + BEAT * 0.8 && t < FOUND() + 0.4 ? Math.round((miniKx(t) - bxw(0)) / PITCH) : t >= FOUND() + 0.4 ? HIT : -1;
-  for (let i = 0; i < N; i++) drawBox(i, cam, t, { a, cur: curI });
-  const la = win(t, bt("setup", 3), T3() + 0.2, 0.3) * a, lk = pop(t, bt("setup", 3), 0.4); if (la > 0) { chip("مصفوفة · Array", 300, 1090, { size: 40, col: C.sky, a: la, sc: lk }); poly([[300, 1014], [280, 1040], [320, 1040]], null, 0, la, true, C.sky); }
-  return cam;
-}
-// خوارزمو while he is on the boxes (world space) + the jump in from the HUD and back out
-function miniK(t, cam, hud, outPos) {
-  const top = WYC - BOXS / 2 - BOXS * 0.13, f = FOUND();
-  if (t < T3()) return false;
-  const ji = P(t, T3(), BEAT), jo = P(t, f + 0.35, BEAT * 1.1);
-  if (ji < 1) { // jump in: HUD -> box 0
-    const e = eio(ji), tx = wx(cam, bxw(0)), ty = wy(cam, top), h = hop(ji);
-    K("celebrating", lerp(hud.x, tx, e), lerp(hud.y, ty, e) - h.arc * 420, lerp(hud.h, KH * cam.z, e), { sx: h.sx, sy: h.sy, rot: -0.5 * Math.sin(ji * Math.PI), aura: 1, shadow: 0 }); return true;
+function badge(x, y, kind, k, a = 1) { if (k <= 0 || a <= 0) return; withT(x, y, k, k, 0, () => { circle(0, 0, 26, kind === "yes" ? C.navy : C.red, a, 8);
+  if (kind === "yes") poly([[-11, 0], [-3, 9], [12, -9]], "#fff", 6, a); else { seg(-9, -9, 9, 9, "#fff", 6, a); seg(9, -9, -9, 9, "#fff", 6, a); } }); }
+function pointer(x, y, a) { if (a <= 0) return; const b = Math.sin(NOW * 7) * 6; withT(x, y + b, 1, 1, 0, () => { poly([[-24, -30], [24, -30], [0, 0]], null, 0, a, true, C.teal); circle(0, -44, 9, C.teal, a); }); }
+
+// ------------------------------------------------ hook + intro + idea + demo + name: one continuous row of cards
+SCENES.cards = (t) => {
+  const tEnd = SCN.name.t1 - 0.1; if (t > tEnd + 0.3) return; const out = 1 - P(t, tEnd, 0.3);
+  // the "5" token at the start, then it drops into the middle card
+  const fiveIn = 0.85 + 0.15 * back(P(t, 0, 0.35)), dive = eio(P(t, 1.25, 0.4));
+  if (dive < 1) { const y = lerp(ROWY - 260, ROWY, dive), s = fiveIn * lerp(1, 0.45, dive); withT(540, y, s, s, 0, () => { circle(0, 0, 130, C.teal, 1 - dive * 0.6, 30); ring(0, 0, 148, hexA(C.teal, 0.3), 7, 1 - dive); T("5", 0, 8, { size: 180, color: "#fff", fam: "mono", a: 1 - dive * 0.3 }); }); }
+  const nameM = eio(P(t, L0(9) - 0.15, 0.6)); // name scene: cards melt into dots on a straight line
+  for (let c = 0; c < 7; c++) {
+    const enter = eo(P(t, 0.35 + c * 0.05, 0.45)), land = imp(t, 1.62, 0.3) * (c === 3 ? 1 : 0);
+    let { x, lift, slot } = slotPos(c, t), y = ROWY + (1 - enter) * 1300 - lift + land * 16; const val = START[c], k = FINAL.indexOf(val);
+    // idle wave while asking "how do you find it?"
+    y += Math.sin(t * 5 - slot * 0.7) * 8 * win(t, L0(1), L0(2), 0.3);
+    let face = 0, state = "";
+    if (k <= 4 && t >= L0(4 + k) - 0.02) { face = P(t, L0(4 + k), 0.32); if (t >= SG(4 + k, 1) - 0.05) state = k === 4 ? "found" : "no"; }
+    const dimA = state === "no" ? lerp(1, 0.55, P(t, SG(4 + k, 1) + 0.3, 0.4)) : 1, foundK = state === "found" ? 1 + 0.12 * pop(t, SG(8, 1) - 0.05, 0.4) - 0.12 * P(t, SG(8, 1) + 0.4, 0.4) : 1;
+    if (state === "found") { const r = imp(t, SG(8, 1), 0.7); ring(x, y, 110 + 140 * (1 - r), hexA(C.teal, 0.6), 8 * r + 1, r); }
+    if (nameM > 0) { const s = lerp(1, 0.001, nameM); drawCard(x, y, s * foundK, { face, val, state, a: out * dimA }); const r = lerp(0, state === "found" ? 30 : 20, nameM); circle(x, y, r, state === "found" ? C.teal : C.navy, out * nameM, 10); continue; }
+    drawCard(x, y, foundK, { face, val, state, a: out * dimA });
+    if (state) badge(x + CW / 2 - 6, y - CH / 2 + 6, state === "found" ? "yes" : "no", pop(t, SG(4 + k, 1) - 0.05, 0.3), out);
   }
-  if (jo > 0 && jo < 1) { const e = eio(jo), tx = wx(cam, bxw(HIT)), ty = wy(cam, top), h = hop(jo);
-    K("celebrating", lerp(tx, outPos.x, e), lerp(ty, outPos.y, e) - h.arc * 380, lerp(KH * cam.z, outPos.h, e), { sx: h.sx, sy: h.sy, rot: 0.6 * Math.sin(jo * Math.PI), shadow: 0 }); return true; }
-  if (jo >= 1) return false;
-  let x = miniKx(t), arc = 0, sx = 1, sy = 1, moving = false, rot = 0;
-  for (let k = 0; k < HIT; k++) { const u = (t - hopT(k)) / BEAT; if (u > 0 && u < 1) { const h = hop(u); arc = h.arc; sx = h.sx; sy = h.sy; moving = true; rot = 0.16 * Math.sin(u * Math.PI); } }
-  let shx = 0; for (let k = 0; k < HIT; k++) shx += Math.sin((t - verdT(k)) * 34) * 9 * imp(t, verdT(k), 0.5);
-  for (let k = 0; k <= HIT; k++) { const l = imp(t, openT(k), 0.25); sy *= 1 - 0.12 * l; sx *= 1 + 0.1 * l; }
-  const peek = win(t, openT(Math.min(HIT, Math.round((x - bxw(0)) / PITCH))) + 0.05, verdT(Math.min(HIT, Math.round((x - bxw(0)) / PITCH))), 0.2);
-  const ki = Math.min(HIT, Math.round((x - bxw(0)) / PITCH)), kx = wx(cam, x), kty = wy(cam, top);
-  if (peek > 0) add(() => { const s2 = BOXS * cam.z; poly([[kx - 16, kty - KH * cam.z * 0.5], [kx + 16, kty - KH * cam.z * 0.5], [kx + s2 * 0.5, kty + s2 * 1.1], [kx - s2 * 0.5, kty + s2 * 1.1]], null, 0, 0.16 * peek * (0.7 + 0.3 * Math.sin(t * 30)), true, C.sky); });
-  for (let k = 0; k <= HIT; k++) { const em = win(t, verdT(k), verdT(k) + 0.8, 0.15); if (em > 0) { const ek = pop(t, verdT(k), 0.25), col = k === HIT ? C.green : C.red; withT(kx + 86 * cam.z / 2, kty - KH * cam.z * 0.95 - 20 * ek, ek, ek, 0.1, () => { circle(0, 0, 40, "rgba(3,16,24,0.92)", em); glow(col, 16, () => ring(0, 0, 40, col, 5, em)); T(k === HIT ? "!" : "✗", 0, 3, { size: 46, color: col, a: em }); }); } }
-  K(t >= f ? "celebrating" : "walking", wx(cam, x) + shx * cam.z / 2, wy(cam, top) - arc * 86 * cam.z - (t >= f ? Math.abs(Math.sin((t - f) * 9)) * 40 : 0), KH * cam.z, { sx, sy, rot: rot + peek * 0.08, bob: moving ? 0 : 1 });
-  return true;
-}
-// pedestal that hides the flat bottom of a bust pose
-function bust(name, x, base, h, o = {}) {
-  const a = o.a ?? 1, k = o.sc ?? 1; if (a <= 0 || k <= 0) return; const w = h * META[name].w / META[name].h;
-  withT(x, base, k, k, o.rot || 0, () => { K(name, 0, 0, h, { a, shadow: 0, bob: 0.5 });
-    card(-w * 0.62, -8, w * 1.24, 64, { a, col: C.blue, r: 22, g: 26 }); T(o.label || "خوارزمو", 0, 26, { size: 32, color: C.sky, a, g: 10 }); });
-}
-
-// ------------------------------------------------------------ 0. HOOK
-SCENES.hook = (t, s) => {
-  background(t, { dim: 0.45 }); const b = (t - s.t0) / BEAT;
-  // a wall of numbers; a reticle hops over them looking for the amber one
-  const cols = 8, rows = 15, cw = 124, ch = 96, x0 = 106, y0 = 470, tgt = 59, hopN = Math.max(0, Math.floor((b - 2) * 2)), seq = [9, 22, 14, 37, 30, 51, 44, 62, 70, 59, 59, 59, 59, 59, 59];
-  const curCell = b >= 2 ? seq[Math.min(seq.length - 1, hopN)] : -1, lock = b >= 6.5;
-  for (let i = 0; i < cols * rows; i++) { const cx = x0 + (i % cols) * cw, cy = y0 + Math.floor(i / cols) * ch + Math.sin(t * 1.2 + i) * 4, v = Math.floor(rnd(i + 3) * 99), is = i === tgt;
-    const a = P(t, s.t0 + 0.25 + rnd(i) * 0.9, 0.4) * (is ? 0.95 : 0.22 + 0.2 * rnd(i + 8)) * (i === curCell ? 2.2 : 1);
-    T(String(is ? 42 : v), cx, cy, { size: 46, fam: "mono", color: is ? C.green : "#fff", a: clamp(a * 1.3), g: is ? 26 : 0 }); }
-  if (curCell >= 0) { const cx = x0 + (curCell % cols) * cw, cy = y0 + Math.floor(curCell / cols) * ch, k = 1 + 0.35 * imp(t, s.t0 + (2 + hopN / 2) * BEAT, 0.2), col = lock ? C.green : C.cyan;
-    add(() => { glow(col, 24, () => { strokeRR(cx - 52 * k, cy - 40 * k, 104 * k, 80 * k, 16, col, 5, 1); }); [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([dx, dy]) => seg(cx + dx * 66 * k, cy + dy * 52 * k, cx + dx * 46 * k, cy + dy * 52 * k, col, 5, 1)); });
-    if (lock) { shock(cx, cy, s.t0 + 6.5 * BEAT, { r: 420, col: "#b8fff0" }); } }
-  A(1); const g = ctx.createLinearGradient(0, 1040, 0, 1500); g.addColorStop(0, "rgba(22,36,110,0)"); g.addColorStop(1, "rgba(22,36,110,0.9)"); ctx.fillStyle = g; ctx.fillRect(0, 1040, W, 880);
-  header(["كيف الكمبيوتر بيلاقي", "رقم واحد بين آلاف الأرقام؟"], bt("hook", 0.5), s.t1, { colors: { "واحد": C.amber, "آلاف": C.cyan } });
-  const kp = pop(t, bt("hook", 1), 0.55); bust("thinking", 540, 1560 + (1 - kp) * 300, 520, { a: clamp(kp * 2), rot: Math.sin(t * 1.6) * 0.03 });
-  for (let i = 0; i < 3; i++) { const an = t * 1.5 + i * 2.1, a = P(t, bt("hook", 1.6 + i * 0.4), 0.3); T("؟", 540 + Math.cos(an) * 300, 1190 + Math.sin(an * 1.3) * 90, { size: 76 + i * 14, color: i === 1 ? C.amber : C.cyan, a: a * 0.9, g: 22 }); }
-  cut(t, s.t1);
+  if (t >= SG(8, 1)) sparkle(cx(4), ROWY, SG(8, 1), { n: 30, r: 300 });
+  // idea: order 1..7 under the cards, then an arrow from the first to the last
+  const ia = win(t, L0(3), L0(4) - 0.1, 0.25);
+  if (ia > 0) { for (let i = 0; i < 7; i++) { const k = pop(t, L0(3) + 0.15 + i * 0.2, 0.35); withT(cx(i), ROWY + 140, k, k, 0, () => { circle(0, 0, 28, C.tealSoft, ia); T(String(i + 1), 0, 3, { size: 34, color: C.teal, fam: "mono", a: ia }); }); }
+    const u = eio(P(t, SG(3, 1), Math.max(0.6, L1(3) - SG(3, 1)))); if (u > 0) arrow(cx(0) - 30, ROWY + 210, lerp(cx(0) - 30, cx(6) + 34, u), ROWY + 210, C.teal, 7, ia, 24); }
+  // demo: the pointer walks card by card
+  if (t > L0(4) - 0.5 && t < SCN.demo.t1) { let px = cx(0); for (let k = 1; k <= 4; k++) px = lerp(px, cx(k), eio(P(t, SG(4 + k - 1, 1) + 0.15, 0.35)));
+    pointer(px, ROWY - CH / 2 - 24, P(t, L0(4) - 0.45, 0.3) * (1 - P(t, SG(8, 1) + 0.6, 0.3))); }
+  // name: the straight line through the dots + a dot travelling along it
+  if (nameM > 0) { const la = out * nameM, u = eio(P(t, L0(9) + 0.25, 0.8)); seg(cx(0) - 40, ROWY, lerp(cx(0) - 40, cx(6) + 50, u), ROWY, hexA(C.teal, 0.55), 6, la);
+    if (u >= 1) arrow(cx(6) + 10, ROWY, cx(6) + 62, ROWY, C.teal, 6, la, 20);
+    const tx = lerp(cx(0), cx(6), ((t - L0(9) - 1.1) * 0.55) % 1); if (t > L0(9) + 1.1) { halo(tx, ROWY, 60, "rgba(31,181,181,0.45)", la); circle(tx, ROWY, 12, C.teal2, la); }
+    const k = pop(t, L0(9) + 0.7, 0.45); withT(540, ROWY - 200, k, k, 0, () => { fillRR(-300, -58, 600, 116, 58, C.navy, la * clamp(k * 2), 20); T("Linear Search", 0, 4, { size: 60, color: "#fff", fam: "mono", a: la * clamp(k * 2) }); }); }
+};
+// خوارزمو: introduces himself, and gives a thumbs-up when the method gets its name
+SCENES.khwarizmo = (t) => {
+  const i0 = L0(2) - 0.2, i1 = L0(3) + 0.6; if (t > i0 && t < i1 + 0.5) { const e = eo(P(t, i0, 0.5)), o = eio(P(t, i1, 0.45)); K("presenting", 560, 1740 + (1 - e) * 700 + o * 800, 640, { rot: Math.sin(t * 3) * 0.015 }); }
+  const n0 = L0(9) + 0.5, n1 = SCN.name.t1 - 0.1; if (t > n0 && t < n1 + 0.5) { const e = eo(P(t, n0, 0.45)), o = eio(P(t, n1, 0.4)); K("hero", 540, 1740 + (1 - e) * 600 + o * 700, 560); }
 };
 
-// ------------------------------------------------------------ 1. TITLE
-SCENES.title = (t, s) => {
-  background(t); cut(t, s.t0); const b = (t - s.t0) / BEAT;
-  FX.shake = 14 * imp(t, s.t0, 0.45); FX.chroma = 9 * imp(t, s.t0, 0.5);
-  add(() => { const r = t * 0.25; for (let k = 0; k < 18; k++) { const an = r + k * 0.349; poly([[540, 1250], [540 + Math.cos(an) * 1500, 1250 + Math.sin(an) * 1500], [540 + Math.cos(an + 0.09) * 1500, 1250 + Math.sin(an + 0.09) * 1500]], null, 0, 0.05, true, C.sky); } halo(540, 1250, 720, "rgba(31,200,204,0.4)", 1); });
-  shock(540, 520, s.t0, { r: 900 });
-  const k1 = pop(t, s.t0 + 0.02, 0.5); withT(540, 400, k1, k1, 0, () => T("Linear Search", 0, 0, { size: 112, fam: "mono", color: "#fff", g: 40, gc: C.blue, a: clamp(k1 * 2), stroke: 12 }));
-  const sw = P(t, bt("title", 1), 0.9); if (sw > 0 && sw < 1) add(() => { const x = lerp(60, 1020, sw), g = ctx.createLinearGradient(x - 90, 0, x + 90, 0); g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(0.5, "rgba(255,255,255,0.55)"); g.addColorStop(1, "rgba(255,255,255,0)"); A(Math.sin(sw * Math.PI)); ctx.fillStyle = g; ctx.fillRect(x - 90, 330, 180, 150); });
-  TW("البحث الخطّي", 540, 575, bt("title", 1), { size: 132, g: 44, gc: "rgba(79,230,205,0.8)", colors: { "الخطّي": C.cyan }, stroke: 14 });
-  chip("أبسط خوارزمية بحث 🔎", 540, 760, { size: 44, col: C.amber, sc: pop(t, bt("title", 3), 0.45), a: P(t, bt("title", 3), 0.2) });
-  const kp = eo5(P(t, bt("title", 1.5), 0.7)), h = hop(P(t, bt("title", 1.5), 0.7)); K("hero", 540, 1680 + (1 - kp) * 900, 800, { a: 1, sx: 1 + 0.08 * imp(t, bt("title", 1.5) + 0.62, 0.3), sy: 1 - 0.08 * imp(t, bt("title", 1.5) + 0.62, 0.3) });
-  burst(540, 1650, bt("title", 1.5) + 0.62, { n: 30, r: 480, grav: -200, col: [C.sky, "#fff", C.cyan] });
-  const np = pop(t, bt("title", 4.5), 0.45); withT(250, 1090, np, np, -0.06, () => { card(-150, -46, 300, 92, { col: C.cyan, a: clamp(np * 2), r: 46 }); T("أنا خوارزمو 👋", 0, 4, { size: 40, a: clamp(np * 2) }); });
-  cut(t, s.t1);
+// ------------------------------------------------ rule: compare, then stop or continue
+SCENES.rule = (t) => {
+  const s0 = SCN.rule.t0, s1 = SCN.rule.t1; if (t < s0 - 0.1 || t > s1 + 0.3) return; const a = P(t, s0, 0.3) * (1 - P(t, s1 - 0.05, 0.3)), y = 800, XE = 750, XT = 330;
+  // element stream: 7, 3, 9, 1, 5 pass through the compare slot while he says "compare every element with the target"
+  const seq = [7, 3, 9, 1, 5], st = L0(10) + 0.2, per = Math.max(0.24, (L1(10) - st) / 5); let idx = Math.min(4, Math.floor(Math.max(0, t - st) / per)); if (t >= L0(11) - 0.05) idx = -1;
+  const ek = pop(t, s0 + 0.05, 0.4), hit = idx === 4, flash = idx >= 0 ? imp(t, st + idx * per, per) : 0;
+  const tile = (x, txt, bg, fg, bd, lab) => withT(x, y, ek, ek, 0, () => { fillRR(-105, -135, 210, 270, 30, bg, a, 26); if (bd) strokeRR(-105, -135, 210, 270, 30, bd, 4, a); T(txt, 0, 8 - flash * 12 * (x === XE), { size: 140, fam: "mono", color: fg, a }); T(lab, 0, 190, { size: 40, color: C.mut, a }); });
+  tile(XE, idx < 0 ? "?" : String(seq[idx]), idx < 0 ? "#fff" : hit ? C.teal : C.redSoft, idx < 0 ? C.mut : hit ? "#fff" : C.red, idx < 0 ? C.line : hit ? null : hexA(C.red, 0.5), "العنصر");
+  tile(XT, "5", C.navy, "#fff", null, "المطلوب");
+  const qk = pop(t, s0 + 0.25, 0.4); withT(540, y, qk, qk, 0, () => { circle(0, 0, 62, C.tealSoft, a); T(idx >= 0 ? (hit ? "=" : "≠") : "=", 0, 4, { size: 80, color: idx >= 0 && !hit ? C.red : C.teal, fam: "mono", a }); });
+  // two branches under the element: "it is" -> stop (right), "it isn't" -> carry on (left)
+  const yb = 1300, yk = P(t, SG(11, 0), 0.3), nk = P(t, SG(11, 2), 0.3), top = y + 240;
+  if (yk > 0) { const u = eio(yk); poly([[XE, top], [XE, lerp(top, yb - 80, u)]], C.teal, 8, a); if (u >= 1) poly([[XE - 18, yb - 98], [XE, yb - 78], [XE + 18, yb - 98]], C.teal, 8, a);
+    T("هو؟", XE + 40, (top + yb) / 2 - 30, { size: 44, color: C.teal, a: a * yk, align: "left" });
+    const k = pop(t, SG(11, 1) - 0.05, 0.4); withT(XE, yb, k, k, 0, () => { fillRR(-165, -66, 330, 132, 66, C.teal, a * clamp(k * 2), 26); T("وقّف ✓", 0, 5, { size: 58, color: "#fff", a: a * clamp(k * 2) }); }); }
+  if (nk > 0) { const u = eio(nk), xl = 330; poly([[XE - 60, top - 10], [lerp(XE - 60, xl + 60, u), lerp(top - 10, yb - 90, u)]], C.red, 8, a);
+    T("مش هو؟", 360, (top + yb) / 2 - 75, { size: 44, color: C.red, a: a * nk });
+    const k = pop(t, SG(11, 3) - 0.05, 0.4); withT(xl, yb, k, k, 0, () => { fillRR(-170, -66, 340, 132, 66, "#ffffff", a * clamp(k * 2), 26); strokeRR(-170, -66, 340, 132, 66, hexA(C.red, 0.45), 4, a * clamp(k * 2)); T("كمّل ↻", 0, 5, { size: 58, color: C.navy, a: a * clamp(k * 2) }); }); }
 };
-
-// ------------------------------------------------------------ 2. SETUP  (+ shared HUD pieces)
-const HUDK = { x: 790, y: 1670, h: 640 };
-function targetCard(t, a, k = 1, x = 540, y = 610) { if (a <= 0) return; withT(x, y, k, k, 0, () => { card(-280, -130, 560, 260, { col: C.amber, a }); T("المطلوب", 120, -56, { size: 50, color: C.amber, a }); T("target", 120, 40, { size: 34, fam: "mono", color: C.mut, a });
-  fillRR(-235, -90, 190, 180, 30, "rgba(24,28,78,0.92)", a); glow(C.amber, 30, () => strokeRR(-235, -90, 190, 180, 30, C.amber, 5, a)); T(String(TL.target), -140, 8, { size: 130, fam: "mono", color: "#f0f1ff", a, g: 30, gc: C.amber }); }); }
-SCENES.setup = (t, s) => {
-  background(t); cut(t, s.t0); const cam = world(t);
-  for (let i = 0; i < N; i++) { FX.shake = Math.max(FX.shake, 6 * imp(t, dropT(i) + 0.42, 0.2)); burst(wx(cam, bxw(i)), wy(cam, WYC) + 70, dropT(i) + 0.42, { n: 8, r: 120, size: 6, grav: -60, dur: 0.5, col: [C.sky, "#fff"], seed: i * 11 }); }
-  header(["عنا 7 صناديق مسكّرة 📦"], bt("setup", 0.5), bt("setup", 5), { colors: { "7": C.amber } });
-  header(["وبدنا نلاقي الرقم 5"], bt("setup", 5), bt("setup", 8.5), { colors: { "5": C.amber } });
-  header(["ما منعرف شو جوّاتها…", "لازم نفتحها وحدة وحدة!"], bt("setup", 8.5), s.t1 + 0.1, { colors: { "وحدة": C.cyan } });
-  const kp = pop(t, bt("setup", 0.6), 0.55); K("presenting", HUDK.x, HUDK.y + (1 - kp) * 500, HUDK.h, { a: clamp(kp * 2) });
-  const tp = P(t, bt("setup", 5.2), 0.5), land = imp(t, bt("setup", 5.2) + 0.45, 0.3); if (tp > 0) { ctx.save(); ctx.translate(0, -(1 - back(tp, 1.3)) * 900); targetCard(t, 1, 1 + 0.06 * land); ctx.restore(); }
-  shock(540, 610, bt("setup", 5.2) + 0.45, { r: 420, col: "#cfd4ff", lw: 14 }); FX.shake = Math.max(FX.shake, 9 * land);
-  const bp = pop(t, bt("setup", 8.7), 0.45); withT(300, 1400, bp, bp, -0.04, () => { card(-230, -80, 460, 160, { col: C.cyan, a: clamp(bp * 2), r: 44 }); T("شو في جوّاتها؟ 🤔", 0, 4, { size: 46, a: clamp(bp * 2) }); poly([[226, -20], [270, 0], [226, 24]], null, 0, clamp(bp * 2), true, C.cyan); });
-};
-
-// ------------------------------------------------------------ 3. SEARCH
-function compareHUD(t, a) {
-  if (a <= 0) return; let k = -1; for (let i = 0; i <= HIT; i++) if (t >= openT(i) - 0.02) k = i;
-  const y = 1385; card(70, 1260, 940, 250, { col: C.blue, a });
-  // target tile (right) and value tile (left), like the code: arr[i] == target
-  T("arr[i]", 250, 1300, { size: 30, fam: "mono", color: C.mut, a }); T("target", 830, 1300, { size: 30, fam: "mono", color: C.mut, a });
-  fillRR(745, 1325, 170, 150, 26, "rgba(24,28,78,0.92)", a); glow(C.amber, 24, () => strokeRR(745, 1325, 170, 150, 26, C.amber, 5, a)); T(String(TL.target), 830, y + 22, { size: 104, fam: "mono", color: "#f0f1ff", a, g: 24, gc: C.amber });
-  const v = k >= 0 ? verdT(k) : 1e9, decided = t >= v, yes = decided && k === HIT, col = !decided ? C.sky : yes ? C.green : C.red;
-  fillRR(165, 1325, 170, 150, 26, "rgba(7,34,48,0.95)", a); glow(col, 24, () => strokeRR(165, 1325, 170, 150, 26, col, 5, a));
-  if (k >= 0) { const p = pop(t, openT(k) + 0.14, 0.3); withT(250, y + 22, p, p, 0, () => T(String(TL.arr[k]), 0, 0, { size: 104, fam: "mono", color: "#fff", a: a * clamp(p * 2), g: 24, gc: col })); } else T("?", 250, y + 22, { size: 96, fam: "mono", color: C.dim, a });
-  // the operator: == while thinking, then ≠ or =
-  const pulse = k >= 0 && !decided ? 1 + 0.12 * Math.sin((t - openT(k)) * 22) : 1, vk = decided ? 1 + 0.5 * imp(t, v, 0.35) : 1;
-  withT(540, y + 14, pulse * vk, pulse * vk, 0, () => T(!decided ? "==" : yes ? "=" : "≠", 0, 0, { size: 110, fam: "mono", color: col, a, g: 30 }));
-  if (k >= 0 && !decided) T("؟", 540, y - 62, { size: 44, color: C.sky, a: a * (0.6 + 0.4 * Math.sin(t * 12)) });
-  if (decided) { const p = pop(t, v, 0.3); chip(yes ? "هو! ✓" : "مش هو ✗", 540, 1290, { size: 34, col, sc: p, a: a * clamp(p * 2) }); }
-}
-function miniMap(t, a, y = 1575) {
-  if (a <= 0) return; let cnt = 0; for (let i = 0; i <= HIT; i++) if (t >= verdT(i)) cnt++;
-  for (let i = 0; i < N; i++) { const st = boxState(i, t), x = 302 + i * 68, col = st === 3 ? C.green : st === 2 ? C.red : st === 1 ? "#fff" : C.dim, k = st === 1 ? 1.15 + 0.08 * Math.sin(t * 10) : 1;
-    withT(x + 28, y, k, k, 0, () => { fillRR(-28, -28, 56, 56, 12, st === 0 ? "rgba(8,32,46,0.9)" : hexA(col === "#fff" ? C.sky : col, 0.28), a); strokeRR(-28, -28, 56, 56, 12, col, 3, a); T(st === 0 ? "·" : String(TL.arr[i]), 0, 2, { size: 30, fam: "mono", color: st === 0 ? C.dim : "#fff", a }); }); }
-  const p = 1 + 0.35 * Math.max(...[0, 1, 2, 3, 4].map((i) => imp(t, verdT(i), 0.3)));
-  T("عدد المقارنات:", 640, 1650, { size: 38, color: "#fff", a, align: "center", stroke: 8 }); withT(446, 1650, p, p, 0, () => T(String(cnt), 0, 2, { size: 58, fam: "mono", color: C.green, a, stroke: 8 }));
-}
-const OUTK = { x: 850, y: 1660, h: 500 };
-SCENES.search = (t, s) => {
-  const f = FOUND(), cam0 = camAt(t); background(t, { par: cam0.fx / 300 });
-  const cam = world(t);
-  for (let k = 0; k <= HIT; k++) { // light burst when a box opens
-    const x = wx(cam, bxw(k)), y = wy(cam, WYC); shock(x, y, openT(k) + 0.12, { r: 260 * cam.z / 2, lw: 12, dur: 0.45 }); burst(x, y, openT(k) + 0.14, { n: 14, r: 220, size: 7, dur: 0.6, col: ["#fff", C.sky], seed: k * 5 });
-    if (k < HIT) { FX.shake = Math.max(FX.shake, 12 * imp(t, verdT(k), 0.3)); add(() => { A(0.22 * imp(t, verdT(k), 0.35)); ctx.fillStyle = C.red; ctx.fillRect(0, 0, W, H); }); }
-  }
-  // found: big payoff
-  if (t >= f) { const x = wx(cam, bxw(HIT)), y = wy(cam, WYC); shock(x, y, f, { r: 1300, dur: 0.9, col: "#d0fff4", lw: 40 }); shock(x, y, f + 0.12, { r: 900, dur: 0.8, col: "#d8fff4" }); burst(x, y, f, { n: 90, r: 900, size: 13, dur: 1.6, grav: 500 });
-    FX.shake = Math.max(FX.shake, 26 * imp(t, f, 0.55)); FX.chroma = 14 * imp(t, f, 0.6); FX.flash = 0.42 * imp(t, f, 0.3); FX.flashCol = "#e6fffa"; confetti(f + 0.2); }
-  miniK(t, cam, HUDK, OUTK);
-  if (t >= f + 0.35 + BEAT * 1.1) { const j = Math.abs(Math.sin((t - f) * 7.2)); K("celebrating", OUTK.x, OUTK.y - j * 70, OUTK.h, { sy: 1 + 0.05 * j, sx: 1 - 0.03 * j }); }
-  // captions
-  header(["منبلّش من أول صندوق"], s.t0 + 0.1, hopT(0), { colors: { "أول": C.cyan } });
-  header(["مش هو؟ عاللي بعده ➜"], hopT(0), hopT(1), { colors: { "هو؟": C.red } });
-  header(["وكمان مش هو…"], hopT(1), hopT(2));
-  header(["خانة… خانة…", "بالترتيب"], hopT(2), verdT(HIT) - 0.05, { colors: { "بالترتيب": C.cyan } });
-  header(["لقيناه! 🎉"], f, f + 4 * BEAT, { size: 110, colors: { "لقيناه!": C.green } });
-  header(["بالخانة رقم 4", "وبعد 5 مقارنات بس"], f + 4 * BEAT, s.t1 + 0.1, { colors: { "4": C.amber, "5": C.amber } });
-  // HUD
-  const tm = eio(P(t, s.t0, 0.5)); if (tm < 1) targetCard(t, 1 - ei(tm), lerp(1, 0.4, tm), lerp(540, 830, tm), lerp(610, 1400, tm));
-  const sb = 1 - P(t, s.t0, 0.25); if (sb > 0) withT(300, 1400, sb, sb, -0.04, () => { card(-230, -80, 460, 160, { col: C.cyan, a: sb, r: 44 }); T("شو في جوّاتها؟ 🤔", 0, 4, { size: 46, a: sb }); });
-  const ha = P(t, s.t0 + 0.3, 0.35) * (1 - P(t, f + 0.9, 0.3)); compareHUD(t, ha); miniMap(t, ha);
-  const ra = P(t, f + 1.1, 0.35); if (ra > 0) { const k = pop(t, f + 1.1, 0.5); withT(350, 1430, k, k, 0, () => { card(-290, -150, 580, 300, { col: C.green, a: ra, g: 40 });
-    T("return", -150, -78, { size: 44, fam: "mono", color: C.violet, a: ra }); T("4", 20, -78, { size: 64, fam: "mono", color: C.amber, a: ra, g: 20 }); T("✓", 150, -80, { size: 60, color: C.green, a: ra });
-    seg(-230, -20, 230, -20, hexA(C.green, 0.4), 2, ra); T("مكان الرقم = الخانة 4", 0, 34, { size: 40, a: ra }); T("5 مقارنات", 0, 100, { size: 40, color: C.amber, a: ra * P(t, f + 4 * BEAT, 0.3) }); }); }
-  cut(t, s.t1);
-};
-
-// ------------------------------------------------------------ 4. RULE
-SCENES.rule = (t, s) => {
-  background(t); cut(t, s.t0); world(t, { a: 0.16 });
-  header(["الخوارزمية كلها", "بـ 3 خطوات"], s.t0 + 0.1, s.t1, { colors: { "3": C.amber } });
-  const R = [["1", "ابدأ من أول عنصر", "i = 0", C.cyan], ["2", "قارنه بالمطلوب", "arr[i] == target", C.amber], ["3", "هو؟ وقّف ✓  ·  مش هو؟ كمّل ➜", "i = i + 1", C.green]];
-  R.forEach(([n, ar, code, col], i) => { const t0 = bt("rule", 1 + i * 2.5), u = P(t, t0, 0.45); if (u <= 0) return; const y = 560 + i * 215, e = back(u, 1.5), hi = 1 + 0.05 * imp(t, bt("rule", 9 + i * 0.75), 0.4);
-    withT(540 + (1 - e) * (i % 2 ? -700 : 700), y, hi, hi, 0, () => { card(-470, -92, 940, 184, { col, a: clamp(u * 2) });
-      circle(385, 0, 54, hexA(col, 0.22), 1); glow(col, 20, () => ring(385, 0, 54, col, 5, 1)); T(n, 385, 4, { size: 64, fam: "mono", color: "#fff" });
-      T(ar, 300, -30, { size: i === 2 ? 38 : 46, align: "right" }); T(code, 300, 40, { size: 32, fam: "mono", color: col, align: "right" }); });
-    burst(540, y, t0 + 0.3, { n: 14, r: 520, size: 7, dur: 0.6, col: [col, "#fff"], seed: i * 7 }); FX.shake = Math.max(FX.shake, 7 * imp(t, t0 + 0.3, 0.25)); });
-  const kp = pop(t, s.t0 + 0.2, 0.5); K("idea", 850, 1660 + (1 - kp) * 500, 520, { a: clamp(kp * 2) });
-  add(() => halo(928, 1245, 150, "rgba(200,255,240,0.5)", clamp(kp) * (0.6 + 0.4 * Math.sin(t * 9))));
-  const la = P(t, bt("rule", 1), 0.4); if (la > 0) { const per = 4 * BEAT, l0 = bt("rule", 1) + Math.floor(Math.max(0, t - bt("rule", 1)) / per) * per; ctx.save(); ctx.globalAlpha = 1; ctx.translate(-30, 0);
-    card(70, 1255, 620, 150, { col: C.blue, a: la, r: 28 }); caseRow(t, 1330, 4, l0 + 0.15, BEAT * 0.5, C.green); ctx.restore(); }
-  const cp = pop(t, bt("rule", 8.5), 0.45); withT(330, 1520, cp, cp, -0.03, () => { card(-250, -80, 500, 160, { col: C.sky, a: clamp(cp * 2), r: 40 }); T("بسيطة… صح؟ 😉", 0, 4, { size: 50, a: clamp(cp * 2) }); });
-  cut(t, s.t1);
-};
-
-// ------------------------------------------------------------ 5. CODE
+// ------------------------------------------------ code: five lines, the spoken part lights up
 const CODE = ["def linear_search(arr, target):", "    for i in range(len(arr)):", "        if arr[i] == target:", "            return i", "    return -1"];
-const KW = { def: C.violet, for: C.violet, in: C.violet, if: C.violet, return: "#c3a6ff", range: C.cyan, len: C.cyan, linear_search: C.sky, target: C.amber };
-function codeLine(s, n, x, y, size, a) { // syntax-coloured, first n characters
-  let cx = x, used = 0; const cw = measure("M", size, 800, "mono");
-  for (const tok of s.split(/(\W)/)) { if (!tok) continue; const take = clamp(n - used, 0, tok.length); if (take > 0) T(tok.slice(0, take), cx, y, { size, fam: "mono", align: "left", color: KW[tok] || (/^-?\d+$/.test(tok) ? C.amber : "#dbe8ff"), a }); cx += cw * tok.length; used += tok.length; }
-  return x + cw * Math.min(n, s.length);
-}
-const typeT0 = () => bt("code", 1), typeDur = () => 6.2 * BEAT, runT = (k) => bt("code", 9 + k);
-SCENES.code = (t, s) => {
-  background(t); cut(t, s.t0);
-  header(["وبالكود؟"], s.t0 + 0.15, bt("code", 8), { size: 84, colors: { "وبالكود؟": C.cyan } }); header(["يلا نشغّله ▶"], bt("code", 8), s.t1, { size: 78 });
-  const ep = pop(t, s.t0 + 0.1, 0.5); const total = CODE.join("").length, prog = clamp((t - typeT0()) / typeDur()) * total;
-  withT(540, 800, ep, ep, 0, () => { card(-490, -330, 980, 600, { col: C.blue, fill: "rgba(3,14,22,0.95)", r: 34, a: clamp(ep * 2) });
-    fillRR(-490, -330, 980, 70, 34, "rgba(14,52,70,0.7)", 1); [C.red, C.violet, C.green].forEach((c, i) => circle(-440 + i * 40, -295, 12, c, 1)); T("linear_search.py", 0, -293, { size: 30, fam: "mono", color: C.mut });
-    let used = 0, runLine = -1, it = -1; for (let k = 0; k <= HIT; k++) if (t >= runT(k)) { it = k; runLine = t >= runT(k) + BEAT * 0.5 ? 2 : 1; } if (it === HIT && t >= runT(HIT) + BEAT) runLine = 3;
-    CODE.forEach((ln, i) => { const y = -205 + i * 92, n = Math.floor(prog - used); used += ln.length;
-      if (i === runLine) { const col = runLine === 3 ? C.green : runLine === 2 ? C.amber : C.sky; fillRR(-470, y - 40, 940, 80, 14, hexA(col, 0.2), 1); glow(col, 16, () => fillRR(-470, y - 40, 8, 80, 4, col, 1)); }
-      T(String(i + 1), -462, y, { size: 24, fam: "mono", color: C.dim, align: "left" });
-      const ex = codeLine(ln, n, -420, y, 43, 1); if (n >= 0 && n < ln.length && t < typeT0() + typeDur() && Math.floor(t * 8) % 2 === 0) fillRR(ex + 3, y - 24, 16, 46, 3, C.sky, 1); });
-    if (it >= 0) { const k = pop(t, runT(it), 0.25); chip(`i = ${it}`, 370, -293, { size: 30, fam: "mono", col: C.amber, sc: k }); }
-  });
-  // run strip: the array being walked while the code runs
-  const ra = P(t, bt("code", 8), 0.4); if (ra > 0) { for (let i = 0; i < N; i++) { const x = 122 + i * 120, y = 1165; let col = C.blue, fillc = "rgba(7,34,48,0.95)", kk = 1;
-      const cur = t >= runT(i) && (i === HIT || t < runT(i + 1)) && i <= HIT; if (i <= HIT && t >= runT(i) + BEAT * 0.5) { col = i === HIT ? C.green : C.red; fillc = hexA(col, 0.25); } if (cur) kk = 1.14 + 0.05 * Math.sin(t * 12);
-      withT(x, y, kk * pop(t, bt("code", 8) + i * 0.05, 0.35), kk, 0, () => { fillRR(-50, -50, 100, 100, 18, fillc, ra); glow(col, cur ? 30 : 10, () => strokeRR(-50, -50, 100, 100, 18, cur && col === C.blue ? "#fff" : col, 4, ra)); T(String(TL.arr[i]), 0, 3, { size: 52, fam: "mono", color: "#fff", a: ra }); T(String(i), 0, 78, { size: 26, fam: "mono", color: cur ? C.green : "#fff", a: ra }); }); }
-    const rt = runT(HIT) + BEAT; if (t >= rt) { shock(122 + HIT * 120, 1165, rt, { r: 320, col: "#d0fff4", lw: 14 }); burst(122 + HIT * 120, 1165, rt, { n: 26, r: 380, size: 8, dur: 0.9 }); FX.shake = 10 * imp(t, rt, 0.3); const k = pop(t, rt, 0.45); chip("النتيجة: 4 ✓", 350, 1450, { size: 52, col: C.green, sc: k, a: clamp(k * 2) }); } }
-  const kp = pop(t, s.t0 + 0.4, 0.5), typing = t > typeT0() && t < typeT0() + typeDur(); K("working", 850, 1670 + (1 - kp) * 500, 390, { a: clamp(kp * 2), rot: typing ? Math.sin(t * 16) * 0.012 : 0 });
-  const lp = pop(t, bt("code", 4), 0.4) * (1 - P(t, bt("code", 7.6), 0.3)); chip("5 سطور بس! 🐍", 350, 1450, { size: 48, col: C.amber, sc: lp, a: clamp(lp * 2) });
-  cut(t, s.t1);
+const KW = { def: "#7a5cc7", for: "#7a5cc7", in: "#7a5cc7", if: "#7a5cc7", return: "#7a5cc7", range: C.teal2, len: C.teal2, linear_search: C.teal, target: "#d9822b" };
+function codeLine(s, x, y, size, a) { let cxp = x; const cw = measure("M", size, 800, "mono");
+  for (const tok of s.split(/(\W)/)) { if (!tok) continue; T(tok, cxp, y, { size, fam: "mono", align: "left", color: KW[tok] || (/^-?\d+$/.test(tok) ? "#d9822b" : C.navy), a, weight: 800 }); cxp += cw * tok.length; } }
+SCENES.code = (t) => {
+  const s0 = SCN.code.t0, s1 = SCN.code.t1; if (t < s0 - 0.1 || t > s1 + 0.3) return; const a = P(t, s0, 0.3) * (1 - P(t, s1 - 0.05, 0.3)), k = 0.94 + 0.06 * eo(P(t, s0, 0.45));
+  const hlLine = t >= SG(13, 1) - 0.05 ? 3 : t >= SG(13, 0) - 0.05 ? 2 : t >= SG(12, 1) - 0.05 ? 1 : -1;
+  withT(540, 960, k, k, 0, () => { fillRR(-490, -300, 980, 600, 32, "#ffffff", a, 40); fillRR(-490, -300, 980, 80, 32, "#f1f6f9", a); fillRR(-490, -256, 980, 36, 0, "#f1f6f9", a);
+    [C.red, C.gold, C.teal].forEach((c, i) => circle(-440 + i * 38, -260, 11, c, a)); T("linear_search.py", 60, -260, { size: 28, fam: "mono", color: C.mut, a, weight: 800 });
+    CODE.forEach((ln, i) => { const y = -140 + i * 88, la = a * P(t, s0 + 0.15 + i * 0.1, 0.25);
+      if (i === hlLine) { const u = eo(P(t, i === 1 ? SG(12, 1) : SG(13, i - 2), 0.3)); fillRR(-470, y - 38, 940 * u, 76, 14, hexA(C.teal, 0.14), a); fillRR(-470, y - 38, 8, 76, 4, C.teal, a * u); }
+      T(String(i + 1), -440, y, { size: 28, fam: "mono", color: "#b4c2d1", a: la, weight: 800 }); codeLine(ln, -400, y, 44, hlLine >= 0 && i !== hlLine ? la * 0.45 : la); }); });
 };
 
-// ------------------------------------------------------------ 6. SPEED (best / worst case)
-function caseRow(t, y, hit, t0, step, col) { // small array walked up to `hit`
-  let cnt = 0; for (let i = 0; i < N; i++) { const x = 110 + i * 84, at = t0 + i * step, seen = i <= hit && t >= at, is = i === hit, k = seen && (is || t < at + step) ? 1.16 : 1; if (seen) cnt++;
-    const c = !seen ? C.dim : is ? C.green : C.red; withT(x, y, k, k, 0, () => { fillRR(-34, -34, 68, 68, 14, seen ? hexA(c, 0.25) : "rgba(7,30,44,0.9)", 1); glow(seen ? c : "#000", seen ? 16 : 0, () => strokeRR(-34, -34, 68, 68, 14, c, 3, 1)); T(is ? "5" : "·", 0, 2, { size: 36, fam: "mono", color: is ? C.amber : C.dim, a: 1 }); }); }
-  return cnt;
-}
-const bestT = () => bt("speed", 2.5), worstT = () => bt("speed", 6), wStep = () => BEAT * 0.5, milT = () => bt("speed", 10.5);
-SCENES.speed = (t, s) => {
-  background(t); cut(t, s.t0);
-  header(["قدّيش سريعة؟ ⏱"], s.t0 + 0.15, s.t1, { size: 84, colors: { "سريعة؟": C.cyan } });
-  const a1 = pop(t, bt("speed", 1), 0.45); withT(540, 630, a1, a1, 0, () => { ctx.translate(-540, -630); card(50, 470, 980, 320, { col: C.green, a: clamp(a1 * 2) }); T("أحسن حالة 😎", 990, 530, { size: 46, color: C.green, align: "right" }); T("الرقم بأول صندوق", 990, 592, { size: 32, color: C.mut, align: "right" });
-    const c = caseRow(t, 700, 0, bestT(), 1, C.green); const p = pop(t, bestT(), 0.4); withT(820, 690, p, p, 0, () => { T("O(1)", 0, 0, { size: 84, fam: "mono", color: C.green, g: 26, a: clamp(p * 2) }); T("مقارنة وحدة", 0, 62, { size: 30, a: clamp(p * 2) }); }); });
-  shock(110, 700, bestT(), { r: 300, col: "#d0fff4", lw: 12 });
-  const a2 = pop(t, bt("speed", 4.5), 0.45); withT(540, 990, a2, a2, 0, () => { ctx.translate(-540, -990); card(50, 830, 980, 320, { col: C.red, a: clamp(a2 * 2) }); T("أسوأ حالة 😰", 990, 890, { size: 46, color: C.red, align: "right" }); T("الرقم بآخر صندوق… أو مش موجود", 990, 952, { size: 32, color: C.mut, align: "right" });
-    const c = caseRow(t, 1060, 6, worstT(), wStep(), C.red); const done = t >= worstT() + 6 * wStep(), p = pop(t, worstT() + 6 * wStep(), 0.4);
-    if (!done && t >= worstT()) T(String(c), 820, 1050, { size: 84, fam: "mono", color: C.amber, g: 20 }); withT(820, 1050, p, p, 0, () => { T("O(n)", 0, 0, { size: 84, fam: "mono", color: C.red, g: 26, a: clamp(p * 2) }); T("n مقارنة", 0, 62, { size: 30, a: clamp(p * 2) }); }); });
-  FX.shake = 8 * imp(t, worstT() + 6 * wStep(), 0.3);
-  // one million
-  const mp = pop(t, bt("speed", 10), 0.45); if (mp > 0) { const u = ei(P(t, milT(), 3.4 * BEAT)), v = Math.floor(u * 1e6), end = milT() + 3.4 * BEAT;
-    withT(360, 1400, mp, mp, 0, () => { card(-300, -170, 600, 340, { col: C.amber, a: clamp(mp * 2) }); T("مليون عنصر؟ 😱", 0, -105, { size: 50, a: clamp(mp * 2) });
-      T(v.toLocaleString("en-US"), 0, -5, { size: 82, fam: "mono", color: u >= 1 ? C.red : C.amber, g: 24, a: clamp(mp * 2) }); T("مقارنة!", 0, 72, { size: 40, color: u >= 1 ? C.red : C.text, a: clamp(mp * 2) });
-      fillRR(-250, 118, 500, 18, 9, "rgba(30,70,90,0.8)", 1); glow(C.amber, 14, () => fillRR(-250, 118, 500 * u, 18, 9, u >= 1 ? C.red : C.amber, 1)); });
-    FX.shake = Math.max(FX.shake, 4 * u * (u < 1 ? 1 : 0) + 18 * imp(t, end, 0.4)); FX.chroma = 10 * imp(t, end, 0.5); shock(360, 1400, end, { r: 700, col: "#ffd0d0" });
-    const bp = pop(t, bt("speed", 10.3), 0.4); bust("surprised", 850, 1590, 400, { a: clamp(bp * 2), sc: 0.8 + 0.2 * bp, rot: Math.sin(t * 30) * 0.02 * u }); }
-  const k0 = pop(t, s.t0 + 0.3, 0.5), kout = 1 - P(t, bt("speed", 10.2), 0.15); if (kout > 0) { bust("thinking", 850, 1590 + (1 - k0) * 400, 400, { a: clamp(k0 * 2) * kout, rot: Math.sin(t * 1.8) * 0.03 });
-    const qp = pop(t, bt("speed", 1.5), 0.45) * (1 - P(t, bt("speed", 9.8), 0.2)); withT(350, 1400, qp, qp, -0.03, () => { card(-270, -110, 540, 220, { col: C.cyan, a: clamp(qp * 2), r: 44 }); T("كم مقارنة", 0, -38, { size: 54, a: clamp(qp * 2) }); T("منحتاج لنلاقيه؟", 0, 42, { size: 46, color: C.cyan, a: clamp(qp * 2) }); poly([[266, -20], [310, 0], [266, 24]], null, 0, clamp(qp * 2), true, C.cyan); }); }
-  cut(t, s.t1);
+// ------------------------------------------------ speed: worst case, a hundred, a million, O(n)
+const WORST = [7, 3, 9, 1, 8, 2, 5];
+SCENES.speed = (t) => {
+  const s0 = SCN.speed.t0, s1 = SCN.speed.t1; if (t < s0 - 0.1 || t > s1 + 0.3) return; const a = P(t, s0, 0.3) * (1 - P(t, s1 - 0.05, 0.3));
+  // 1) the target is last: the pointer has to visit every card
+  const r1 = 1 - P(t, L0(15) - 0.2, 0.3), scan0 = SG(14, 1) + 0.1, step = Math.max(0.2, (L1(14) - scan0 + 0.15) / 7);
+  if (r1 > 0) { let cnt = 0; for (let i = 0; i < 7; i++) { const ft = scan0 + i * step, e = eo(P(t, s0 + i * 0.04, 0.35)); const opened = t >= ft; if (opened) cnt++;
+      drawCard(cx(i), ROWY + (1 - e) * 60, 1, { face: P(t, ft, 0.2), val: WORST[i], state: opened ? (i === 6 ? "found" : "no") : "", a: a * r1 * e }); }
+    const px = lerp(cx(0), cx(6), clamp((t - scan0) / (6 * step))); pointer(px, ROWY - CH / 2 - 24, a * r1 * P(t, scan0 - 0.3, 0.2));
+    const ck = 1 + 0.15 * imp(t, scan0 + (cnt - 1) * step, 0.2); withT(540, ROWY + 210, ck, ck, 0, () => { fillRR(-190, -50, 380, 100, 50, C.tealSoft, a * r1); T(`${cnt} مقارنات`, 0, 3, { size: 50, color: C.navy, a: a * r1 }); }); }
+  // 2) 100 elements -> 100 comparisons, a million -> a million
+  const r2 = P(t, L0(15) - 0.05, 0.3) * (1 - P(t, L0(16) - 0.15, 0.3));
+  if (r2 > 0) { const m = eio(P(t, SG(15, 2), 0.9)), n = Math.round(lerp(100, 1e6, Math.pow(m, 3))), str = n.toLocaleString("en-US"), big = 1 + 0.08 * imp(t, SG(15, 2) + 0.9, 0.4);
+    const k1 = pop(t, L0(15), 0.4); withT(540, 720, k1, k1, 0, () => { fillRR(-250, -54, 500, 108, 54, C.navy, a * r2, 18); T(`${str} عنصر`, 0, 4, { size: 52, color: "#fff", a: a * r2 }); });
+    arrow(540, 800, 540, 880, C.teal, 8, a * r2 * P(t, L0(15) + 0.4, 0.3), 22);
+    const k2 = pop(t, L0(15) + 0.5, 0.45) * big; withT(540, 1020, k2, k2, 0, () => { T(str, 0, 0, { size: n > 99999 ? 150 : 200, color: C.teal, fam: "mono", a: a * r2 }); T("مقارنة", 0, 135, { size: 60, color: C.navy, a: a * r2 }); }); }
+  // 3) O(n): time grows in a straight line with the size
+  const r3 = P(t, L0(16) - 0.05, 0.3);
+  if (r3 > 0) { const k = pop(t, SG(16, 1) - 0.1, 0.45); withT(540, 720, k, k, 0, () => { T("O(n)", 0, 0, { size: 180, color: C.navy, fam: "mono", a: a * r3 * clamp(k * 2) }); });
+    const gx = 220, gy = 1420, gw = 640, gh = 420, u = eio(P(t, L0(16) + 0.2, 1.4)); seg(gx, gy, gx + gw + 20, gy, C.mut, 4, a * r3); seg(gx, gy, gx, gy - gh - 20, C.mut, 4, a * r3);
+    seg(gx, gy, gx + gw * u, gy - gh * u, C.teal, 9, a * r3); if (u > 0.02) circle(gx + gw * u, gy - gh * u, 14, C.teal, a * r3);
+    T("عدد العناصر", gx + gw / 2, gy + 46, { size: 32, color: C.mut, a: a * r3 }); T("الوقت", gx - 20, gy - gh - 40, { size: 32, color: C.mut, a: a * r3, align: "left" }); }
 };
 
-// ------------------------------------------------------------ 7. FINALE
-SCENES.finale = (t, s) => {
-  const b = (t - s.t0) / BEAT, tz = bt("finale", 6), te = bt("finale", 10.5); background(t, { dim: t >= tz && t < te ? 0.3 : 0 }); cut(t, s.t0);
-  if (t < tz + 0.2) {
-    const out = 1 - P(t, tz - 0.15, 0.3); header(["إيمتى منستعملها؟"], s.t0 + 0.15, tz, { size: 80, colors: { "إيمتى": C.cyan } });
-    [["القائمة صغيرة", "كم عنصر… وخلصنا", C.green], ["البيانات مش مرتّبة", "ما في طريقة غيرها", C.cyan]].forEach(([a1, a2, col], i) => { const t0 = bt("finale", 1.5 + i * 1.5), u = P(t, t0, 0.45), e = back(u, 1.5); if (u <= 0) return;
-      withT(540 + (1 - e) * (i ? -800 : 800), 620 + i * 230, 1, 1, 0, () => { card(-470, -95, 940, 190, { col, a: out }); circle(370, 0, 56, hexA(col, 0.25), out); glow(col, 20, () => ring(370, 0, 56, col, 5, out)); poly([[346, 0], [362, 18], [396, -20]], "#fff", 9, out); T(a1, 280, -30, { size: 54, align: "right", a: out }); T(a2, 280, 40, { size: 34, color: C.mut, align: "right", a: out }); });
-      burst(540, 620 + i * 230, t0 + 0.3, { n: 14, r: 500, size: 7, dur: 0.6, col: [col, "#fff"], seed: i * 3 }); });
-    const kp = pop(t, s.t0 + 0.3, 0.5); K("presenting", 760, 1670 + (1 - kp) * 500, 680, { a: clamp(kp * 2) * out });
-  }
-  if (t >= tz && t < te + 0.2) { // teaser
-    const out = 1 - P(t, te - 0.12, 0.2); FX.chroma = Math.max(8 * imp(t, tz, 0.5), 6 * imp(t, bt("finale", 8), 0.4)); FX.shake = 12 * imp(t, tz, 0.35);
-    header(["بس للقوائم الكبيرة…", "في خوارزمية أسرع بكتير ⚡"], tz + 0.05, te, { colors: { "أسرع": C.amber, "بكتير": C.amber } });
-    const gp = P(t, bt("finale", 8), 0.5), gl = imp(t, bt("finale", 8), 0.5); if (gp > 0) { const k = pop(t, bt("finale", 8), 0.4);
-      withT(540, 760, k, k, 0, () => { add(() => { T("Binary Search", -10 * gl - 3, 0, { size: 104, fam: "mono", color: "#7f8cf2", a: 0.8 * out }); T("Binary Search", 10 * gl + 3, 0, { size: 104, fam: "mono", color: "#3df2bd", a: 0.8 * out }); }); T("Binary Search", 0, 0, { size: 104, fam: "mono", color: "#fff", g: 30, gc: C.violet, a: out }); });
-      for (let i = 0; i < 6; i++) { const y = 700 + rnd(i + Math.floor(t * 14)) * 130; fillRR(60 + rnd(i * 3 + Math.floor(t * 14)) * 700, y, 120 + rnd(i) * 200, 6, 0, i % 2 ? "#3df2bd" : "#7f8cf2", 0.5 * gl * out); } }
-    const cp = pop(t, bt("finale", 9), 0.4); chip("بالريل الجاي 👀", 540, 960, { size: 50, col: C.violet, sc: cp, a: clamp(cp * 2) * out });
-    const kp = pop(t, tz + 0.1, 0.5); bust("closeup", 540, 1590 + (1 - kp) * 400, 520, { a: clamp(kp * 2) * out, rot: Math.sin(t * 2) * 0.03 });
-  }
-  if (t >= te) { // end card
-    FX.flash = Math.max(FX.flash, 0.8 * imp(t, te, 0.35)); FX.shake = 14 * imp(t, te, 0.4);
-    add(() => { const r = t * 0.22; for (let k = 0; k < 18; k++) { const an = r + k * 0.349; poly([[540, 1150], [540 + Math.cos(an) * 1500, 1150 + Math.sin(an) * 1500], [540 + Math.cos(an + 0.09) * 1500, 1150 + Math.sin(an + 0.09) * 1500]], null, 0, 0.055, true, C.sky); } halo(540, 1150, 760, "rgba(31,200,204,0.42)", 1); });
-    shock(540, 1150, te, { r: 1100 }); confetti(te + 0.1, { n: 70, dur: 3.4 });
-    const kp = eo5(P(t, te, 0.6)); K("hero", 540, 1650 + (1 - kp) * 900, 900, { sx: 1 + 0.06 * imp(t, te + 0.5, 0.3), sy: 1 - 0.06 * imp(t, te + 0.5, 0.3) });
-    TW("تابع تكنو انجاز", 540, 320, te + 0.25, { size: 112, g: 30, gc: "rgba(8,18,70,0.85)", colors: { "تكنو": C.cyan, "انجاز": C.cyan }, stroke: 14 });
-    TW("وكل ريل… خوارزمية جديدة 🚀", 540, 480, te + 0.9, { size: 54, colors: { "خوارزمية": C.green }, stroke: 10, g: 16, gc: "rgba(8,18,70,0.85)" });
-    const lp = pop(t, te + 1.5, 0.45); withT(850, 1000, lp, lp, 0.07, () => { card(-175, -58, 350, 116, { col: C.cyan, a: clamp(lp * 2), r: 58 }); T("لايك ومشاركة 💙", 0, 4, { size: 36, a: clamp(lp * 2) }); });
-  }
+// ------------------------------------------------ teaser: sorted list -> 20 steps -> next reel
+SCENES.teaser = (t) => {
+  const s0 = SCN.teaser.t0, tEnd = TL.total; if (t < s0 - 0.1) return; const a = P(t, s0, 0.3), sorted = [1, 2, 3, 5, 7, 8, 9], o1 = 1 - P(t, L0(18) - 0.2, 0.3);
+  if (o1 > 0) { for (let i = 0; i < 7; i++) { const k = pop(t, SG(17, 0) + 0.1 + i * 0.06, 0.4); withT(cx(i), 740, k, k, 0, () => { fillRR(-60, -60, 120, 120, 24, "#ffffff", a * o1 * clamp(k * 2), 16); strokeRR(-60, -60, 120, 120, 24, C.line, 3, a * o1 * clamp(k * 2)); T(String(sorted[i]), 0, 5, { size: 68, color: C.navy, fam: "mono", a: a * o1 * clamp(k * 2) }); }); }
+    const tk = pop(t, SG(17, 0) + 0.7, 0.4); withT(540, 875, tk, tk, 0, () => { fillRR(-120, -36, 240, 72, 36, C.tealSoft, a * o1); T("مرتّبة ✓", 0, 2, { size: 38, color: C.teal, a: a * o1 }); });
+    const k2 = pop(t, SG(17, 1) + 0.6, 0.5); withT(540, 1130, k2, k2, 0, () => { T("20", 0, 0, { size: 250, color: C.teal, fam: "mono", a: a * o1 * clamp(k2 * 2) }); T("خطوة بس", 0, 150, { size: 60, color: C.navy, a: a * o1 * clamp(k2 * 2) }); });
+    const k3 = P(t, SG(17, 2) + 0.2, 0.35); T("من بين 1,000,000 عنصر", 540, 1400, { size: 46, color: C.mut, a: a * o1 * k3 }); }
+  if (t > L0(18) - 0.3) { const e = eo(P(t, L0(18) - 0.25, 0.5)); K("wink", 540, 1660 + (1 - e) * 600, 760, { bob: 0.6 });
+    const q = pop(t, L0(18) + 0.1, 0.45); withT(540, 690, q, q, 0, () => { circle(0, 0, 120, C.navy, clamp(q * 2), 30); T("؟", 0, 10, { size: 160, color: "#fff", a: clamp(q * 2) }); });
+    const p = pop(t, SG(18, 1), 0.45); withT(540, 870, p, p, 0, () => { fillRR(-200, -46, 400, 92, 46, C.teal, clamp(p * 2), 20); T("بالريل الجاي 👀", 0, 4, { size: 44, color: "#fff", a: clamp(p * 2) }); }); }
 };
+SCENES.order = ["cards", "rule", "code", "speed", "teaser", "khwarizmo"];
 
-// ------------------------------------------------------------ sound events (music.py turns these into notes and effects)
+// ------------------------------------------------ sound events (soft UI sounds; the voice carries the explanation)
 window.collectSfx = () => {
   const e = [], ev = (t, k, v = 0) => e.push({ t: +t.toFixed(3), k, v });
-  for (let h = 0; h < 9; h++) ev(bt("hook", 2 + h / 2), "tick", h); ev(bt("hook", 6.5), "lock"); ev(bt("hook", 1), "pop"); ev(bt("hook", 5), "riser", 3 * BEAT);
-  ev(SC.title.t0, "impact"); ev(bt("title", 1), "sweep"); ev(bt("title", 1.5) + 0.62, "land"); ev(bt("title", 3), "pop"); ev(bt("title", 4.5), "pop", 1); ev(SC.title.t1 - 0.3, "whoosh");
-  for (let i = 0; i < N; i++) ev(dropT(i) + 0.42, "drop", i); ev(bt("setup", 5.2) + 0.45, "target"); ev(bt("setup", 0.6), "pop"); ev(bt("setup", 8.5), "wiggle");
-  ev(T3(), "jump"); for (let k = 0; k <= HIT; k++) { ev(openT(k) + 0.12, "open", k); if (k < HIT) { ev(verdT(k), "no", k); ev(hopT(k), "hop", k); } } ev(FOUND(), "yes"); ev(FOUND() + 0.35, "jump", 1); ev(FOUND() + 1.1, "pop", 2);
-  [0, 1, 2].forEach((i) => ev(bt("rule", 1 + i * 2.5) + 0.3, "card", i)); ev(bt("rule", 8.5), "pop", 1); ev(SC.rule.t1 - 0.3, "whoosh");
-  const total = CODE.join("").length; for (let c = 0; c < total; c += 2) ev(typeT0() + (c / total) * typeDur(), "key", c); ev(bt("code", 4), "pop");
-  for (let k = 0; k <= HIT; k++) { ev(runT(k), "step", k); ev(runT(k) + BEAT * 0.5, k === HIT ? "stepyes" : "stepno", k); } ev(runT(HIT) + BEAT, "ret"); ev(SC.code.t1 - 0.3, "whoosh");
-  ev(bt("speed", 1), "card", 0); ev(bestT(), "ret"); ev(bt("speed", 4.5), "card", 1); for (let i = 0; i < 7; i++) ev(worstT() + i * wStep(), "step", i); ev(worstT() + 6 * wStep(), "no", 9);
-  ev(bt("speed", 10), "pop"); ev(milT(), "riser", 3.4 * BEAT); ev(milT() + 3.4 * BEAT, "boom"); ev(SC.speed.t1 - 0.3, "whoosh");
-  ev(bt("finale", 1.5) + 0.3, "card", 0); ev(bt("finale", 3) + 0.3, "card", 2); ev(bt("finale", 6), "glitch"); ev(bt("finale", 8), "glitch", 1); ev(bt("finale", 9), "pop", 1); ev(bt("finale", 10.5), "impact", 1); ev(bt("finale", 10.5) + 0.5, "land"); ev(bt("finale", 10.5) + 1.5, "pop", 2);
-  return { bpm: TL.bpm, total: TL.total, scenes: TL.scenes.map((s) => ({ name: s.name, t0: SC[s.name].t0, t1: SC[s.name].t1 })), found: FOUND(), events: e.sort((a, b) => a.t - b.t) };
+  ev(0.02, "pop"); for (let c = 0; c < 7; c++) ev(0.38 + c * 0.05, "card", c); ev(1.6, "drop"); SWAPS.forEach((_, k) => ev(swapT(k), "swish", k));
+  for (let k = 0; k < 5; k++) { ev(L0(4 + k), "flip", k); ev(SG(4 + k, 1), k === 4 ? "found" : "no", k); }
+  for (let i = 0; i < 7; i++) ev(L0(3) + 0.15 + i * 0.2, "tick", i); ev(L0(9) + 0.7, "pop"); ev(SG(11, 1), "pop"); ev(SG(11, 3), "pop");
+  const scan0 = SG(14, 1) + 0.1, step = Math.max(0.2, (L1(14) - scan0 + 0.15) / 7); for (let i = 0; i < 7; i++) ev(scan0 + i * step, i === 6 ? "found" : "tick", i);
+  ev(SG(15, 2), "rise"); ev(SG(16, 1) - 0.1, "pop"); ev(SG(17, 1) + 0.6, "pop"); ev(L0(18) + 0.1, "pop"); ev(SG(18, 1), "found", 9);
+  TL.scenes.slice(1).forEach((s) => ev(s.t0, "swish", 9));
+  return { total: TL.total, scenes: TL.scenes, events: e.sort((a, b) => a.t - b.t) };
 };
