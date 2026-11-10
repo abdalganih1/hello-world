@@ -8,7 +8,7 @@ plain = [l.get("tts", l["text"]) for l in json.load(open(os.path.join(ROOT, "voi
 syr = json.load(open(os.path.join(ROOT, "voice/syrian.json"), encoding="utf8"))["lines"]
 GEORGE, SARAH = "JBFqnCBsd6RMkjVDRZzb", "EXAVITQu4vr4xnSDxMaL"
 # file 1 was the owner's pick, but its ق sounds Gulf (g). These swap only the ق words for the Damascene hamza; every other line stays identical to file 1.
-QAF = {"الرقم": "الرئم", "طريقة": "طريئة", "لقيناه": "لئيناه", "قارن": "آرن", "وقّف": "وئّف", "بتمرق": "بتمرئ", "بيقارن": "بيآرن", "تمرق": "تمرئ", "مقارنة": "مآرنة", "القائمة": "الآيمة", "هالبطاقات": "هالبطائات", "البطاقات": "البطائات", "حلقة": "حلئة"}
+QAF = {"الرقم": "الرئم", "طريقة": "طريئة", "لقيناه": "لئيناه", "قارن": "آرن", "وقّف": "وئّف", "بتمرق": "بتمرئ", "بيقارن": "بيآرن", "تمرق": "تمرئ", "مقارنة": "مآرنة", "القائمة": "الآيمة", "هالبطاقات": "هالبطائات", "البطاقات": "البطائات", "حلقة": "حلئة", "بتلاقيه": "بتلائيه", "يلاقيه": "يلائيه"}
 def qaf(t):
     out = []
     for w in t.split(" "):
