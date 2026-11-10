@@ -7,6 +7,16 @@ KEY, ME = os.environ["ELEVENLABS_API_KEY"], os.environ["ELEVENLABS_VOICE_ID"]
 plain = [l.get("tts", l["text"]) for l in json.load(open(os.path.join(ROOT, "voice/script.json"), encoding="utf8"))["lines"]]
 syr = json.load(open(os.path.join(ROOT, "voice/syrian.json"), encoding="utf8"))["lines"]
 GEORGE, SARAH = "JBFqnCBsd6RMkjVDRZzb", "EXAVITQu4vr4xnSDxMaL"
+# file 1 was the owner's pick, but its ق sounds Gulf (g). These swap only the ق words for the Damascene hamza; every other line stays identical to file 1.
+QAF = {"الرقم": "الرئم", "طريقة": "طريئة", "لقيناه": "لئيناه", "قارن": "آرن", "وقّف": "وئّف", "بتمرق": "بتمرئ", "بيقارن": "بيآرن", "تمرق": "تمرئ", "مقارنة": "مآرنة", "القائمة": "الآيمة", "هالبطاقات": "هالبطائات", "البطاقات": "البطائات", "حلقة": "حلئة"}
+def qaf(t):
+    out = []
+    for w in t.split(" "):
+        core = w.rstrip("،.؟!:"); out.append(QAF.get(core, core) + w[len(core):])
+    return " ".join(out)
+plain_q = [qaf(t) for t in plain]
+TAG = "[Syrian Damascene accent] "
+ONLY = sys.argv[1:]
 V = [  # name, model, voice, texts, prefix tag, description
     ("1_current_v3_plain", "eleven_v3", ME, plain, "", "الحالي: صوتك + v3 + النص العادي"),
     ("2_v3_syrian_spelling", "eleven_v3", ME, syr, "", "صوتك + v3 + كتابة شامية (ق ← ء، إزا، ميت…)"),
@@ -15,6 +25,9 @@ V = [  # name, model, voice, texts, prefix tag, description
     ("5_v2_syrian_spelling", "eleven_multilingual_v2", ME, syr, "", "صوتك + موديل multilingual_v2 + كتابة شامية"),
     ("6_v3_male_voice", "eleven_v3", GEORGE, syr, "", "صوت رجالي جاهز تاني + v3 + كتابة شامية"),
     ("7_v3_female_voice", "eleven_v3", SARAH, syr, "", "صوت نسائي جاهز + v3 + كتابة شامية"),
+    ("8_file1_qaf_hamza", "eleven_v3", ME, plain_q, "", "متل الملف 1 بالزبط، بس كلمات القاف مكتوبة بالهمزة (الرئم، طريئة، لئيناه، آرن…)"),
+    ("9_file1_qaf_hamza_accent", "eleven_v3", ME, plain_q, TAG, "متل 8 + تعليمة لهجة شامية دمشقية للموديل"),
+    ("10_file1_accent_only", "eleven_v3", ME, plain, TAG, "الملف 1 بنصه العادي + تعليمة لهجة شامية دمشقية بس (بدون تغيير الكتابة)"),
 ]
 cache = os.path.join(ROOT, "audio/variants_cache"); os.makedirs(cache, exist_ok=True); outd = os.path.join(ROOT, "voice/variants"); os.makedirs(outd, exist_ok=True)
 def tts(text, model, voice):
@@ -33,6 +46,7 @@ def trim(x):
     return x[max(0, on[0] - 600):on[-1] + 2600] if len(on) else x
 readme = ["# نسخ صوتية للمقارنة", "", "كل نسخة فيها الريل كامل (19 جملة بنفس الترتيب)، وكل وحدة بتغيّر شغلة وحدة عن اللي قبلها.", "", "| الملف | شو فيه |", "|---|---|"]
 for name, model, voice, texts, tag, desc in V:
+    if ONLY and name.split("_")[0] not in ONLY: readme.append(f"| `{name}.mp3` | {desc} |"); continue
     parts = []
     for i, t in enumerate(texts):
         parts.append(trim(pcm(tts(tag + t, model, voice)))); parts.append(np.zeros(int(SR * (0.6 if i in (1, 3, 8, 9, 11, 13, 16) else 0.35)), np.float32))
