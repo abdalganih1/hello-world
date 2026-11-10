@@ -40,8 +40,8 @@ function measure(s, size, weight = 900, fam = "Cairo") { ctx.save(); ctx.font = 
 function tokens(s) { const out = []; for (const w of s.split(" ")) { const lat = !isAr(w) && /[A-Za-z0-9()]/.test(w); if (lat && out.length && out[out.length - 1].lat) out[out.length - 1].s += " " + w; else out.push({ s: w, lat }); } return out; }
 // one line of words, centred, each word fading/rising in from t0 (Arabic stays whole-word, never letter by letter)
 function wordsLine(tk, x, y, t0, o) {
-  const { size, a, hl, step } = o, sp = measure(" ", size), ws = tk.map((k) => measure(k.s, size, 900, k.lat ? "mono" : "Cairo")), tot = ws.reduce((p, q) => p + q, 0) + sp * (tk.length - 1);
-  let cur = x + tot / 2; tk.forEach((k, i) => { const u = P(NOW, t0 + i * step, 0.28), w = ws[i]; const on = hl.includes(k.s) || hl.includes(k.s.replace(/[،.؟!:]/g, ""));
+  const { size, a, hl, step, instant } = o, sp = measure(" ", size), ws = tk.map((k) => measure(k.s, size, 900, k.lat ? "mono" : "Cairo")), tot = ws.reduce((p, q) => p + q, 0) + sp * (tk.length - 1);
+  let cur = x + tot / 2; tk.forEach((k, i) => { const u = instant ? 1 : P(NOW, t0 + i * step, 0.28), w = ws[i]; const on = hl.includes(k.s) || hl.includes(k.s.replace(/[،.؟!:]/g, ""));
     if (u > 0) T(k.s, cur - w / 2, y + (1 - eo(u)) * 18, { size, color: on ? C.teal : C.navy, a: a * eo(u), fam: k.lat ? "mono" : "Cairo", weight: 900 }); cur -= w + sp; });
 }
 function wrap(s, size, maxW) { // one line if it fits, else two lines balanced by width (no orphan word)
@@ -79,7 +79,7 @@ function captions(t) {
     if (chunks) { chunks.forEach((c, j) => { const c0 = l.segs[j] - 0.06, c1 = j + 1 < chunks.length ? l.segs[j + 1] - 0.08 : end; const a = win(t, c0, c1, 0.12); if (a <= 0) return;
         const ls = wrap(c, size, maxW), ys = ls.length === 1 ? [385] : [340, 430]; ls.forEach((ln, k) => wordsLine(ln, W / 2, ys[k], c0 + k * 0.15, { size, a, hl: l.hl, step: 0.05 })); }); continue; }
     const a = win(t, t0, end, 0.12); if (a <= 0) continue; const ys = lines.length === 1 ? [385] : [340, 430];
-    lines.forEach((ln, k) => wordsLine(ln, W / 2, ys[k], t0 + k * 0.2, { size, a, hl: l.hl, step: 0.06 }));
+    lines.forEach((ln, k) => wordsLine(ln, W / 2, ys[k], t0 + k * 0.2, { size, a: l.instant ? (end - t < 0.12 ? a : 1) : a, hl: l.hl, step: 0.06, instant: l.instant }));
   }
 }
 

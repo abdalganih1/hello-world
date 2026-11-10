@@ -45,8 +45,9 @@ ARP = {"C": [72, 76, 79, 76, 84, 79, 76, 79], "G": [71, 74, 79, 74, 83, 79, 74, 
 MEL = {"C": [(0, 84, 1), (1.5, 79, .5), (2, 81, 1), (3, 84, 1)], "G": [(0, 83, 1), (1.5, 79, .5), (2, 86, 1.5)], "Am": [(0, 84, 1), (1.5, 81, .5), (2, 88, 1), (3, 84, 1)], "F": [(0, 81, 1), (2, 84, 1), (3, 86, 1)]}
 
 def level(t):  # how full the band is at time t (scene-driven)
-    def sc(name): s = SC[name]; return s["t0"] <= t < s["t1"]
-    if sc("hook"): return dict(mar=0.8, pad=0.9, shaker=1 if t > 1.6 else 0, kick=0.6 if t > 3.4 else 0, bass=0.6 if t > 3.4 else 0)
+    def sc(name): s = SC.get(name); return bool(s) and s["t0"] <= t < s["t1"]
+    if sc("hook"): return dict(mar=0.9, pad=1, shaker=1, kick=0.8 if t > 0.4 else 0, bass=0.8, clap=0.6 if t > 2.6 else 0)
+    if sc("setup"): return dict(mar=0.9, pad=1, shaker=1, kick=0.8, bass=0.9)
     if sc("intro") or sc("idea"): return dict(mar=1, pad=1, shaker=1, kick=0.9, clap=0.8, bass=1)
     if sc("demo"): return dict(mar=0.0, pad=1, shaker=0.8, kick=0.5, bass=0.6)          # the flips play the melody here
     if sc("name"): return dict(mar=1.1, pad=1, shaker=1, kick=1, clap=1, bass=1, mel=1)
@@ -87,7 +88,8 @@ def sparkle(): out = np.zeros(int(1.0 * SR)); [out.__setitem__(slice(int(i * 0.0
 flips = 0
 for e in EV["events"]:
     t, k, v = e["t"], e["k"], int(e.get("v", 0))
-    if k == "pop": put(marimba(88, 0.3), t, 0.28, 0.2, 0.3)
+    if k == "hit": put(chord_arp([72, 79, 84, 88], 0.03, 1.6), t, 0.4, 0, 0.7); put(kick(), t, 0.9); put(bass(36, 1.4), t, 0.5); put(sparkle(), t + 0.05, 0.3, 0.2, 0.6)
+    elif k == "pop": put(marimba(88, 0.3), t, 0.28, 0.2, 0.3)
     elif k == "card": put(marimba(60 + 2 * v, 0.18), t, 0.16, -0.6 + 0.2 * v, 0.1); put(shaker(), t, 0.1)
     elif k == "drop": put(marimba(55, 0.8), t, 0.5, 0, 0.4); put(kick(), t, 0.5)
     elif k == "swish": put(whoosh(), t - 0.05, 0.32 if v != 9 else 0.22, 0.3 * np.sin(t), 0.25)

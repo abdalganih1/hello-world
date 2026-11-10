@@ -41,14 +41,14 @@ def onsets(x):  # start of each voiced phrase (pauses > 0.15 s split them): lets
             st = i
         elif not on[i] and st is not None: last_off, st = i, None
     return res
-clips = [trim(decode(tts(i))) for i in range(len(lines))]
-t, out, scenes = LEAD, [], []
+clips = [np.zeros(int(l["dur"] * SR), np.float32) if "dur" in l else trim(decode(tts(i))) for i, l in enumerate(lines)]
+t, out, scenes = (0.0 if "dur" in lines[0] else LEAD), [], []
 for i, (l, c) in enumerate(zip(lines, clips)):
     if i and l["scene"] != lines[i - 1]["scene"]: t += SCENE_GAP - GAP
     if not scenes or scenes[-1]["name"] != l["scene"]:
         if scenes: scenes[-1]["t1"] = round(t - 0.12, 3)
         scenes.append({"name": l["scene"], "t0": round(max(0, t - 0.12), 3)})
-    d = len(c) / SR; out.append({"i": i, "scene": l["scene"], "text": l["text"], "caption": l.get("caption", l["text"]), "hl": l.get("hl", []), "t0": round(t, 3), "t1": round(t + d, 3), "segs": [round(t + x, 3) for x in onsets(c)]})
+    d = len(c) / SR; out.append({"i": i, "scene": l["scene"], "text": l["text"], "caption": l.get("caption", l["text"]), "hl": l.get("hl", []), "t0": round(t, 3), "t1": round(t + d, 3), "segs": [round(t + x, 3) for x in (onsets(c) if "dur" not in l else [0.0])], "instant": bool(l.get("instant"))})
     t += d + GAP + l.get("pause", 0)
 total = round(t - GAP + TAIL, 3); scenes[0]["t0"] = 0.0; scenes[-1]["t1"] = total
 v = np.zeros(int(total * SR) + SR, np.float32)
