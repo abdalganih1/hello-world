@@ -89,9 +89,12 @@ SCENES.hook = (t) => {
 };
 // خوارزمو as the host, bottom-right, from "خلينا نجرب" to the name: materialises like a hologram, talks, blinks, reacts
 // (thinks -> presents -> jumps for joy on the find -> presents -> thumbs-up on the name), every pose change with a squash-pop.
-const HOSTX = 250, HOSTY = 1890, HOSTH = 660, FLIP = -1; // left side, mirrored so he faces the cards
+const HOSTX = 250, HOSTY = 1890, HOSTH = 660;
+// he stands on the left, so every pose must open toward the cards (to the right): the presenting pose points to
+// the left in the drawing, so it is mirrored; the thumbs-up and the jump already face right, so they are not.
+const FACE = { presenting: -1, celebrating: 1, hero: 1 };
 function hostPose(t) {
-  const f = AT(8, "لقيناه"), seq = [[T4() - 0.15, "idea"], [L0(3) - 0.1, "presenting"], [f - 0.05, "celebrating"], [f + 1.3, "presenting"], [L0(9) + 0.35, "hero"]];
+  const f = AT(8, "لقيناه"), seq = [[T4() - 0.15, "presenting"], [f - 0.05, "celebrating"], [f + 1.3, "presenting"], [L0(9) + 0.35, "hero"]];
   let cur = seq[0]; for (const q of seq) if (t >= q[0]) cur = q; return cur;
 }
 SCENES.khwarizmo = (t) => {
@@ -100,7 +103,7 @@ SCENES.khwarizmo = (t) => {
   if (since > t0 + 0.01 && sw < 1) { const b = back(sw, 2.4); sx = lerp(1.16, 1, b); sy = lerp(0.82, 1, b); }
   const f = AT(8, "لقيناه"), ju = P(t, f - 0.05, 0.6), exit = eio(P(t, t1, 0.4)); let y = HOSTY + exit * 900; const x = HOSTX;
   if (ju > 0 && ju < 1) { y -= Math.sin(ju * Math.PI) * 190; sy *= 1 + 0.06 * Math.sin(ju * Math.PI); }
-  const h = pose === "celebrating" ? HOSTH * 0.96 : HOSTH, rot = 0.015, rev = P(t, t0, 0.65); sx *= FLIP;
+  const h = pose === "celebrating" ? HOSTH * 0.96 : HOSTH, rot = 0.012 * (FACE[pose] || 1), rev = P(t, t0, 0.65); sx *= FACE[pose] || 1;
   if (since > t0 + 0.01) { const u = P(t, since, 0.5); if (u < 1) { ring(x, y - h * 0.5, 120 + 260 * eo(u), hexA(C.teal, 0.5), 10 * (1 - u) + 1, 1 - u); halo(x, y - h * 0.5, 300, "rgba(31,181,181,0.25)", 1 - u); } }
   if (rev < 1) { // hologram build: revealed top -> bottom behind a glowing scan line, with scan lines over what is not solid yet
     const top = y - h - 30, ry = lerp(top, y + 20, eio(rev));
@@ -184,7 +187,7 @@ window.collectSfx = () => {
   const e = [], ev = (t, k, v = 0) => e.push({ t: +t.toFixed(3), k, v });
   ev(0.02, "hit");
   for (let c = 0; c < 7; c++) ev(T3() + 0.1 + c * 0.05, "card", c); ev(T3() + 0.7, "rise"); ev(T4() - 0.4, "swish");
-  ev(T4() + 0.05, "pop"); ev(T4() - 0.15, "rise"); ev(L0(3) - 0.1, "pop"); ev(L0(9) + 0.35, "pop"); ev(T4() + 0.93, "drop"); SWAPS.forEach((_, k) => ev(swapT(k), "swish", k));
+  ev(T4() + 0.05, "pop"); ev(T4() - 0.15, "rise"); ev(L0(9) + 0.35, "pop"); ev(T4() + 0.93, "drop"); SWAPS.forEach((_, k) => ev(swapT(k), "swish", k));
   for (let k = 0; k < 5; k++) { ev(L0(4 + k), "flip", k); ev(AT(4 + k, k === 4 ? "لقيناه" : "لأ"), k === 4 ? "found" : "no", k); }
   for (let i = 0; i < 7; i++) ev(L0(3) + 0.15 + i * 0.2, "tick", i); ev(L0(9) + 0.7, "pop"); ev(AT(11, "وقّف"), "pop"); ev(AT(11, "كمّل"), "pop");
   const scan0 = AT(12, "إذا") + 0.1, step = Math.max(0.2, (L1(12) - scan0 + 0.15) / 7); for (let i = 0; i < 7; i++) ev(scan0 + i * step, i === 6 ? "found" : "tick", i);
