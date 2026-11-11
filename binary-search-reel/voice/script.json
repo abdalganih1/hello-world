@@ -1,0 +1,21 @@
+{
+ "_doc": "text = الكلام (eleven_v3 + تعليمة لهجة شامية، صوت الملف 10). tts = نطق بديل. style = نبرة. cap = العنوان على الشاشة مكتوب بالإيد (k صغير، p كبير، em مميّز، pAt الكلمة اللي بيطلع معها). auto = القراءة بتنختار آلياً (أقرب للسوري). شغّل: python3 tools/auto_voice.py --auto --agreed && python3 tools/build_voice.py",
+ "lines": [
+  {"scene": "hook", "text": "فيني لاقيك، من بين تمن مليار إنسان، بتلاتة وتلاتين سؤال بس.", "style": "[confident, amazed]", "instant": true, "cap": {"k": "من بين 8 مليار إنسان…", "p": "بلاقيك بـ 33 سؤال بس 🤯", "em": "33"}, "auto": true},
+  {"scene": "secret", "text": "السر؟ ما منفتّش… منقسم.", "cap": {"k": "السر؟", "p": "ما منفتش… منقسم ✂️", "em": "منقسم", "pAt": "ما منفتّش"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "setup", "text": "خلينا نجرب: بدنا الرقم واحد وخمسين، بين هالبطاقات المرتبة.", "cap": {"k": "خلينا نجرب", "p": "وين الرقم 51؟", "em": "51؟", "pAt": "بدنا"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "demo", "text": "منبلّش من النص: سبعة وتلاتين. أصغر من المطلوب، فمنرمي كل اللي قبله.", "cap": {"k": "خطوة 1", "p": "37 أصغر… نرمي النص الأول", "em": "نرمي", "pAt": "أصغر"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "demo", "text": "النص من اللي ضل: تلاتة وستين. أكبر، فمنرمي اللي بعده.", "cap": {"k": "خطوة 2", "p": "63 أكبر… نرمي النص التاني", "em": "نرمي", "pAt": "أكبر"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "demo", "text": "خمسة وأربعين؟ أصغر.", "cap": {"k": "خطوة 3", "p": "45 أصغر", "em": "أصغر", "pAt": "أصغر"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "demo", "text": "واحد وخمسين! لقيناه، بأربع خطوات بس.", "pause": 0.2, "cap": {"k": "خطوة 4", "p": "لقيناه! 🎉", "em": "لقيناه!", "pAt": "لقيناه"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "name", "text": "هاد اسمه البحث الثنائي.", "cap": {"k": "هاد اسمه", "p": "البحث الثنائي", "em": "الثنائي", "pAt": "البحث"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "rule", "text": "بس في شرط: القائمة لازم تكون مرتبة.", "cap": {"k": "بس في شرط!", "p": "القائمة لازم تكون مرتبة", "em": "مرتبة", "pAt": "القائمة"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "rule", "text": "وبكل خطوة، منطّلع عالنص، ومنرمي نص القائمة.", "cap": {"k": "بكل خطوة", "p": "منرمي نص القائمة ✂️", "em": "نص", "pAt": "ومنرمي"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "speed", "text": "مليون عنصر؟ بيصيروا نص مليون، بعدين ربع، ولحد عشرين خطوة بس.", "cap": {"k": "مليون عنصر؟", "p": "بيوصلوا لواحد بـ 20 خطوة", "em": "20", "pAt": "بيصيروا"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "speed", "text": "والبحث الخطي؟ كان بدو مليون.", "cap": {"k": "والبحث الخطي؟", "p": "كان بدو مليون خطوة 🐢", "em": "مليون", "pAt": "كان"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "speed", "text": "وهاد اللي منسمّيه O(log n).", "tts": "وهاد اللي منسمّيه، أو لوغ إن.", "cap": {"k": "وهاد اللي منسميه", "p": "التعقيد اللوغاريتمي", "em": "اللوغاريتمي", "pAt": "O(log"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "world", "text": "ولهيك، تمن مليار إنسان، بيلزمهم بس تلاتة وتلاتين سؤال.", "cap": {"k": "ولهيك", "p": "8 مليار ← 33 سؤال بس", "em": "33", "pAt": "تمن"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "teaser", "text": "بس كيف منرتّب القائمة بالأساس؟", "cap": {"k": "بس كيف منرتب", "p": "القائمة بالأساس؟", "em": "بالأساس؟", "pAt": "القائمة"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"},
+  {"scene": "teaser", "text": "شو هي؟ بالريل الجاي.", "pause": 0.8, "cap": {"k": "", "p": "شو هي؟", "em": "هي؟"}, "auto": true, "style": "[energetic, enthusiastic, friendly]"}
+ ]
+}

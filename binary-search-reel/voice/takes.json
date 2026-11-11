@@ -1,0 +1,1109 @@
+{
+ "[confident, amazed] فيني لاقيك إنت، من بين تمن مليار إنسان، بتلاتة وتلاتين سؤال بس.": {
+  "text": "فيني لاقيك إنت، من بين تمن مليار إنسان، بتلاتة وتلاتين سؤال بس.",
+  "pick": {
+   "file": "audio/variants_cache/4cc36f715a54.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1002,
+   "stability": null,
+   "syr": 0.161,
+   "SYR": 0.325,
+   "sim": 0.61,
+   "wr": 0.92,
+   "dur": 5.92,
+   "heard": " فين لقيك انتِ؟  من بين 8 مليار انسان  ب33 سؤال بس؟"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/08e355ba33bd.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.227,
+    "SYR": 0.106,
+    "sim": 0.45,
+    "wr": 0.83,
+    "dur": 5.76,
+    "heard": " فيني لايك انتي مبين 8 مليار انسان ب33 سؤال بس؟"
+   },
+   {
+    "file": "audio/variants_cache/4cc36f715a54.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.161,
+    "SYR": 0.325,
+    "sim": 0.61,
+    "wr": 0.92,
+    "dur": 5.92,
+    "heard": " فين لقيك انتِ؟  من بين 8 مليار انسان  ب33 سؤال بس؟"
+   },
+   {
+    "file": "audio/variants_cache/ac0e71a0259c.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.092,
+    "SYR": 0.13,
+    "sim": 0.7,
+    "wr": 0.92,
+    "dur": 6.32,
+    "heard": " فيني لاقيك انتي  من بين 8 مليار انسان  ب33 سؤال بس"
+   },
+   {
+    "file": "audio/variants_cache/47c8d6b2a2bc.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.089,
+    "SYR": 0.018,
+    "sim": 0.7,
+    "wr": 0.92,
+    "dur": 5.76,
+    "heard": " فيني لاقيك انتي  من بين 8 مليار انسان  ب33 سؤال بس"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] السر؟ ما منفتّش… منقسم.": {
+  "text": "السر؟ ما منفتّش… منقسم.",
+  "pick": {
+   "file": "audio/variants_cache/3e7a5d70efc9.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1002,
+   "stability": null,
+   "syr": -0.128,
+   "SYR": 0.051,
+   "sim": 1.0,
+   "wr": 1.0,
+   "dur": 3.36,
+   "heard": " السر ما منفتش منقسم"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/18d4637c64e4.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.323,
+    "SYR": 0.36,
+    "sim": 0.75,
+    "wr": 1.0,
+    "dur": 4.0,
+    "heard": " السر  ما منفتش  منأسم"
+   },
+   {
+    "file": "audio/variants_cache/3e7a5d70efc9.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.128,
+    "SYR": 0.051,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 3.36,
+    "heard": " السر ما منفتش منقسم"
+   },
+   {
+    "file": "audio/variants_cache/d081342518ed.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.348,
+    "SYR": 0.019,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 3.12,
+    "heard": " السر ما منفتش منقسم"
+   },
+   {
+    "file": "audio/variants_cache/92a2dfb11ed1.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.188,
+    "SYR": 0.097,
+    "sim": 0.67,
+    "wr": 1.25,
+    "dur": 3.04,
+    "heard": " السر ما منفتش من أسم"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] خلينا نجرب: بدنا الرقم واحد وخمسين، بين هالبطاقات المرتبة.": {
+  "text": "خلينا نجرب: بدنا الرقم واحد وخمسين، بين هالبطاقات المرتبة.",
+  "pick": {
+   "file": "audio/variants_cache/bce1be2651c1.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": 0.347,
+   "SYR": 0.346,
+   "sim": 0.82,
+   "wr": 0.89,
+   "dur": 4.48,
+   "heard": " خلّينا نجرب، بدنا الرقم 51 بين هالبطاقات المرتبة."
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/bce1be2651c1.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.347,
+    "SYR": 0.346,
+    "sim": 0.82,
+    "wr": 0.89,
+    "dur": 4.48,
+    "heard": " خلّينا نجرب، بدنا الرقم 51 بين هالبطاقات المرتبة."
+   },
+   {
+    "file": "audio/variants_cache/c2e5bc1b9623.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.041,
+    "SYR": 0.085,
+    "sim": 0.71,
+    "wr": 0.89,
+    "dur": 5.6,
+    "heard": " خلينا نجرب. بدنا الرقم 51 بين هالبطاقات لمرتبة."
+   },
+   {
+    "file": "audio/variants_cache/dc7c91125970.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.024,
+    "SYR": 0.032,
+    "sim": 0.82,
+    "wr": 0.89,
+    "dur": 5.44,
+    "heard": " خلّينا نجرب، بدنا الرقم 51 بين هالبطاقات المرتبة."
+   },
+   {
+    "file": "audio/variants_cache/1604979bc6ba.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.105,
+    "SYR": 0.107,
+    "sim": 0.71,
+    "wr": 0.89,
+    "dur": 5.36,
+    "heard": " خلينا نجرب  بدنا رلقم 51  بين هالبطاقات المرتبة"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] منبلّش من النص: سبعة وتلاتين. أصغر من المطلوب، فمنرمي كل اللي قبله.": {
+  "text": "منبلّش من النص: سبعة وتلاتين. أصغر من المطلوب، فمنرمي كل اللي قبله.",
+  "pick": {
+   "file": "audio/variants_cache/af472e810632.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1003,
+   "stability": null,
+   "syr": 0.011,
+   "SYR": 0.037,
+   "sim": 0.87,
+   "wr": 0.92,
+   "dur": 6.24,
+   "heard": " منبلش من النص  37  أصغر من المطلوب فمنرمي كل اللي قبله"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/be3fae81bf9d.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.003,
+    "SYR": 0.018,
+    "sim": 0.7,
+    "wr": 0.92,
+    "dur": 6.4,
+    "heard": " امبلش من النص  37. أصغر من المطلوب فنرمي كل اللي قبله"
+   },
+   {
+    "file": "audio/variants_cache/137f9c246492.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.017,
+    "SYR": 0.027,
+    "sim": 0.7,
+    "wr": 0.92,
+    "dur": 6.4,
+    "heard": " نبلّش من النص  37  أصغر من المطلوب  فنرمي كل اللي قبله"
+   },
+   {
+    "file": "audio/variants_cache/af472e810632.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.011,
+    "SYR": 0.037,
+    "sim": 0.87,
+    "wr": 0.92,
+    "dur": 6.24,
+    "heard": " منبلش من النص  37  أصغر من المطلوب فمنرمي كل اللي قبله"
+   },
+   {
+    "file": "audio/variants_cache/32c23aef717d.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.025,
+    "SYR": 0.025,
+    "sim": 0.7,
+    "wr": 0.92,
+    "dur": 6.0,
+    "heard": " امبلش من النص، 37، أصغر من المطلوب فنرمي كل اللي قبله"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] النص من اللي ضل: تلاتة وستين. أكبر، فمنرمي اللي بعده.": {
+  "text": "النص من اللي ضل: تلاتة وستين. أكبر، فمنرمي اللي بعده.",
+  "pick": {
+   "file": "audio/variants_cache/9d1df2776b01.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1002,
+   "stability": null,
+   "syr": 0.68,
+   "SYR": 0.711,
+   "sim": 0.74,
+   "wr": 0.9,
+   "dur": 4.48,
+   "heard": " النص من اللي ظل 63  أكبر فمنرمي اللي بعده"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/38ed530d3ea6.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.655,
+    "SYR": 0.661,
+    "sim": 0.74,
+    "wr": 0.9,
+    "dur": 5.6,
+    "heard": " النص من اللي ظل  63  أكبر فمنرمي اللي بعده"
+   },
+   {
+    "file": "audio/variants_cache/9d1df2776b01.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.68,
+    "SYR": 0.711,
+    "sim": 0.74,
+    "wr": 0.9,
+    "dur": 4.48,
+    "heard": " النص من اللي ظل 63  أكبر فمنرمي اللي بعده"
+   },
+   {
+    "file": "audio/variants_cache/c9b590d0a9ba.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.004,
+    "SYR": 0.005,
+    "sim": 0.74,
+    "wr": 0.9,
+    "dur": 4.64,
+    "heard": " النص من اللي ظل 63. أكبر فمنرمي اللي بعده."
+   },
+   {
+    "file": "audio/variants_cache/5a8783f4479a.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.007,
+    "SYR": 0.008,
+    "sim": 0.74,
+    "wr": 0.9,
+    "dur": 4.72,
+    "heard": " النص من اللي ظل 63. أكبر فمنرمي اللي بعده"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] خمسة وأربعين؟ أصغر.": {
+  "text": "خمسة وأربعين؟ أصغر.",
+  "pick": {
+   "file": "audio/variants_cache/917ce2af88f6.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1003,
+   "stability": null,
+   "syr": 0.604,
+   "SYR": 0.612,
+   "sim": 1.0,
+   "wr": 1.0,
+   "dur": 2.4,
+   "heard": " خمسة وأربعين أصغر"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/3e93baadfb4e.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.299,
+    "SYR": 0.345,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 2.32,
+    "heard": " خمسة وأربعين أصغر"
+   },
+   {
+    "file": "audio/variants_cache/5b75e529cdec.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.007,
+    "SYR": 0.008,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 2.56,
+    "heard": " خمسة وإربعين أصغر"
+   },
+   {
+    "file": "audio/variants_cache/917ce2af88f6.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.604,
+    "SYR": 0.612,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 2.4,
+    "heard": " خمسة وأربعين أصغر"
+   },
+   {
+    "file": "audio/variants_cache/957f1d6c376c.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.717,
+    "SYR": 0.715,
+    "sim": 0.57,
+    "wr": 1.33,
+    "dur": 2.4,
+    "heard": " خمسة و أربعين أصغر"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] واحد وخمسين! لقيناه، بأربع خطوات بس.": {
+  "text": "واحد وخمسين! لقيناه، بأربع خطوات بس.",
+  "pick": {
+   "file": "audio/variants_cache/e028d29ccefd.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1004,
+   "stability": null,
+   "syr": 0.533,
+   "SYR": 0.675,
+   "sim": 0.55,
+   "wr": 0.83,
+   "dur": 3.92,
+   "heard": " 51 لإنا بأربع خطوات بس"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/8a147380b2c6.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.025,
+    "SYR": 0.213,
+    "sim": 0.55,
+    "wr": 0.83,
+    "dur": 3.52,
+    "heard": " 51 لإنهى بأربع خطوات بس"
+   },
+   {
+    "file": "audio/variants_cache/3dbd6de0a3a4.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.701,
+    "SYR": 0.743,
+    "sim": 0.36,
+    "wr": 0.83,
+    "dur": 3.44,
+    "heard": " 51 لئنا بأربع حطوات بس"
+   },
+   {
+    "file": "audio/variants_cache/75241cb7e4eb.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.416,
+    "SYR": 0.034,
+    "sim": 0.36,
+    "wr": 0.83,
+    "dur": 3.68,
+    "heard": " 51 لإنا بأربع حطوات بس"
+   },
+   {
+    "file": "audio/variants_cache/e028d29ccefd.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.533,
+    "SYR": 0.675,
+    "sim": 0.55,
+    "wr": 0.83,
+    "dur": 3.92,
+    "heard": " 51 لإنا بأربع خطوات بس"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] هاد اسمه البحث الثنائي.": {
+  "text": "هاد اسمه البحث الثنائي.",
+  "pick": {
+   "file": "audio/variants_cache/f3506111c25c.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": -0.399,
+   "SYR": 0.047,
+   "sim": 0.75,
+   "wr": 1.0,
+   "dur": 2.0,
+   "heard": " هذا اسمه البحث الثنائي"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/f3506111c25c.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.399,
+    "SYR": 0.047,
+    "sim": 0.75,
+    "wr": 1.0,
+    "dur": 2.0,
+    "heard": " هذا اسمه البحث الثنائي"
+   },
+   {
+    "file": "audio/variants_cache/5ce866648385.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.05,
+    "SYR": 0.258,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.6,
+    "heard": " هذا اسم البحث الثنائي"
+   },
+   {
+    "file": "audio/variants_cache/e9ae80a016d2.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.426,
+    "SYR": 0.024,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 1.68,
+    "heard": " هذا اسم البحث الثنائي"
+   },
+   {
+    "file": "audio/variants_cache/1ebac6b0a69e.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.002,
+    "SYR": 0.076,
+    "sim": 0.25,
+    "wr": 1.0,
+    "dur": 1.52,
+    "heard": " هذا اسم البحث الفنائي"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] بس في شرط: القائمة لازم تكون مرتبة.": {
+  "text": "بس في شرط: القائمة لازم تكون مرتبة.",
+  "pick": {
+   "file": "audio/variants_cache/2eb4996d581d.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1002,
+   "stability": null,
+   "syr": 0.092,
+   "SYR": 0.127,
+   "sim": 1.0,
+   "wr": 1.0,
+   "dur": 4.16,
+   "heard": " بس في شرط القائمة لازم تكون مرتبة"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/49083660b673.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.486,
+    "SYR": 0.003,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 3.92,
+    "heard": " بس في شرط القائمة لازم تكون مرتبة"
+   },
+   {
+    "file": "audio/variants_cache/2eb4996d581d.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.092,
+    "SYR": 0.127,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 4.16,
+    "heard": " بس في شرط القائمة لازم تكون مرتبة"
+   },
+   {
+    "file": "audio/variants_cache/1df2a86e476a.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.475,
+    "SYR": 0.01,
+    "sim": 0.86,
+    "wr": 1.0,
+    "dur": 3.92,
+    "heard": " بس فيه شرط  القائمة لازم تكون مرتبة"
+   },
+   {
+    "file": "audio/variants_cache/f3ec4c4b816c.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.364,
+    "SYR": 0.075,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 3.28,
+    "heard": " بس في شرط  القائمة لازم تكون مرتبة"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] وبكل خطوة، منطّلع عالنص، ومنرمي نص القائمة.": {
+  "text": "وبكل خطوة، منطّلع عالنص، ومنرمي نص القائمة.",
+  "pick": {
+   "file": "audio/variants_cache/c9fb1fd998d0.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1002,
+   "stability": null,
+   "syr": 0.461,
+   "SYR": 0.448,
+   "sim": 0.86,
+   "wr": 1.0,
+   "dur": 4.8,
+   "heard": " وبكل خطوة منطلع النص ومنرمي نص القائمة"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/2bb71fdaed08.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.043,
+    "SYR": 0.039,
+    "sim": 0.71,
+    "wr": 1.0,
+    "dur": 4.48,
+    "heard": " وبكل الخطوة منطلع النص ومنرمي نص القائمة"
+   },
+   {
+    "file": "audio/variants_cache/c9fb1fd998d0.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.461,
+    "SYR": 0.448,
+    "sim": 0.86,
+    "wr": 1.0,
+    "dur": 4.8,
+    "heard": " وبكل خطوة منطلع النص ومنرمي نص القائمة"
+   },
+   {
+    "file": "audio/variants_cache/0dd5b77be6e5.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.148,
+    "SYR": 0.062,
+    "sim": 0.71,
+    "wr": 1.0,
+    "dur": 4.24,
+    "heard": " وبكل خطوة منطلع النص ومنرم نص القائمة"
+   },
+   {
+    "file": "audio/variants_cache/eb824bb2e6b3.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.009,
+    "SYR": 0.007,
+    "sim": 0.8,
+    "wr": 1.14,
+    "dur": 4.0,
+    "heard": " وبكل خطوة منطلع عن مص ومنرمي نص القائمة"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] مليون عنصر؟ بيصيروا نص مليون، بعدين ربع، ولحد عشرين خطوة بس.": {
+  "text": "مليون عنصر؟ بيصيروا نص مليون، بعدين ربع، ولحد عشرين خطوة بس.",
+  "pick": {
+   "file": "audio/variants_cache/c4977216bd11.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": 0.679,
+   "SYR": 0.645,
+   "sim": 0.82,
+   "wr": 1.0,
+   "dur": 6.4,
+   "heard": " مليون عنصر بصير نص مليون بعدين ربع ولحد 20 خطوة بس"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/c4977216bd11.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.679,
+    "SYR": 0.645,
+    "sim": 0.82,
+    "wr": 1.0,
+    "dur": 6.4,
+    "heard": " مليون عنصر بصير نص مليون بعدين ربع ولحد 20 خطوة بس"
+   },
+   {
+    "file": "audio/variants_cache/014b3ddb20c1.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.075,
+    "SYR": 0.013,
+    "sim": 0.82,
+    "wr": 1.0,
+    "dur": 5.92,
+    "heard": " مليون انصر بصير نص مليون بعدين ربع ولحد عشرين خطوة بس"
+   },
+   {
+    "file": "audio/variants_cache/1fc263473a84.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.499,
+    "SYR": 0.421,
+    "sim": 0.64,
+    "wr": 1.0,
+    "dur": 5.92,
+    "heard": " مليون انصر بصير نص مليون بعدين رباق ولحد 20 خطوة بس"
+   },
+   {
+    "file": "audio/variants_cache/180308040a14.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.06,
+    "SYR": 0.202,
+    "sim": 0.82,
+    "wr": 1.0,
+    "dur": 6.16,
+    "heard": " مليون عنصر بصير نص مليون بعدين ربع ولحد 20 خطوة بس"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] والبحث الخطي؟ كان بدو مليون.": {
+  "text": "والبحث الخطي؟ كان بدو مليون.",
+  "pick": {
+   "file": "audio/variants_cache/9ce85f55a3a9.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1003,
+   "stability": null,
+   "syr": 0.005,
+   "SYR": 0.146,
+   "sim": 0.8,
+   "wr": 1.0,
+   "dur": 3.12,
+   "heard": " والبحث الخطي كان بده مليون"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/6d28a9ceaf12.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.431,
+    "SYR": 0.011,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 2.64,
+    "heard": " والبحث الخطي كان بده مليون"
+   },
+   {
+    "file": "audio/variants_cache/c29d08af4999.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.239,
+    "SYR": 0.116,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 2.72,
+    "heard": " والبحث الخطي كان بده مليون"
+   },
+   {
+    "file": "audio/variants_cache/9ce85f55a3a9.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.005,
+    "SYR": 0.146,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 3.12,
+    "heard": " والبحث الخطي كان بده مليون"
+   },
+   {
+    "file": "audio/variants_cache/2d92a587d962.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.206,
+    "SYR": 0.049,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 2.32,
+    "heard": " والبحث الخطي كان بده مليون"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] وهاد اللي منسمّيه، أو لوغ إن.": {
+  "text": "وهاد اللي منسمّيه O(log n).",
+  "pick": {
+   "file": "audio/variants_cache/d83f19a425a4.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": -0.04,
+   "SYR": 0.003,
+   "sim": 0.33,
+   "wr": 1.0,
+   "dur": 3.04,
+   "heard": " وهذا ما نسميه او لوج ان"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/d83f19a425a4.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.04,
+    "SYR": 0.003,
+    "sim": 0.33,
+    "wr": 1.0,
+    "dur": 3.04,
+    "heard": " وهذا ما نسميه او لوج ان"
+   },
+   {
+    "file": "audio/variants_cache/54e4df02dd26.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.122,
+    "SYR": 0.026,
+    "sim": 0.0,
+    "wr": 0.67,
+    "dur": 3.04,
+    "heard": " وهذا ما نسميه  OLOGN"
+   },
+   {
+    "file": "audio/variants_cache/0aacc152da8f.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.452,
+    "SYR": 0.003,
+    "sim": 0.0,
+    "wr": 0.67,
+    "dur": 3.2,
+    "heard": " وهذا ما نسميه  Ologin"
+   },
+   {
+    "file": "audio/variants_cache/0f8248a806b6.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.464,
+    "SYR": 0.006,
+    "sim": 0.0,
+    "wr": 0.83,
+    "dur": 2.72,
+    "heard": " وهذا ما نسميه  O login"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] ولهيك، تمن مليار إنسان، بيلزمهم بس تلاتة وتلاتين سؤال.": {
+  "text": "ولهيك، تمن مليار إنسان، بيلزمهم بس تلاتة وتلاتين سؤال.",
+  "pick": {
+   "file": "audio/variants_cache/9634eb62f1d8.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1004,
+   "stability": null,
+   "syr": 0.139,
+   "SYR": 0.289,
+   "sim": 0.71,
+   "wr": 0.89,
+   "dur": 5.76,
+   "heard": " ولهيك 8 مليار انسان بيلزمهم بس 33 سؤال"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/570689914543.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.196,
+    "SYR": 0.125,
+    "sim": 0.71,
+    "wr": 0.89,
+    "dur": 5.52,
+    "heard": " ولهيك 8 مليار إنسان بيلزمهم بس 33 سؤال"
+   },
+   {
+    "file": "audio/variants_cache/5a55a20b74d7.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.35,
+    "SYR": 0.024,
+    "sim": 0.71,
+    "wr": 0.89,
+    "dur": 5.52,
+    "heard": " ولهيك 8 مليار انسان بيلزمهم بس 33 سؤال"
+   },
+   {
+    "file": "audio/variants_cache/cd061de10f27.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.081,
+    "SYR": 0.076,
+    "sim": 0.71,
+    "wr": 0.89,
+    "dur": 5.92,
+    "heard": " ولهيك 8 مليار انسان بيلزمهم بس 33 سؤال"
+   },
+   {
+    "file": "audio/variants_cache/9634eb62f1d8.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.139,
+    "SYR": 0.289,
+    "sim": 0.71,
+    "wr": 0.89,
+    "dur": 5.76,
+    "heard": " ولهيك 8 مليار انسان بيلزمهم بس 33 سؤال"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] بس كيف منرتّب القائمة بالأساس؟": {
+  "text": "بس كيف منرتّب القائمة بالأساس؟",
+  "pick": {
+   "file": "audio/variants_cache/57bf37177c03.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1004,
+   "stability": null,
+   "syr": -0.332,
+   "SYR": 0.046,
+   "sim": 1.0,
+   "wr": 1.0,
+   "dur": 2.24,
+   "heard": " بس كيف منرتب القائمة بالأساس؟"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/d60797e364e4.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.923,
+    "SYR": 0.937,
+    "sim": 0.73,
+    "wr": 1.2,
+    "dur": 2.32,
+    "heard": " بس كيف من نرتب القائمة بالأساس؟"
+   },
+   {
+    "file": "audio/variants_cache/5447eb928912.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.441,
+    "SYR": 0.569,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 2.16,
+    "heard": " بس كيف نرتب القائمة بالأساس؟"
+   },
+   {
+    "file": "audio/variants_cache/fe81d304dde8.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.813,
+    "SYR": 0.854,
+    "sim": 0.73,
+    "wr": 1.2,
+    "dur": 2.08,
+    "heard": " بس كيف من رتب القائمة بالأساس؟"
+   },
+   {
+    "file": "audio/variants_cache/57bf37177c03.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.332,
+    "SYR": 0.046,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 2.24,
+    "heard": " بس كيف منرتب القائمة بالأساس؟"
+   }
+  ]
+ },
+ "[energetic, enthusiastic, friendly] شو هي؟ بالريل الجاي.": {
+  "text": "شو هي؟ بالريل الجاي.",
+  "pick": {
+   "file": "audio/variants_cache/fe5aa349c35f.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": 0.027,
+   "SYR": 0.123,
+   "sim": 1.0,
+   "wr": 1.0,
+   "dur": 2.48,
+   "heard": " شو هي؟ بالريل الجاي"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/fe5aa349c35f.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.027,
+    "SYR": 0.123,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 2.48,
+    "heard": " شو هي؟ بالريل الجاي"
+   },
+   {
+    "file": "audio/variants_cache/5d969123d968.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.43,
+    "SYR": 0.022,
+    "sim": 0.75,
+    "wr": 1.0,
+    "dur": 1.84,
+    "heard": " شو هي بالريلي الجاي؟"
+   },
+   {
+    "file": "audio/variants_cache/6294e6fbec1d.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.473,
+    "SYR": 0.005,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 2.56,
+    "heard": " شو هي؟ بغيلي جاي"
+   },
+   {
+    "file": "audio/variants_cache/efd80d253918.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.876,
+    "SYR": 0.767,
+    "sim": 0.75,
+    "wr": 1.0,
+    "dur": 1.84,
+    "heard": " شو هي؟ بريلي الجاي"
+   }
+  ]
+ },
+ "[confident, amazed] فيني لاقيك، من بين تمن مليار إنسان، بتلاتة وتلاتين سؤال بس.": {
+  "text": "فيني لاقيك، من بين تمن مليار إنسان، بتلاتة وتلاتين سؤال بس.",
+  "pick": {
+   "file": "audio/variants_cache/fd8bc59d7af0.mp3",
+   "tag": "[Syrian Damascene accent]",
+   "seed": 1001,
+   "stability": null,
+   "syr": 0.011,
+   "SYR": 0.013,
+   "sim": 0.82,
+   "wr": 1.0,
+   "dur": 6.08,
+   "heard": " فيني لاقيك من بين 8 مليار إنسان  بتلاتة وثلاثين سؤال بس",
+   "override": "1004 says لقيكي (feminine); 1001 has every word right"
+  },
+  "all": [
+   {
+    "file": "audio/variants_cache/fd8bc59d7af0.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.011,
+    "SYR": 0.013,
+    "sim": 0.82,
+    "wr": 1.0,
+    "dur": 6.08,
+    "heard": " فيني لاقيك من بين 8 مليار إنسان  بتلاتة وثلاثين سؤال بس",
+    "override": "1004 says لقيكي (feminine); 1001 has every word right"
+   },
+   {
+    "file": "audio/variants_cache/9b6c45fbe45a.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.402,
+    "SYR": 0.041,
+    "sim": 0.82,
+    "wr": 1.0,
+    "dur": 5.2,
+    "heard": " فيني لاقيكي من بين 8 مليار إنسان  بتلاتة وتلاتين سؤال بس؟"
+   },
+   {
+    "file": "audio/variants_cache/7c1a89dc157c.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.476,
+    "SYR": 0.006,
+    "sim": 0.76,
+    "wr": 0.91,
+    "dur": 6.4,
+    "heard": " فيني لاقيك  من بين 8 مليار إنسان  ب33 سؤال بس"
+   },
+   {
+    "file": "audio/variants_cache/e08bb8219201.mp3",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.799,
+    "SYR": 0.812,
+    "sim": 0.67,
+    "wr": 0.91,
+    "dur": 5.28,
+    "heard": " فيني لقيكي من بين 8 مليار إنسان  ب33 سؤال بس"
+   }
+  ]
+ }
+}
