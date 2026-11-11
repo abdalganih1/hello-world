@@ -106,7 +106,7 @@ SCENES.speed = (t) => {
   if (r3 > 0) { const u = eio(P(t, AT(10, "ننتهي", "لانتهينا", "بتخلص"), 1.3)), yr = Math.round(lerp(2026, 2026 + 15855, u)); T("🐢", 540, 720, { size: 130, a: a * r3 }); T(String(yr), 540, 930, { size: 150, color: u >= 1 ? C.red : C.navy, fam: "mono", a: a * r3 }); T("سنة الانتهاء", 540, 1060, { size: 42, color: C.mut, a: a * r3 });
     fillRR(240, 1140, 600, 18, 9, C.line, a * r3); fillRR(240, 1140, 600 * u, 18, 9, C.red, a * r3); }
   const r4 = P(t, L0(11) - 0.05, 0.3);
-  if (r4 > 0) { const k = pop(t, AT(11, "أو إن", "O(n²).") - 0.1, 0.45); withT(540, 700, k, k, 0, () => T("O(n²)", 0, 0, { size: 150, color: C.navy, fam: "mono", a: a * r4 * clamp(k * 2) }));
+  if (r4 > 0) { const k = pop(t, AT(11, "Big", "أو إن", "O(n²).") - 0.1, 0.45); withT(540, 700, k, k, 0, () => T("O(n²)", 0, 0, { size: 150, color: C.navy, fam: "mono", a: a * r4 * clamp(k * 2) }));
     const gx = 200, gy = 1330, gw = 680, gh = 440, u = eio(P(t, L0(11) + 0.2, 1.1)); seg(gx, gy, gx + gw + 20, gy, C.mut, 4, a * r4); seg(gx, gy, gx, gy - gh - 20, C.mut, 4, a * r4);
     seg(gx, gy, gx + gw * u, gy - gh * 0.35 * u, hexA(C.teal, 0.7), 6, a * r4); const pts = []; for (let i = 0; i <= 60 * u; i++) { const xx = i / 60; pts.push([gx + gw * xx, gy - gh * xx * xx]); } if (pts.length > 1) poly(pts, C.red, 9, a * r4);
     if (pts.length > 1) T("تربيعي", pts[pts.length - 1][0] - 10, pts[pts.length - 1][1] - 30, { size: 30, color: C.red, a: a * r4, align: "right" });
@@ -116,7 +116,7 @@ SCENES.speed = (t) => {
 // ---- teaser: locked, blurred "Merge Sort" -> next reel
 SCENES.teaser = (t) => {
   const s0 = SCN.teaser.t0; if (t < s0 - 0.1) return; const e = eo(P(t, s0, 0.5)); KR("wink", 540, 1720 + (1 - e) * 600, 700, { bob: 0.6 });
-  const rv = AT(13, "الريل", "بالريل"), f = P(t, rv - 0.12, 0.3), sx = Math.abs(Math.cos(f * Math.PI)), flipped = f > 0.5;
+  const rv = AT(13, "Reel", "الريل", "بالريل"), f = P(t, rv - 0.12, 0.3), sx = Math.abs(Math.cos(f * Math.PI)), flipped = f > 0.5;
   if (!flipped) { const q = pop(t, s0 + 0.05, 0.45), wob = Math.sin(t * 9) * 0.06 * win(t, s0 + 0.4, rv, 0.15);
     for (let k = 0; k < 2; k++) { const u = ((t - s0) * 1.3 + k / 2) % 1; ring(540, 680, 130 + u * 110, hexA(C.teal, 0.5), 6 * (1 - u), (1 - u) * clamp(q)); }
     withT(540, 680, q * Math.max(0.02, sx), q, wob, () => { circle(0, 0, 130, C.navy, clamp(q * 2), 30); T("؟", 0, 12, { size: 180, color: "#fff", a: clamp(q * 2) }); }); }
@@ -135,8 +135,8 @@ window.collectSfx = () => {
   ev(0.02, "hit"); ev(0.35, "pop"); ev(AT(1, "أكيد") - 0.1, "no"); ev(AT(1, "أكيد") + 0.3, "pop", 1);
   for (let v = 1; v <= N; v++) ev(SCN.setup.t0 + 0.2 + v * 0.05, "card", v);
   SCH.forEach((c, k) => { ev(c.t, "tick", k % 7); if (c.sw) ev(c.ts, "swish", k); }); ev(SCH[SCH.length - 1].ts + 0.2, "found", 4);
-  ev(AT(7, "ترتيب") + 0.25, "pop"); ev(AT(9, "يحتاج", "بدهن"), "rise"); ev(AT(10, "ننتهي", "لانتهينا", "بتخلص"), "rise"); ev(AT(11, "أو إن", "O(n²).") - 0.1, "pop"); ev(AT(12, "حق") - 0.2, "found", 9);
-  ev(SCN.teaser.t0 + 0.05, "pop"); ev(AT(13, "الريل", "بالريل") - 0.12, "swish"); ev(AT(13, "الريل", "بالريل") + 0.1, "found", 9); ev(AT(13, "الريل", "بالريل") + 0.35, "pop");
+  ev(AT(7, "ترتيب") + 0.25, "pop"); ev(AT(9, "يحتاج", "بدهن"), "rise"); ev(AT(10, "ننتهي", "لانتهينا", "بتخلص"), "rise"); ev(AT(11, "Big", "أو إن", "O(n²).") - 0.1, "pop"); ev(AT(12, "حق") - 0.2, "found", 9);
+  ev(SCN.teaser.t0 + 0.05, "pop"); ev(AT(13, "Reel", "الريل", "بالريل") - 0.12, "swish"); ev(AT(13, "Reel", "الريل", "بالريل") + 0.1, "found", 9); ev(AT(13, "Reel", "الريل", "بالريل") + 0.35, "pop");
   TL.scenes.slice(1).forEach((s) => ev(s.t0, "swish", 9));
   return { total: TL.total, scenes: TL.scenes, events: e.sort((a, b) => a.t - b.t) };
 };
