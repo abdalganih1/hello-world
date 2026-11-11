@@ -73,8 +73,9 @@ SCENES.secret = (t) => {
 // ------------------------------------------------ setup + demo + name: the 11 sorted cards
 SCENES.cards = (t) => {
   const s0 = SCN.setup.t0, s1 = SCN.name.t1; if (t < s0 - 0.1 || t > s1 + 0.3) return; const out = 1 - P(t, s1 - 0.05, 0.3);
+  const nm = eio(P(t, L0(7) - 0.15, 0.55)), keep = out * (1 - nm);   // name scene: the search UI clears, the found card takes the centre
   // target chip
-  const tk = pop(t, AT(2, "بدنا"), 0.45); withT(540, 690, tk, tk, 0, () => { fillRR(-170, -50, 340, 100, 50, C.tealSoft, out * clamp(tk * 2)); T("المطلوب", 50, 3, { size: 34, color: C.teal, a: out * clamp(tk * 2) }); T("51", -80, 4, { size: 64, color: C.teal, fam: "mono", a: out * clamp(tk * 2) }); });
+  const tk = pop(t, AT(2, "بدنا"), 0.45); withT(540, 690, tk, tk, 0, () => { fillRR(-170, -50, 340, 100, 50, C.tealSoft, keep * clamp(tk * 2)); T("المطلوب", 50, 3, { size: 34, color: C.teal, a: keep * clamp(tk * 2) }); T("51", -80, 4, { size: 64, color: C.teal, fam: "mono", a: keep * clamp(tk * 2) }); });
   // sorted tag under the row
   const st = win(t, AT(2, "المرتبة") - 0.1, L0(3) + 0.6, 0.25); if (st > 0) { arrow(cx(0) - 10, ROWY + 105, cx(10) + 20, ROWY + 105, C.teal, 6, st * out, 20); T("مرتّبة من الصغير للكبير", 540, ROWY + 155, { size: 34, color: C.teal, a: st * out }); }
   let lo = 0, hi = 10, cur = -1;
@@ -84,20 +85,22 @@ SCENES.cards = (t) => {
     // dropped halves fall and fade
     for (let k = 0; k < 3; k++) { const [l, h2, m, v] = STEPS[k], dt = dropT(k); const gone = v < 0 ? i <= m && i >= l : i >= m && i <= h2; if (gone && t >= dt) { const u = eio(P(t, dt, 0.55)); y += u * 300; a *= 1 - u; s *= 1 - 0.25 * u; state = "out"; } }
     if (cur >= 0) { const [l, h2, m, v] = STEPS[cur]; if (i === m && state !== "out") { state = v === 0 && t >= verdT(cur) - 0.05 ? "found" : "mid"; s *= 1 + 0.12 * imp(t, stepT(cur), 0.4) + (state === "found" ? 0.15 * pop(t, verdT(cur), 0.4) - 0.15 * P(t, verdT(cur) + 0.4, 0.3) : 0); } }
+    if (i === 7) { x = lerp(x, 540, nm); y = lerp(y, 880, nm); s *= lerp(1, 1.75, nm); if (nm > 0) halo(x, y, 260 * nm, "rgba(31,181,181,0.25)", out); }
     card(x, y, s, { val: VALS[i], state, a });
   }
   // the live range bracket over what is still possible
   if (cur >= 0) { let l = 0, h2 = 10; for (let k = 0; k < STEPS.length; k++) if (t >= dropT(k) + 0.45 && k < 3) { const [ll, hh, m, v] = STEPS[k]; if (v < 0) l = m + 1; else h2 = m - 1; }
-    const ba = out * P(t, stepT(0) - 0.1, 0.3), x1 = cx(l) - CW / 2 - 6, x2 = cx(h2) + CW / 2 + 6, yb = ROWY - CH / 2 - 26;
+    const ba = keep * P(t, stepT(0) - 0.1, 0.3), x1 = cx(l) - CW / 2 - 6, x2 = cx(h2) + CW / 2 + 6, yb = ROWY - CH / 2 - 26;
     poly([[x1, yb + 16], [x1, yb], [x2, yb], [x2, yb + 16]], C.teal, 5, ba);
     const [ , , m] = STEPS[cur]; pointer(cx(m), yb - 14, ba);
     // the comparison chip
     const [, , mm, v] = STEPS[cur], vt = verdT(cur); if (t >= vt - 0.05) { const k = pop(t, vt, 0.35), txt = v === 0 ? "51 = 51 ✓" : v < 0 ? `${VALS[mm]} < 51` : `${VALS[mm]} > 51`;
-      withT(540, ROWY + 150, k, k, 0, () => { fillRR(-150, -42, 300, 84, 42, v === 0 ? C.teal : C.redSoft, out * clamp(k * 2), 14); T(txt, 0, 4, { size: 44, color: v === 0 ? "#fff" : C.red, fam: "mono", a: out * clamp(k * 2) }); }); }
+      withT(540, ROWY + 150, k, k, 0, () => { fillRR(-150, -42, 300, 84, 42, v === 0 ? C.teal : C.redSoft, keep * clamp(k * 2), 14); T(txt, 0, 4, { size: 44, color: v === 0 ? "#fff" : C.red, fam: "mono", a: keep * clamp(k * 2) }); }); }
     if (cur === 3 && t >= verdT(3)) sparkle(cx(7), ROWY, verdT(3), { n: 34, r: 320 });
   }
   // name: step counter "4 steps" vs 11 cards
-  if (t > L0(7) - 0.1) { const k = pop(t, AT(7, "البحث") + 0.2, 0.45); withT(540, ROWY - 220, k, k, 0, () => { fillRR(-300, -58, 600, 116, 58, C.navy, out * clamp(k * 2), 20); T("Binary Search", 0, 4, { size: 60, color: "#fff", fam: "mono", a: out * clamp(k * 2) }); }); }
+  if (t > L0(7) - 0.1) { const k = pop(t, AT(7, "البحث") + 0.2, 0.45); withT(540, 1110, k, k, 0, () => { fillRR(-300, -58, 600, 116, 58, C.navy, out * clamp(k * 2), 20); T("Binary Search", 0, 4, { size: 60, color: "#fff", fam: "mono", a: out * clamp(k * 2) }); });
+    const sk = pop(t, AT(7, "البحث") + 0.6, 0.4); withT(540, 1210, sk, sk, 0, () => T("لقيناه بـ 4 خطوات من 11", 0, 0, { size: 38, color: C.mut, a: out * clamp(sk * 2) })); }
 };
 // خوارزمو, the host on the left (all poses drawn facing right, none mirrored): walks in, watches, jumps on the find, thumbs-up on the name
 const HOSTX = 250, HOSTY = 1710, HOSTH = 500;
