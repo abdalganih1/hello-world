@@ -2,20 +2,22 @@
  "[intriguing, storytelling] أوباما، قبل ما يصير رئيس، انسأل بجوجل: كيف بترتّب مليون رقم؟": {
   "text": "أوباما، قبل ما يصير رئيس، انسأل بجوجل: كيف بترتّب مليون رقم؟",
   "pick": {
-   "file": "audio/variants_cache/1852c46d3eea.mp3",
+   "file": "audio/variants_cache/9f2e13f1fdfe.mp3",
+   "say": "أوباما، قَبل ما يْصير رئيس، اِنسأل بجوجل: كيف بْتِرتّب مليون رَقم؟",
    "tag": "[Syrian Damascene accent]",
-   "seed": 1003,
+   "seed": 1004,
    "stability": null,
-   "syr": 0.002,
-   "SYR": 0.004,
+   "syr": 0.007,
+   "SYR": 0.01,
    "sim": 1.0,
    "wr": 1.0,
-   "dur": 5.68,
+   "dur": 6.08,
    "heard": " اوباما قبل ما يصير رئيس انسأل بجوجل كيف بترتب مليون رقم"
   },
   "all": [
    {
     "file": "audio/variants_cache/c06c8b4b6155.mp3",
+    "say": "أوباما، قبل ما يصير رئيس، انسأل بجوجل: كيف بترتّب مليون رقم؟",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -28,6 +30,7 @@
    },
    {
     "file": "audio/variants_cache/85e20140dad0.mp3",
+    "say": "أوباما، قبل ما يصير رئيس، انسأل بجوجل: كيف بترتّب مليون رقم؟",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -40,6 +43,7 @@
    },
    {
     "file": "audio/variants_cache/1852c46d3eea.mp3",
+    "say": "أوباما، قبل ما يصير رئيس، انسأل بجوجل: كيف بترتّب مليون رقم؟",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -52,6 +56,7 @@
    },
    {
     "file": "audio/variants_cache/ee698a9d8302.mp3",
+    "say": "أوباما، قبل ما يصير رئيس، انسأل بجوجل: كيف بترتّب مليون رقم؟",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -61,26 +66,80 @@
     "wr": 1.0,
     "dur": 5.52,
     "heard": " أوباما قبل ما يصير رئيس انسأل بجوجل كيف بترتب مليون رقم"
+   },
+   {
+    "file": "audio/variants_cache/a89eaff94f15.mp3",
+    "say": "أوباما، قَبل ما يْصير رئيس، اِنسأل بجوجل: كيف بْتِرتّب مليون رَقم؟",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.003,
+    "SYR": 0.003,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 6.0,
+    "heard": " اوباما قبل ما يصير رئيس  انسأل بجوجل كيف بترتب مليون رقم"
+   },
+   {
+    "file": "audio/variants_cache/3f030aaf8e48.mp3",
+    "say": "أوباما، قَبل ما يْصير رئيس، اِنسأل بجوجل: كيف بْتِرتّب مليون رَقم؟",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.0,
+    "SYR": 0.001,
+    "sim": 0.91,
+    "wr": 1.0,
+    "dur": 5.36,
+    "heard": " أباما قبل ما يصير رئيس  انسأل بجوجل كيف بترتب مليون رقم"
+   },
+   {
+    "file": "audio/variants_cache/45e472104d94.mp3",
+    "say": "أوباما، قَبل ما يْصير رئيس، اِنسأل بجوجل: كيف بْتِرتّب مليون رَقم؟",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.0,
+    "SYR": 0.002,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 5.2,
+    "heard": " اوباما قبل ما يصير رئيس  انسأل بجوجل كيف بترتب مليون رقم"
+   },
+   {
+    "file": "audio/variants_cache/9f2e13f1fdfe.mp3",
+    "say": "أوباما، قَبل ما يْصير رئيس، اِنسأل بجوجل: كيف بْتِرتّب مليون رَقم؟",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.007,
+    "SYR": 0.01,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 6.08,
+    "heard": " اوباما قبل ما يصير رئيس انسأل بجوجل كيف بترتب مليون رقم"
    }
   ]
  },
  "[amused, playful] وجاوب: أكيد مش بالبابل سورت!": {
   "text": "وجاوب: أكيد مش بالـ Bubble Sort!",
   "pick": {
-   "file": "audio/variants_cache/df6f69b079d7.mp3",
+   "file": "audio/variants_cache/09d56b159dc2.mp3",
+   "say": "وجاوَب: أكيد مِش بالبابل سورت!",
    "tag": "[Syrian Damascene accent]",
    "seed": 1003,
    "stability": null,
-   "syr": 0.129,
-   "SYR": 0.148,
+   "syr": 0.491,
+   "SYR": 0.489,
    "sim": 0.8,
    "wr": 1.0,
-   "dur": 3.04,
-   "heard": " وجاوب  أكيد مش بالبابل  sort"
+   "dur": 2.72,
+   "heard": " وجاوب أكيد مش بالبابل, cert"
   },
   "all": [
    {
     "file": "audio/variants_cache/cd8cfb419c12.mp3",
+    "say": "وجاوب: أكيد مش بالبابل سورت!",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -93,6 +152,7 @@
    },
    {
     "file": "audio/variants_cache/0f1cee1045d9.mp3",
+    "say": "وجاوب: أكيد مش بالبابل سورت!",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -105,6 +165,7 @@
    },
    {
     "file": "audio/variants_cache/df6f69b079d7.mp3",
+    "say": "وجاوب: أكيد مش بالبابل سورت!",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -117,6 +178,7 @@
    },
    {
     "file": "audio/variants_cache/0ee4788d0c8e.mp3",
+    "say": "وجاوب: أكيد مش بالبابل سورت!",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -126,6 +188,58 @@
     "wr": 1.0,
     "dur": 2.8,
     "heard": " وجعوب أكيد مش بالبابل سرط"
+   },
+   {
+    "file": "audio/variants_cache/482e608f9187.mp3",
+    "say": "وجاوَب: أكيد مِش بالبابل سورت!",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.06,
+    "SYR": 0.135,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 2.56,
+    "heard": " وجعوب أكيد مش بالبابل سورت"
+   },
+   {
+    "file": "audio/variants_cache/4021f0aae279.mp3",
+    "say": "وجاوَب: أكيد مِش بالبابل سورت!",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.178,
+    "SYR": 0.013,
+    "sim": 0.6,
+    "wr": 1.0,
+    "dur": 2.72,
+    "heard": " وجاوب أكيد مش بالبعض بالصورت"
+   },
+   {
+    "file": "audio/variants_cache/09d56b159dc2.mp3",
+    "say": "وجاوَب: أكيد مِش بالبابل سورت!",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.491,
+    "SYR": 0.489,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 2.72,
+    "heard": " وجاوب أكيد مش بالبابل, cert"
+   },
+   {
+    "file": "audio/variants_cache/f64445d30e67.mp3",
+    "say": "وجاوَب: أكيد مِش بالبابل سورت!",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.002,
+    "SYR": 0.002,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 2.48,
+    "heard": " وجاوب أكيد مش بالبابل سرت"
    }
   ]
  },
@@ -133,6 +247,7 @@
   "text": "طيب ليش؟ خلينا نفهمها، ومنعرف.",
   "pick": {
    "file": "audio/variants_cache/985c48146ef6.mp3",
+   "say": "طيب ليش؟ خلينا نفهمها، ومنعرف.",
    "tag": "[Syrian Damascene accent]",
    "seed": 1002,
    "stability": null,
@@ -146,6 +261,7 @@
   "all": [
    {
     "file": "audio/variants_cache/48a92148b8d2.mp3",
+    "say": "طيب ليش؟ خلينا نفهمها، ومنعرف.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -158,6 +274,7 @@
    },
    {
     "file": "audio/variants_cache/985c48146ef6.mp3",
+    "say": "طيب ليش؟ خلينا نفهمها، ومنعرف.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -170,6 +287,7 @@
    },
    {
     "file": "audio/variants_cache/beb518e1d893.mp3",
+    "say": "طيب ليش؟ خلينا نفهمها، ومنعرف.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -182,6 +300,7 @@
    },
    {
     "file": "audio/variants_cache/1d559bf7fbea.mp3",
+    "say": "طيب ليش؟ خلينا نفهمها، ومنعرف.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -191,6 +310,110 @@
     "wr": 1.2,
     "dur": 2.4,
     "heard": " طيب لش، خلينا نفهم هم نعرف"
+   },
+   {
+    "file": "audio/variants_cache/922c75ee4554.mp3",
+    "say": "طَيّب ليش؟ خَلّينا نِفهَمها، ومْنِعرَف.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.022,
+    "SYR": 0.001,
+    "sim": 0.4,
+    "wr": 1.0,
+    "dur": 2.64,
+    "heard": " طيب، لاش؟ خلينة نفهمها ونعرف"
+   },
+   {
+    "file": "audio/variants_cache/9c284f4d38ab.mp3",
+    "say": "طَيّب ليش؟ خَلّينا نِفهَمها، ومْنِعرَف.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.11,
+    "SYR": 0.003,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 3.76,
+    "heard": " طيب لاش؟ خلينا نفهمها ومنعرف"
+   },
+   {
+    "file": "audio/variants_cache/8572e60d278c.mp3",
+    "say": "طَيّب ليش؟ خَلّينا نِفهَمها، ومْنِعرَف.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.014,
+    "SYR": 0.002,
+    "sim": 0.55,
+    "wr": 1.2,
+    "dur": 3.36,
+    "heard": " طيب لاش؟ خلينا نفهمها وما نعرف"
+   },
+   {
+    "file": "audio/variants_cache/a56b6f435552.mp3",
+    "say": "طَيّب ليش؟ خَلّينا نِفهَمها، ومْنِعرَف.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.001,
+    "SYR": 0.001,
+    "sim": 0.55,
+    "wr": 1.2,
+    "dur": 3.04,
+    "heard": " طيب لاش؟ خلينا نفهمها وما نعرف"
+   },
+   {
+    "file": "audio/variants_cache/e7667199a2e7.mp3",
+    "say": "طيب ليش؟ خلّينا نفهمها، ومنعرف.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.007,
+    "SYR": 0.008,
+    "sim": 0.6,
+    "wr": 1.0,
+    "dur": 2.8,
+    "heard": " طيب لش؟ خلينة نفهمها ومنعرف"
+   },
+   {
+    "file": "audio/variants_cache/5a3062c4ad3d.mp3",
+    "say": "طيب ليش؟ خلّينا نفهمها، ومنعرف.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.01,
+    "SYR": 0.004,
+    "sim": 0.18,
+    "wr": 1.2,
+    "dur": 2.32,
+    "heard": " تايا بلش، خلينا فهم هام نارف"
+   },
+   {
+    "file": "audio/variants_cache/ecdbfcc9532e.mp3",
+    "say": "طيب ليش؟ خلّينا نفهمها، ومنعرف.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.007,
+    "SYR": 0.008,
+    "sim": 0.0,
+    "wr": 1.2,
+    "dur": 2.8,
+    "heard": " تأكد بأنه يجب أن يكون قدماً."
+   },
+   {
+    "file": "audio/variants_cache/7de4dabc0031.mp3",
+    "say": "طيب ليش؟ خلّينا نفهمها، ومنعرف.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.002,
+    "SYR": 0.0,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 2.48,
+    "heard": " طيب ليش؟ خلينا نفهمها ونعرف"
    }
   ]
  },
@@ -198,6 +421,7 @@
   "text": "عنا سبع أرقام مخربطة، وبدنا نرتبهن من الصغير للكبير.",
   "pick": {
    "file": "audio/variants_cache/1d74ca284f72.mp3",
+   "say": "عنا سبع أرقام مخربطة، وبدنا نرتبهن من الصغير للكبير.",
    "tag": "[Syrian Damascene accent]",
    "seed": 1002,
    "stability": null,
@@ -211,6 +435,7 @@
   "all": [
    {
     "file": "audio/variants_cache/94494815a5f6.mp3",
+    "say": "عنا سبع أرقام مخربطة، وبدنا نرتبهن من الصغير للكبير.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -223,6 +448,7 @@
    },
    {
     "file": "audio/variants_cache/1d74ca284f72.mp3",
+    "say": "عنا سبع أرقام مخربطة، وبدنا نرتبهن من الصغير للكبير.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -235,6 +461,7 @@
    },
    {
     "file": "audio/variants_cache/41a77218f07e.mp3",
+    "say": "عنا سبع أرقام مخربطة، وبدنا نرتبهن من الصغير للكبير.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -247,6 +474,7 @@
    },
    {
     "file": "audio/variants_cache/3f8b1eaac4fb.mp3",
+    "say": "عنا سبع أرقام مخربطة، وبدنا نرتبهن من الصغير للكبير.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -256,26 +484,132 @@
     "wr": 1.0,
     "dur": 4.08,
     "heard": " عنا 7 أرقام مخربطة وبدنا نرتبهن من الزغير للكبير"
+   },
+   {
+    "file": "audio/variants_cache/606e0a76a975.mp3",
+    "say": "عِنّا سَبع أرقام مْخَربطة، وبِدّنا نْرَتّبهِن من الزّغير للكبير.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.394,
+    "SYR": 0.013,
+    "sim": 0.63,
+    "wr": 1.11,
+    "dur": 3.92,
+    "heard": " لدينا سبع أرقام مخربطة ونريد أن نرتبها من الصغير للكبير"
+   },
+   {
+    "file": "audio/variants_cache/877af2d37280.mp3",
+    "say": "عِنّا سَبع أرقام مْخَربطة، وبِدّنا نْرَتّبهِن من الزّغير للكبير.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.48,
+    "SYR": 0.002,
+    "sim": 0.63,
+    "wr": 1.11,
+    "dur": 4.32,
+    "heard": " لدينا سبع أرقام مخربطة ونريد أن نرتبهم من الصغير للكبير"
+   },
+   {
+    "file": "audio/variants_cache/7cd53132f19c.mp3",
+    "say": "عِنّا سَبع أرقام مْخَربطة، وبِدّنا نْرَتّبهِن من الزّغير للكبير.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.343,
+    "SYR": 0.001,
+    "sim": 0.67,
+    "wr": 1.0,
+    "dur": 4.48,
+    "heard": " عنا 7 أرقام مخربطة وبدنا نرتبهم من الزغير للكبير"
+   },
+   {
+    "file": "audio/variants_cache/fe964a92b948.mp3",
+    "say": "عِنّا سَبع أرقام مْخَربطة، وبِدّنا نْرَتّبهِن من الزّغير للكبير.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.392,
+    "SYR": 0.001,
+    "sim": 0.78,
+    "wr": 1.0,
+    "dur": 4.8,
+    "heard": " عنا 7 أرقام مخربطة وبدنا نرتبهن من الزغير للكبير"
+   },
+   {
+    "file": "audio/variants_cache/a34197aad232.mp3",
+    "say": "عنا سبع أرقام مخربطة، وبدنا نرتبهن من الزغير للكبير.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.0,
+    "SYR": 0.006,
+    "sim": 0.63,
+    "wr": 1.11,
+    "dur": 4.4,
+    "heard": " لدينا سبع أرقام مخربطة ونريد أن نرتبهم من الصغير للكبير"
+   },
+   {
+    "file": "audio/variants_cache/f9d897c14827.mp3",
+    "say": "عنا سبع أرقام مخربطة، وبدنا نرتبهن من الزغير للكبير.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.13,
+    "SYR": 0.19,
+    "sim": 0.89,
+    "wr": 1.0,
+    "dur": 4.64,
+    "heard": " عنا سبع أرقام مخربطة وبدنا نرتبهن من الزغير للكبير"
+   },
+   {
+    "file": "audio/variants_cache/27ab331b3182.mp3",
+    "say": "عنا سبع أرقام مخربطة، وبدنا نرتبهن من الزغير للكبير.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.44,
+    "SYR": 0.004,
+    "sim": 0.63,
+    "wr": 1.11,
+    "dur": 4.4,
+    "heard": " لدينا سبع أرقام مخربطة ونريد أن نرتبهم من الصغير للكبير"
+   },
+   {
+    "file": "audio/variants_cache/1ab68b5c1d39.mp3",
+    "say": "عنا سبع أرقام مخربطة، وبدنا نرتبهن من الزغير للكبير.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.429,
+    "SYR": 0.016,
+    "sim": 0.78,
+    "wr": 1.0,
+    "dur": 4.8,
+    "heard": " عنا سبع أرقام مخربطة وبدنا رتبهن من الزغير للكبير"
    }
   ]
  },
  "[energetic, enthusiastic, friendly] الفكرة: منقارن كل رقمين جنب بعض، وإذا الأول أكبر، منبدّلهن.": {
   "text": "الفكرة: منقارن كل رقمين جنب بعض، وإذا الأول أكبر، منبدّلهن.",
   "pick": {
-   "file": "audio/variants_cache/f7100e90977c.mp3",
+   "file": "audio/variants_cache/f0285aec5d6e.mp3",
+   "say": "الفكرة: منقارن كل رقمين جنب بعض، وإذا الأول أكبر، منبدلهن.",
    "tag": "[Syrian Damascene accent]",
-   "seed": 1003,
+   "seed": 1001,
    "stability": null,
-   "syr": 0.008,
-   "SYR": 0.013,
-   "sim": 0.57,
-   "wr": 1.1,
+   "syr": 0.113,
+   "SYR": 0.117,
+   "sim": 0.7,
+   "wr": 1.0,
    "dur": 5.44,
-   "heard": " الفكرة  منقارن كل رقمان جمب بعض  وذا الأول أكبر منبدل هن"
+   "heard": " الفكرة  منقارن كل رقمين جنب بعض وذالأول أكبر من بدلهن"
   },
   "all": [
    {
     "file": "audio/variants_cache/1c671f51a2a2.mp3",
+    "say": "الفكرة: منقارن كل رقمين جنب بعض، وإذا الأول أكبر، منبدّلهن.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -288,6 +622,7 @@
    },
    {
     "file": "audio/variants_cache/f3149df50f71.mp3",
+    "say": "الفكرة: منقارن كل رقمين جنب بعض، وإذا الأول أكبر، منبدّلهن.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -300,6 +635,7 @@
    },
    {
     "file": "audio/variants_cache/f7100e90977c.mp3",
+    "say": "الفكرة: منقارن كل رقمين جنب بعض، وإذا الأول أكبر، منبدّلهن.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -312,6 +648,7 @@
    },
    {
     "file": "audio/variants_cache/71441b3318c7.mp3",
+    "say": "الفكرة: منقارن كل رقمين جنب بعض، وإذا الأول أكبر، منبدّلهن.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -321,6 +658,110 @@
     "wr": 1.1,
     "dur": 5.84,
     "heard": " الفكرة، منقارن كل رقمان جمب بعض، وإذا الأول أكبر، منبدل هن"
+   },
+   {
+    "file": "audio/variants_cache/63afcde3bfd3.mp3",
+    "say": "الفكرة: مْنْقارن كل رَقمين جَنب بَعض، وإذا الأوّل أكبر، مْنبَدّلهِن.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.028,
+    "SYR": 0.028,
+    "sim": 0.6,
+    "wr": 1.0,
+    "dur": 6.16,
+    "heard": " الفكرة  منقارن كل الرقمان جنب بعض  وإذا القوة الأكبر  منبدلها"
+   },
+   {
+    "file": "audio/variants_cache/780481183279.mp3",
+    "say": "الفكرة: مْنْقارن كل رَقمين جَنب بَعض، وإذا الأوّل أكبر، مْنبَدّلهِن.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.001,
+    "SYR": 0.001,
+    "sim": 0.7,
+    "wr": 1.0,
+    "dur": 6.4,
+    "heard": " الفكرة منقارن كل رقمين جنب بعض وإذا القوة الأكبر منبدلها"
+   },
+   {
+    "file": "audio/variants_cache/9aa0add48165.mp3",
+    "say": "الفكرة: مْنْقارن كل رَقمين جَنب بَعض، وإذا الأوّل أكبر، مْنبَدّلهِن.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.017,
+    "SYR": 0.019,
+    "sim": 0.57,
+    "wr": 1.1,
+    "dur": 6.16,
+    "heard": " الفكرة  منقارن كل رقمان جنب بعض  وإذا القوة الأكبر  منبدل هن"
+   },
+   {
+    "file": "audio/variants_cache/1b7f36ac7083.mp3",
+    "say": "الفكرة: مْنْقارن كل رَقمين جَنب بَعض، وإذا الأوّل أكبر، مْنبَدّلهِن.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.004,
+    "SYR": 0.008,
+    "sim": 0.64,
+    "wr": 1.2,
+    "dur": 5.84,
+    "heard": " الفكرة  منقارن كل رقمين جنب بعض  واذا القوة الأكبر من بدل هن"
+   },
+   {
+    "file": "audio/variants_cache/f0285aec5d6e.mp3",
+    "say": "الفكرة: منقارن كل رقمين جنب بعض، وإذا الأول أكبر، منبدلهن.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.113,
+    "SYR": 0.117,
+    "sim": 0.7,
+    "wr": 1.0,
+    "dur": 5.44,
+    "heard": " الفكرة  منقارن كل رقمين جنب بعض وذالأول أكبر من بدلهن"
+   },
+   {
+    "file": "audio/variants_cache/12e6ba2ff408.mp3",
+    "say": "الفكرة: منقارن كل رقمين جنب بعض، وإذا الأول أكبر، منبدلهن.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.082,
+    "SYR": 0.082,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 5.76,
+    "heard": " الفكرة، منقارن كل رقمان جمب بعض، وإذا الأول أكبر، منبدلهن"
+   },
+   {
+    "file": "audio/variants_cache/d4ef448bfda4.mp3",
+    "say": "الفكرة: منقارن كل رقمين جنب بعض، وإذا الأول أكبر، منبدلهن.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.016,
+    "SYR": 0.015,
+    "sim": 0.67,
+    "wr": 1.1,
+    "dur": 5.52,
+    "heard": " الفكرة منقارن كل رقمان جمب بعض وإذا الأول أكبر من بدلهن"
+   },
+   {
+    "file": "audio/variants_cache/8c3589f1c3ea.mp3",
+    "say": "الفكرة: منقارن كل رقمين جنب بعض، وإذا الأول أكبر، منبدلهن.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.017,
+    "SYR": 0.016,
+    "sim": 0.76,
+    "wr": 1.1,
+    "dur": 5.04,
+    "heard": " الفكرة  منقارن كل رقمين جمب بعض  وإذا الأول أكبر من بدلهم"
    }
   ]
  },
@@ -328,6 +769,7 @@
   "text": "شوف: الرقم الكبير بيطلع لآخر القائمة، متل الفقاعة.",
   "pick": {
    "file": "audio/variants_cache/b7c743a7b348.mp3",
+   "say": "شوف: الرقم الكبير بيطلع لآخر القائمة، متل الفقاعة.",
    "tag": "[Syrian Damascene accent]",
    "seed": 1001,
    "stability": null,
@@ -341,6 +783,7 @@
   "all": [
    {
     "file": "audio/variants_cache/b7c743a7b348.mp3",
+    "say": "شوف: الرقم الكبير بيطلع لآخر القائمة، متل الفقاعة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -353,6 +796,7 @@
    },
    {
     "file": "audio/variants_cache/ff3b6925b2b6.mp3",
+    "say": "شوف: الرقم الكبير بيطلع لآخر القائمة، متل الفقاعة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -365,6 +809,7 @@
    },
    {
     "file": "audio/variants_cache/dfe6fb3e5b41.mp3",
+    "say": "شوف: الرقم الكبير بيطلع لآخر القائمة، متل الفقاعة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -377,6 +822,7 @@
    },
    {
     "file": "audio/variants_cache/9dbe99420ec6.mp3",
+    "say": "شوف: الرقم الكبير بيطلع لآخر القائمة، متل الفقاعة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -386,26 +832,81 @@
     "wr": 1.0,
     "dur": 4.24,
     "heard": " شوف، الرقم الكبير بيطلع لآخر القائمة، مثل فقاعة"
+   },
+   {
+    "file": "audio/variants_cache/839a78d06a3a.mp3",
+    "say": "شوف: الرّقم الكبير بيِطلَع لآخِر القائمة، مِتل الفقّاعة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.315,
+    "SYR": 0.039,
+    "sim": 0.59,
+    "wr": 1.12,
+    "dur": 4.72,
+    "heard": " شوف، الركم الكبير بيطلع على آخر القائمة، مثل الفقاعة"
+   },
+   {
+    "file": "audio/variants_cache/5dbad459b796.mp3",
+    "say": "شوف: الرّقم الكبير بيِطلَع لآخِر القائمة، مِتل الفقّاعة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.09,
+    "SYR": 0.099,
+    "sim": 0.71,
+    "wr": 1.12,
+    "dur": 4.72,
+    "heard": " شوف، الرقم الكبير بيطلع على آخر القائمة، مثل الفقاعة"
+   },
+   {
+    "file": "audio/variants_cache/670fdccd3f77.mp3",
+    "say": "شوف: الرّقم الكبير بيِطلَع لآخِر القائمة، مِتل الفقّاعة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.496,
+    "SYR": 0.531,
+    "sim": 0.62,
+    "wr": 1.0,
+    "dur": 4.56,
+    "heard": " شوف الركم الكبير بيطلع لآخر القائمة مثل فقاعة"
+   },
+   {
+    "file": "audio/variants_cache/d98767914113.mp3",
+    "say": "شوف: الرّقم الكبير بيِطلَع لآخِر القائمة، مِتل الفقّاعة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.732,
+    "SYR": 0.744,
+    "sim": 0.47,
+    "wr": 1.12,
+    "dur": 4.08,
+    "heard": " شوف الرقم الكبير بيطلع على آخر الآئمة مثل فقاعة"
    }
   ]
  },
  "[energetic, enthusiastic, friendly] ومنعيد الجولة، لحد ما تصير كلها مرتبة.": {
   "text": "ومنعيد الجولة، لحد ما تصير كلها مرتبة.",
   "pick": {
-   "file": "audio/variants_cache/4fb07bf9173c.mp3",
+   "file": "audio/variants_cache/ea8f45a28097.mp3",
+   "say": "ومْنعيد الجَولة، لحَدّ ما تْصير كلها مْرَتّبة.",
    "tag": "[Syrian Damascene accent]",
-   "seed": 1003,
+   "seed": 1004,
    "stability": null,
-   "syr": -0.468,
-   "SYR": 0.001,
+   "syr": -0.009,
+   "SYR": 0.004,
    "sim": 1.0,
    "wr": 1.0,
-   "dur": 3.12,
-   "heard": " ومنعيد الجولة لحد ما تصير كلها مرتبة."
+   "dur": 4.32,
+   "heard": " ومنعيد الجولة لحد ما تصير كلها مرتبة",
+   "override": "more Syrian (classifier) with every word right"
   },
   "all": [
    {
     "file": "audio/variants_cache/4a6992bb0d77.mp3",
+    "say": "ومنعيد الجولة، لحد ما تصير كلها مرتبة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -418,6 +919,7 @@
    },
    {
     "file": "audio/variants_cache/0a074ecb5d59.mp3",
+    "say": "ومنعيد الجولة، لحد ما تصير كلها مرتبة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -430,6 +932,7 @@
    },
    {
     "file": "audio/variants_cache/4fb07bf9173c.mp3",
+    "say": "ومنعيد الجولة، لحد ما تصير كلها مرتبة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -442,6 +945,7 @@
    },
    {
     "file": "audio/variants_cache/89c7b24beda4.mp3",
+    "say": "ومنعيد الجولة، لحد ما تصير كلها مرتبة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -451,26 +955,81 @@
     "wr": 1.0,
     "dur": 3.44,
     "heard": " ومنعيد الجولة لحد ما تصير كلها مرتبة"
+   },
+   {
+    "file": "audio/variants_cache/33d39002b0df.mp3",
+    "say": "ومْنعيد الجَولة، لحَدّ ما تْصير كلها مْرَتّبة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.416,
+    "SYR": 0.003,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 4.0,
+    "heard": " ومنعيد الجولة لحد ما تصير كلها مرتبة"
+   },
+   {
+    "file": "audio/variants_cache/5a67527d9f1c.mp3",
+    "say": "ومْنعيد الجَولة، لحَدّ ما تْصير كلها مْرَتّبة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.466,
+    "SYR": 0.002,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 3.12,
+    "heard": " ومنعيد الجولة لحد ما تصير كلها مرتبة"
+   },
+   {
+    "file": "audio/variants_cache/1bbfac9b130d.mp3",
+    "say": "ومْنعيد الجَولة، لحَدّ ما تْصير كلها مْرَتّبة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.442,
+    "SYR": 0.005,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 4.0,
+    "heard": " ومنعيد الجولة لحد ما تصير كلها مرتبة"
+   },
+   {
+    "file": "audio/variants_cache/ea8f45a28097.mp3",
+    "say": "ومْنعيد الجَولة، لحَدّ ما تْصير كلها مْرَتّبة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.009,
+    "SYR": 0.004,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 4.32,
+    "heard": " ومنعيد الجولة لحد ما تصير كلها مرتبة",
+    "override": "more Syrian (classifier) with every word right"
    }
   ]
  },
  "[energetic, enthusiastic, friendly] هاد اسمه ترتيب الفقاعة، بابل سورت.": {
   "text": "هاد اسمه ترتيب الفقاعة، Bubble Sort.",
   "pick": {
-   "file": "audio/variants_cache/4a2b0c8dbf1b.mp3",
+   "file": "audio/variants_cache/4dff94239a27.mp3",
+   "say": "هاد اسمو ترتيب الفقّاعة، بابل سورت.",
    "tag": "[Syrian Damascene accent]",
    "seed": 1002,
    "stability": null,
-   "syr": -0.074,
-   "SYR": 0.15,
-   "sim": 0.55,
-   "wr": 0.83,
-   "dur": 3.04,
-   "heard": " هذا اسمه ترتيب الفقاعة  Babelsort"
+   "syr": 0.265,
+   "SYR": 0.362,
+   "sim": 0.83,
+   "wr": 1.0,
+   "dur": 2.88,
+   "heard": " هذا اسمه ترتيب الفقاعة.  بابل سورت"
   },
   "all": [
    {
     "file": "audio/variants_cache/ecb99dc99529.mp3",
+    "say": "هاد اسمه ترتيب الفقاعة، بابل سورت.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -483,6 +1042,7 @@
    },
    {
     "file": "audio/variants_cache/4a2b0c8dbf1b.mp3",
+    "say": "هاد اسمه ترتيب الفقاعة، بابل سورت.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -495,6 +1055,7 @@
    },
    {
     "file": "audio/variants_cache/4f7a88a37cb3.mp3",
+    "say": "هاد اسمه ترتيب الفقاعة، بابل سورت.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -507,6 +1068,7 @@
    },
    {
     "file": "audio/variants_cache/5c0b01b2d1f4.mp3",
+    "say": "هاد اسمه ترتيب الفقاعة، بابل سورت.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -516,6 +1078,110 @@
     "wr": 0.83,
     "dur": 2.88,
     "heard": " هذا اسم ترتيب الفقاعة  Babelsort"
+   },
+   {
+    "file": "audio/variants_cache/8e82961c4af0.mp3",
+    "say": "هاد اسمو ترتيب الفقّاعة، بابل سورت.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.328,
+    "SYR": 0.375,
+    "sim": 0.55,
+    "wr": 0.83,
+    "dur": 2.72,
+    "heard": " هذا اسمه ترتيب الفقاعة  Babelsort"
+   },
+   {
+    "file": "audio/variants_cache/4dff94239a27.mp3",
+    "say": "هاد اسمو ترتيب الفقّاعة، بابل سورت.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.265,
+    "SYR": 0.362,
+    "sim": 0.83,
+    "wr": 1.0,
+    "dur": 2.88,
+    "heard": " هذا اسمه ترتيب الفقاعة.  بابل سورت"
+   },
+   {
+    "file": "audio/variants_cache/bc0ef44e2cc4.mp3",
+    "say": "هاد اسمو ترتيب الفقّاعة، بابل سورت.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.101,
+    "SYR": 0.217,
+    "sim": 0.55,
+    "wr": 0.83,
+    "dur": 2.72,
+    "heard": " هذا اسمه ترتيب الفقاعة  Babelsort"
+   },
+   {
+    "file": "audio/variants_cache/0c35ec8b8172.mp3",
+    "say": "هاد اسمو ترتيب الفقّاعة، بابل سورت.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.313,
+    "SYR": 0.089,
+    "sim": 0.83,
+    "wr": 1.0,
+    "dur": 2.88,
+    "heard": " هذا اسمه ترتيب الفقاعة  بابل سورت"
+   },
+   {
+    "file": "audio/variants_cache/33717c91a154.mp3",
+    "say": "هاد اسمو ترتيب الفقاعة، بابل سورت.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.011,
+    "SYR": 0.204,
+    "sim": 0.83,
+    "wr": 1.0,
+    "dur": 3.84,
+    "heard": " هذا اسمه ترتيب الفقاعة  بابل سورت"
+   },
+   {
+    "file": "audio/variants_cache/e167ee1c4c34.mp3",
+    "say": "هاد اسمو ترتيب الفقاعة، بابل سورت.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.404,
+    "SYR": 0.503,
+    "sim": 0.55,
+    "wr": 0.83,
+    "dur": 3.12,
+    "heard": " هذا اسمه ترتيب الفقاعة  Babelsort"
+   },
+   {
+    "file": "audio/variants_cache/1ff73cee9b00.mp3",
+    "say": "هاد اسمو ترتيب الفقاعة، بابل سورت.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.187,
+    "SYR": 0.212,
+    "sim": 0.83,
+    "wr": 1.0,
+    "dur": 3.28,
+    "heard": " هذا اسمه ترتيب الفقاعة  بابل سورت"
+   },
+   {
+    "file": "audio/variants_cache/67b3eb8c6387.mp3",
+    "say": "هاد اسمو ترتيب الفقاعة، بابل سورت.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.215,
+    "SYR": 0.113,
+    "sim": 0.17,
+    "wr": 1.0,
+    "dur": 2.8,
+    "heard": " هذا اسمه ترسيب الفقعة  Babel Sort"
    }
   ]
  },
@@ -523,6 +1189,7 @@
   "text": "بس المشكلة: سبع أرقام بدهن واحد وعشرين مقارنة.",
   "pick": {
    "file": "audio/variants_cache/803bd59ee580.mp3",
+   "say": "بس المشكلة: سبع أرقام بدهن واحد وعشرين مقارنة.",
    "tag": "[Syrian Damascene accent]",
    "seed": 1003,
    "stability": null,
@@ -536,6 +1203,7 @@
   "all": [
    {
     "file": "audio/variants_cache/50a620a0f82a.mp3",
+    "say": "بس المشكلة: سبع أرقام بدهن واحد وعشرين مقارنة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -548,6 +1216,7 @@
    },
    {
     "file": "audio/variants_cache/7200e053cce1.mp3",
+    "say": "بس المشكلة: سبع أرقام بدهن واحد وعشرين مقارنة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -560,6 +1229,7 @@
    },
    {
     "file": "audio/variants_cache/803bd59ee580.mp3",
+    "say": "بس المشكلة: سبع أرقام بدهن واحد وعشرين مقارنة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -572,6 +1242,7 @@
    },
    {
     "file": "audio/variants_cache/0deeb53295d5.mp3",
+    "say": "بس المشكلة: سبع أرقام بدهن واحد وعشرين مقارنة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -581,6 +1252,58 @@
     "wr": 0.88,
     "dur": 4.56,
     "heard": " بس المشكلة 7 أرقام بدهن 21 مقارنة"
+   },
+   {
+    "file": "audio/variants_cache/0c243858718f.mp3",
+    "say": "بَس المُشكلة: سَبع أرقام بِدهُن واحد وعِشرين مقارنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.401,
+    "SYR": 0.006,
+    "sim": 0.67,
+    "wr": 0.88,
+    "dur": 4.8,
+    "heard": " بس المشكلة 7 أرقام بدهن 21 مقارنة"
+   },
+   {
+    "file": "audio/variants_cache/93da3e36308c.mp3",
+    "say": "بَس المُشكلة: سَبع أرقام بِدهُن واحد وعِشرين مقارنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.218,
+    "SYR": 0.246,
+    "sim": 0.53,
+    "wr": 0.88,
+    "dur": 4.32,
+    "heard": " بس المشكلة 7 أرقام بدهم 21 مقارنة"
+   },
+   {
+    "file": "audio/variants_cache/dd5d2f3c5093.mp3",
+    "say": "بَس المُشكلة: سَبع أرقام بِدهُن واحد وعِشرين مقارنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.172,
+    "SYR": 0.035,
+    "sim": 0.67,
+    "wr": 0.88,
+    "dur": 4.16,
+    "heard": " بس المشكلة 7 أرقام بدهن 21 مقارنة"
+   },
+   {
+    "file": "audio/variants_cache/5cf24909718e.mp3",
+    "say": "بَس المُشكلة: سَبع أرقام بِدهُن واحد وعِشرين مقارنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.084,
+    "SYR": 0.195,
+    "sim": 0.67,
+    "wr": 0.88,
+    "dur": 4.24,
+    "heard": " بس المشكلة 7 أرقام بدهن 21 مقارنة"
    }
   ]
  },
@@ -588,6 +1311,7 @@
   "text": "ومليون رقم؟ بدهن نص ترليون مقارنة.",
   "pick": {
    "file": "audio/variants_cache/da3f77fe362f.mp3",
+   "say": "ومليون رقم؟ بدهن نص ترليون مقارنة.",
    "tag": "[Syrian Damascene accent]",
    "seed": 1004,
    "stability": null,
@@ -601,6 +1325,7 @@
   "all": [
    {
     "file": "audio/variants_cache/5802d0f03d8f.mp3",
+    "say": "ومليون رقم؟ بدهن نص ترليون مقارنة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -613,6 +1338,7 @@
    },
    {
     "file": "audio/variants_cache/86ec55a4629f.mp3",
+    "say": "ومليون رقم؟ بدهن نص ترليون مقارنة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -625,6 +1351,7 @@
    },
    {
     "file": "audio/variants_cache/0e785f5cae5e.mp3",
+    "say": "ومليون رقم؟ بدهن نص ترليون مقارنة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -637,6 +1364,7 @@
    },
    {
     "file": "audio/variants_cache/da3f77fe362f.mp3",
+    "say": "ومليون رقم؟ بدهن نص ترليون مقارنة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -646,26 +1374,80 @@
     "wr": 1.0,
     "dur": 3.44,
     "heard": " ومليون رقم  بده نص ترليون مقارنة"
+   },
+   {
+    "file": "audio/variants_cache/6f4901c20895.mp3",
+    "say": "ومليون رقم؟ بِدهُن نُصّ تريليون مقارنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.015,
+    "SYR": 0.02,
+    "sim": 0.46,
+    "wr": 1.17,
+    "dur": 3.68,
+    "heard": " ومليون ركم بدهن نصف ثلاثة رليون مقارنة"
+   },
+   {
+    "file": "audio/variants_cache/abc7c17c9a10.mp3",
+    "say": "ومليون رقم؟ بِدهُن نُصّ تريليون مقارنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.007,
+    "SYR": 0.011,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 4.0,
+    "heard": " ومليون رقم بدهم نصف تريليون مقارنة"
+   },
+   {
+    "file": "audio/variants_cache/60b4aa08e1db.mp3",
+    "say": "ومليون رقم؟ بِدهُن نُصّ تريليون مقارنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.023,
+    "SYR": 0.081,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 3.92,
+    "heard": " ومليون رقم بدهم نصف تريليون مقارنة"
+   },
+   {
+    "file": "audio/variants_cache/81fb7d9eaa4d.mp3",
+    "say": "ومليون رقم؟ بِدهُن نُصّ تريليون مقارنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.005,
+    "SYR": 0.014,
+    "sim": 0.67,
+    "wr": 1.0,
+    "dur": 4.32,
+    "heard": " ومليون رقم بدهن نصد رليون مقارنة"
    }
   ]
  },
  "[energetic, enthusiastic, friendly] لو كل مقارنة بثانية، بتخلص بعد ستعشر ألف سنة.": {
   "text": "لو كل مقارنة بثانية، بتخلص بعد ستعشر ألف سنة.",
   "pick": {
-   "file": "audio/variants_cache/aee8b9a04c86.mp3",
+   "file": "audio/variants_cache/fc2128b88c81.mp3",
+   "say": "لو كل مقارنة بثانية، بتخلص بعد ستعش ألف سنة.",
    "tag": "[Syrian Damascene accent]",
-   "seed": 1002,
+   "seed": 1004,
    "stability": null,
-   "syr": -0.299,
-   "SYR": 0.044,
+   "syr": -0.059,
+   "SYR": 0.023,
    "sim": 0.89,
    "wr": 1.0,
-   "dur": 4.8,
-   "heard": " لو كل مقارنة بثانية بتخلص بعد ستاشر ألف سنة"
+   "dur": 4.88,
+   "heard": " لو كل مقارنة بثانية، بتخلص بعد 16 ألف سنة"
   },
   "all": [
    {
     "file": "audio/variants_cache/03ad558d8a83.mp3",
+    "say": "لو كل مقارنة بثانية، بتخلص بعد ستعشر ألف سنة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -678,6 +1460,7 @@
    },
    {
     "file": "audio/variants_cache/aee8b9a04c86.mp3",
+    "say": "لو كل مقارنة بثانية، بتخلص بعد ستعشر ألف سنة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -690,6 +1473,7 @@
    },
    {
     "file": "audio/variants_cache/3ca58d0bdd50.mp3",
+    "say": "لو كل مقارنة بثانية، بتخلص بعد ستعشر ألف سنة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -702,6 +1486,7 @@
    },
    {
     "file": "audio/variants_cache/274b43eb0505.mp3",
+    "say": "لو كل مقارنة بثانية، بتخلص بعد ستعشر ألف سنة.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -711,6 +1496,110 @@
     "wr": 1.0,
     "dur": 4.32,
     "heard": " لو كل مقارنة بثانية بتخلص بعد 16 ألف سنة"
+   },
+   {
+    "file": "audio/variants_cache/8960eab8e0e5.mp3",
+    "say": "لو كل مقارنة بْثانية، بْتِخلَص بعد سِتّعش ألف سنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.437,
+    "SYR": 0.013,
+    "sim": 0.78,
+    "wr": 1.0,
+    "dur": 4.48,
+    "heard": " لو كل مقارنة بسانية بتخلص بعد 16 ألف سنة"
+   },
+   {
+    "file": "audio/variants_cache/2e27095c88c3.mp3",
+    "say": "لو كل مقارنة بْثانية، بْتِخلَص بعد سِتّعش ألف سنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.484,
+    "SYR": 0.003,
+    "sim": 0.67,
+    "wr": 1.0,
+    "dur": 4.24,
+    "heard": " لو كله مقارنة بسانية بتخلص بعد 16 ألف سنة"
+   },
+   {
+    "file": "audio/variants_cache/9157baf8debc.mp3",
+    "say": "لو كل مقارنة بْثانية، بْتِخلَص بعد سِتّعش ألف سنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.48,
+    "SYR": 0.003,
+    "sim": 0.89,
+    "wr": 1.0,
+    "dur": 3.92,
+    "heard": " لو كل مقارنة بثانية بتخلص بعد 16 ألف سنة"
+   },
+   {
+    "file": "audio/variants_cache/1cd8fec2d571.mp3",
+    "say": "لو كل مقارنة بْثانية، بْتِخلَص بعد سِتّعش ألف سنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.414,
+    "SYR": 0.01,
+    "sim": 0.89,
+    "wr": 1.0,
+    "dur": 4.8,
+    "heard": " لو كل مقارنة بثانية بتخلص بعد 16 ألف سنة"
+   },
+   {
+    "file": "audio/variants_cache/205334603035.mp3",
+    "say": "لو كل مقارنة بثانية، بتخلص بعد ستعش ألف سنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.468,
+    "SYR": 0.003,
+    "sim": 0.89,
+    "wr": 1.0,
+    "dur": 4.32,
+    "heard": " لو كل مقارنة بثانية بتخلص بعد 16 ألف سنة"
+   },
+   {
+    "file": "audio/variants_cache/33be84fab684.mp3",
+    "say": "لو كل مقارنة بثانية، بتخلص بعد ستعش ألف سنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.396,
+    "SYR": 0.03,
+    "sim": 0.71,
+    "wr": 0.89,
+    "dur": 5.12,
+    "heard": " لكل مقارنة بثانية، بتخلص بعد 16 ألف سنة"
+   },
+   {
+    "file": "audio/variants_cache/7f166039bae0.mp3",
+    "say": "لو كل مقارنة بثانية، بتخلص بعد ستعش ألف سنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.435,
+    "SYR": 0.006,
+    "sim": 0.89,
+    "wr": 1.0,
+    "dur": 4.4,
+    "heard": " لو كل مقارنة بثانية بتخلص بعد 16 ألف سنة"
+   },
+   {
+    "file": "audio/variants_cache/fc2128b88c81.mp3",
+    "say": "لو كل مقارنة بثانية، بتخلص بعد ستعش ألف سنة.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.059,
+    "SYR": 0.023,
+    "sim": 0.89,
+    "wr": 1.0,
+    "dur": 4.88,
+    "heard": " لو كل مقارنة بثانية، بتخلص بعد 16 ألف سنة"
    }
   ]
  },
@@ -718,6 +1607,7 @@
   "text": "وهاد اللي منسمّيه O(n²).",
   "pick": {
    "file": "audio/variants_cache/4fd40e68c3b9.mp3",
+   "say": "وهاد اللي منسمّيه، أو إن تربيع.",
    "tag": "[Syrian Damascene accent]",
    "seed": 1003,
    "stability": null,
@@ -731,6 +1621,7 @@
   "all": [
    {
     "file": "audio/variants_cache/85cd75c4fcaa.mp3",
+    "say": "وهاد اللي منسمّيه، أو إن تربيع.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -743,6 +1634,7 @@
    },
    {
     "file": "audio/variants_cache/dcb5e3b21649.mp3",
+    "say": "وهاد اللي منسمّيه، أو إن تربيع.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -755,6 +1647,7 @@
    },
    {
     "file": "audio/variants_cache/4fd40e68c3b9.mp3",
+    "say": "وهاد اللي منسمّيه، أو إن تربيع.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -767,6 +1660,7 @@
    },
    {
     "file": "audio/variants_cache/d54144b30011.mp3",
+    "say": "وهاد اللي منسمّيه، أو إن تربيع.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -776,27 +1670,80 @@
     "wr": 0.67,
     "dur": 2.72,
     "heard": " وهذا ما نسميه  ANTARBIA"
+   },
+   {
+    "file": "audio/variants_cache/8380d14b3d8f.mp3",
+    "say": "وهاد اللي مْنسمّيه، أو إن تربيع.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.46,
+    "SYR": 0.001,
+    "sim": 0.18,
+    "wr": 0.83,
+    "dur": 3.84,
+    "heard": " وهذا ما نسميه أو انتربية"
+   },
+   {
+    "file": "audio/variants_cache/cd25f21d2774.mp3",
+    "say": "وهاد اللي مْنسمّيه، أو إن تربيع.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": -0.458,
+    "SYR": 0.008,
+    "sim": 0.18,
+    "wr": 0.83,
+    "dur": 2.96,
+    "heard": " وهذا ما نسميه أو انتربية"
+   },
+   {
+    "file": "audio/variants_cache/519408bad07a.mp3",
+    "say": "وهاد اللي مْنسمّيه، أو إن تربيع.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.422,
+    "SYR": 0.007,
+    "sim": 0.18,
+    "wr": 0.83,
+    "dur": 2.72,
+    "heard": " وهذا اللي نسميه  ON تربية"
+   },
+   {
+    "file": "audio/variants_cache/43c656dba9c6.mp3",
+    "say": "وهاد اللي مْنسمّيه، أو إن تربيع.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.487,
+    "SYR": 0.0,
+    "sim": 0.0,
+    "wr": 0.83,
+    "dur": 2.48,
+    "heard": " وهذا هو ما نسميه أنتربية"
    }
   ]
  },
  "[energetic, enthusiastic, friendly] ولهيك، أوباما كان معه حق.": {
   "text": "ولهيك، أوباما كان معه حق.",
   "pick": {
-   "file": "audio/variants_cache/30505fe599e7.mp3",
+   "file": "audio/variants_cache/cd74e96cff12.mp3",
+   "say": "ولهيك، أوباما كان معو حق.",
    "tag": "[Syrian Damascene accent]",
-   "seed": 1001,
+   "seed": 1003,
    "stability": null,
-   "syr": -0.438,
-   "SYR": 0.002,
+   "syr": -0.013,
+   "SYR": 0.024,
    "sim": 1.0,
    "wr": 1.0,
-   "dur": 3.2,
-   "heard": " ولهيك اوباما كان معه حق",
-   "override": "the picked take garbles أوباما كان معه حق; 1001 has every word"
+   "dur": 2.24,
+   "heard": " ولهيك أوباما كان معه حق"
   },
   "all": [
    {
     "file": "audio/variants_cache/30505fe599e7.mp3",
+    "say": "ولهيك، أوباما كان معه حق.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -805,11 +1752,11 @@
     "sim": 1.0,
     "wr": 1.0,
     "dur": 3.2,
-    "heard": " ولهيك اوباما كان معه حق",
-    "override": "the picked take garbles أوباما كان معه حق; 1001 has every word"
+    "heard": " ولهيك اوباما كان معه حق"
    },
    {
     "file": "audio/variants_cache/63c2dee12b0c.mp3",
+    "say": "ولهيك، أوباما كان معه حق.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -822,6 +1769,7 @@
    },
    {
     "file": "audio/variants_cache/090a1cb10a60.mp3",
+    "say": "ولهيك، أوباما كان معه حق.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -834,6 +1782,7 @@
    },
    {
     "file": "audio/variants_cache/bd1ac65e19c3.mp3",
+    "say": "ولهيك، أوباما كان معه حق.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -843,26 +1792,132 @@
     "wr": 1.0,
     "dur": 2.32,
     "heard": " ولهيك أباما كان معه حق"
+   },
+   {
+    "file": "audio/variants_cache/aeea8d28da2d.mp3",
+    "say": "ولهيك، أوباما كان معو حق.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.547,
+    "SYR": 0.591,
+    "sim": 0.5,
+    "wr": 0.6,
+    "dur": 3.04,
+    "heard": " ولهيك أوباما كمعحة"
+   },
+   {
+    "file": "audio/variants_cache/41221a6ce97a.mp3",
+    "say": "ولهيك، أوباما كان معو حق.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.071,
+    "SYR": 0.015,
+    "sim": 0.5,
+    "wr": 0.6,
+    "dur": 2.48,
+    "heard": " ولهيك أوباما كمعوحة"
+   },
+   {
+    "file": "audio/variants_cache/cd74e96cff12.mp3",
+    "say": "ولهيك، أوباما كان معو حق.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": -0.013,
+    "SYR": 0.024,
+    "sim": 1.0,
+    "wr": 1.0,
+    "dur": 2.24,
+    "heard": " ولهيك أوباما كان معه حق"
+   },
+   {
+    "file": "audio/variants_cache/1f4e06a98590.mp3",
+    "say": "ولهيك، أوباما كان معو حق.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.341,
+    "SYR": 0.447,
+    "sim": 0.22,
+    "wr": 0.8,
+    "dur": 2.16,
+    "heard": " ولهك أباما كان موحك"
+   },
+   {
+    "file": "audio/variants_cache/001ee09f3e82.mp3",
+    "say": "ولَهيك، أوباما كان مَعو حَق.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": 0.463,
+    "SYR": 0.184,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 3.04,
+    "heard": " ولهيك أباما كان معه حق"
+   },
+   {
+    "file": "audio/variants_cache/680acbde1366.mp3",
+    "say": "ولَهيك، أوباما كان مَعو حَق.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.154,
+    "SYR": 0.029,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 2.48,
+    "heard": " ولهك أوباما كان معه حق"
+   },
+   {
+    "file": "audio/variants_cache/6c56b7ebcf4e.mp3",
+    "say": "ولَهيك، أوباما كان مَعو حَق.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.126,
+    "SYR": 0.146,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 2.0,
+    "heard": " ولهيك أباما كان معه حق"
+   },
+   {
+    "file": "audio/variants_cache/9be5d75351e4.mp3",
+    "say": "ولَهيك، أوباما كان مَعو حَق.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": -0.008,
+    "SYR": 0.004,
+    "sim": 0.8,
+    "wr": 1.0,
+    "dur": 2.0,
+    "heard": " ولهيك أباما كان معه حق"
    }
   ]
  },
  "[energetic, enthusiastic, friendly] طيب شو الطريقة الصح؟ بالريل الجاي.": {
   "text": "طيب شو الطريقة الصح؟ بالريل الجاي.",
   "pick": {
-   "file": "audio/variants_cache/0174948f3a71.mp3",
+   "file": "audio/variants_cache/933422ff862d.mp3",
+   "say": "طَيّب شو الطّريقة الصّح؟ بالرّيل الجاي.",
    "tag": "[Syrian Damascene accent]",
    "seed": 1003,
    "stability": null,
-   "syr": 0.928,
-   "SYR": 0.925,
+   "syr": 0.985,
+   "SYR": 0.983,
    "sim": 0.67,
    "wr": 1.0,
-   "dur": 2.72,
-   "heard": " طيب شو الطريق الصح؟  بريلي الجاي"
+   "dur": 3.36,
+   "heard": " طيب شو الطريقة الصحة؟  بريلي الجاي"
   },
   "all": [
    {
     "file": "audio/variants_cache/bc0f0b0172ac.mp3",
+    "say": "طيب شو الطريقة الصح؟ بالريل الجاي.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1001,
     "stability": null,
@@ -875,6 +1930,7 @@
    },
    {
     "file": "audio/variants_cache/19def0c418f3.mp3",
+    "say": "طيب شو الطريقة الصح؟ بالريل الجاي.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1002,
     "stability": null,
@@ -887,6 +1943,7 @@
    },
    {
     "file": "audio/variants_cache/0174948f3a71.mp3",
+    "say": "طيب شو الطريقة الصح؟ بالريل الجاي.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1003,
     "stability": null,
@@ -899,6 +1956,7 @@
    },
    {
     "file": "audio/variants_cache/dd6f0e359eee.mp3",
+    "say": "طيب شو الطريقة الصح؟ بالريل الجاي.",
     "tag": "[Syrian Damascene accent]",
     "seed": 1004,
     "stability": null,
@@ -908,6 +1966,58 @@
     "wr": 1.0,
     "dur": 2.72,
     "heard": " طيب شو الطريقة الصحة؟  بريلي جاي"
+   },
+   {
+    "file": "audio/variants_cache/5d68cb81bd39.mp3",
+    "say": "طَيّب شو الطّريقة الصّح؟ بالرّيل الجاي.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1001,
+    "stability": null,
+    "syr": -0.304,
+    "SYR": 0.036,
+    "sim": 0.5,
+    "wr": 1.0,
+    "dur": 3.52,
+    "heard": " طيب شو طريقة صح؟ بريلي الجاي"
+   },
+   {
+    "file": "audio/variants_cache/b3fdf6f592a9.mp3",
+    "say": "طَيّب شو الطّريقة الصّح؟ بالرّيل الجاي.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1002,
+    "stability": null,
+    "syr": 0.996,
+    "SYR": 0.995,
+    "sim": 0.33,
+    "wr": 1.0,
+    "dur": 2.72,
+    "heard": " طيب شو طريقة صح؟ بريلي جاي"
+   },
+   {
+    "file": "audio/variants_cache/933422ff862d.mp3",
+    "say": "طَيّب شو الطّريقة الصّح؟ بالرّيل الجاي.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1003,
+    "stability": null,
+    "syr": 0.985,
+    "SYR": 0.983,
+    "sim": 0.67,
+    "wr": 1.0,
+    "dur": 3.36,
+    "heard": " طيب شو الطريقة الصحة؟  بريلي الجاي"
+   },
+   {
+    "file": "audio/variants_cache/93813db1fc76.mp3",
+    "say": "طَيّب شو الطّريقة الصّح؟ بالرّيل الجاي.",
+    "tag": "[Syrian Damascene accent]",
+    "seed": 1004,
+    "stability": null,
+    "syr": 0.443,
+    "SYR": 0.454,
+    "sim": 0.67,
+    "wr": 1.0,
+    "dur": 2.8,
+    "heard": " طيب شو الطريقة الصح بالريليت جاي؟"
    }
   ]
  }
