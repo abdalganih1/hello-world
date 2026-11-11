@@ -2,17 +2,21 @@
 the version he picked), cached in audio/cache/.
 Writes build/voice.wav and voice/timeline.json (start/end of every line and scene: the picture is keyed to these).
 Usage: ELEVENLABS_API_KEY=... ELEVENLABS_VOICE_ID=... python3 tools/build_voice.py"""
-import hashlib, json, os, subprocess, time, urllib.request, wave
+import hashlib, json, os, re, subprocess, time, urllib.request, wave
 import numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); SR = 44100
-MODEL = "eleven_v3"; TEMPO = 1.08; TAG = "[Syrian Damascene accent] "
-LEAD, GAP, SCENE_GAP, TAIL = 0.3, 0.18, 0.4, 0.2
+MODEL = "eleven_v3"; TEMPO = float(os.environ.get("TEMPO", 1.1)); TAG = "[Syrian Damascene accent] "
+LEAD, GAP, SCENE_GAP, TAIL = 0.25, 0.15, 0.35, 0.2
 KEY, VOICE = os.environ.get("ELEVENLABS_API_KEY"), os.environ.get("ELEVENLABS_VOICE_ID")
 lines = json.load(open(os.path.join(ROOT, "voice/script.json"), encoding="utf8"))["lines"]
 cache = os.path.join(ROOT, "audio/cache"); os.makedirs(cache, exist_ok=True); os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
 say = [l.get("tts", l["text"]) for l in lines]
 def key_of(i): return os.path.join(cache, hashlib.sha1(json.dumps([TAG + say[i], MODEL, VOICE, lines[i].get("take", 1)] + (["auto", lines[i].get("style", "")] if lines[i].get("auto") else []), ensure_ascii=False).encode()).hexdigest()[:12] + ".mp3")
+SRC = os.environ.get("VOICE_SRC", "owner")   # "george" / "fusha": ElevenLabs George via vibi.pro, picked by tools/vibi_voice.py
+SQ = float(os.environ.get("SQUEEZE", 0)) or None   # cap every pause inside a line (seconds)
+spoken = lambda i: re.sub(r"[\u064b-\u0652]", "", json.load(open(os.path.join(ROOT, f"voice/takes_{SRC}.json"), encoding="utf8"))[str(i)]["pick"]["say"]) if SRC != "owner" else say[i]
 def tts(i):
+    if SRC != "owner": return os.path.join(ROOT, json.load(open(os.path.join(ROOT, f"voice/takes_{SRC}.json"), encoding="utf8"))[str(i)]["pick"]["file"])
     p = key_of(i)
     if os.path.exists(p): return p
     # the exact takes he approved (variant 10 + the picked line options) live in audio/variants_cache: reuse them as they are
@@ -51,14 +55,14 @@ def squeeze(x, mx):  # shorten silences inside the line to at most mx seconds (f
         while j < n and e[j] == e[i]: j += 1
         out.append(x[i:j] if e[i] or j - i <= keep else np.concatenate([x[i:i + keep // 2], x[j - keep // 2:j]])); i = j
     return np.concatenate(out)
-clips = [np.zeros(int(l["dur"] * SR), np.float32) if "dur" in l else (squeeze(trim(decode(tts(i))), l["squeeze"]) if l.get("squeeze") else trim(decode(tts(i)))) for i, l in enumerate(lines)]
+clips = [np.zeros(int(l["dur"] * SR), np.float32) if "dur" in l else (squeeze(trim(decode(tts(i))), l.get("squeeze", SQ)) if l.get("squeeze", SQ) else trim(decode(tts(i)))) for i, l in enumerate(lines)]
 t, out, scenes = (0.0 if "dur" in lines[0] else LEAD), [], []
 for i, (l, c) in enumerate(zip(lines, clips)):
     if i and l["scene"] != lines[i - 1]["scene"]: t += SCENE_GAP - GAP
     if not scenes or scenes[-1]["name"] != l["scene"]:
         if scenes: scenes[-1]["t1"] = round(t - 0.12, 3)
         scenes.append({"name": l["scene"], "t0": round(max(0, t - 0.12), 3)})
-    d = len(c) / SR; out.append({"i": i, "scene": l["scene"], "text": l["text"], "caption": l.get("caption", l["text"]), "cap": l.get("cap"), "hl": l.get("hl", []), "t0": round(t, 3), "t1": round(t + d, 3), "segs": [round(t + x, 3) for x in (onsets(c) if "dur" not in l else [0.0])], "instant": bool(l.get("instant"))})
+    d = len(c) / SR; out.append({"i": i, "scene": l["scene"], "text": l["text"], "say": spoken(i) if "dur" not in l else l["text"], "caption": l.get("caption", l["text"]), "cap": l.get("cap"), "hl": l.get("hl", []), "t0": round(t, 3), "t1": round(t + d, 3), "segs": [round(t + x, 3) for x in (onsets(c) if "dur" not in l else [0.0])], "instant": bool(l.get("instant"))})
     t += d + GAP + l.get("pause", 0)
 total = round(t - GAP + TAIL, 3); scenes[0]["t0"] = 0.0; scenes[-1]["t1"] = total
 v = np.zeros(int(total * SR) + SR, np.float32)

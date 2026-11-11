@@ -159,7 +159,8 @@ function captions(t) {
 const L0 = (i) => TL.lines[i].t0, L1 = (i) => TL.lines[i].t1, SG = (i, j) => TL.lines[i].segs[Math.min(j, TL.lines[i].segs.length - 1)];
 // time a word is spoken: its position in the sentence, snapped to the nearest voiced-phrase onset (robust to how a take pauses)
 function atFrac(l, frac) { const est = l.t0 + (l.t1 - l.t0) * frac; let b = est, bd = 0.4; for (const sg of l.segs) if (Math.abs(sg - est) < bd) { bd = Math.abs(sg - est); b = sg; } return b; }
-const AT = (i, w) => { const l = TL.lines[i], k = l.text.indexOf(w); return atFrac(l, k < 0 ? 0.5 : k / l.text.length); };
+// a word's moment in the line: looked up in what the voice actually says (say), else in the on-screen text
+const AT = (i, ...ws) => { const l = TL.lines[i]; for (const src of [l.say, l.text]) { if (!src) continue; for (const w of ws) { const k = src.indexOf(w); if (k >= 0) return atFrac(l, k / src.length); } } return atFrac(l, 0.5); };
 const SCENES = {};
 function render(t) {
   NOW = t; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; ctx.shadowBlur = 0; ctx.filter = "none";

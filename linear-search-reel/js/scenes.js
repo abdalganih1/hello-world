@@ -41,14 +41,14 @@ SCENES.cards = (t) => {
     let { x, lift, slot } = slotPos(c, t), y = ROWY + (1 - enter) * 1300 - lift + land * 16; const val = START[c], k = FINAL.indexOf(val);
     x += streamOff(t);
     let face = 0, state = "";
-    if (k <= 4 && t >= L0(4 + k) - 0.02) { face = P(t, L0(4 + k), 0.32); if (t >= AT(4 + k, k === 4 ? "لقيناه" : "لأ") - 0.05) state = k === 4 ? "found" : "no"; }
-    const dimA = state === "no" ? lerp(1, 0.55, P(t, AT(4 + k, k === 4 ? "لقيناه" : "لأ") + 0.3, 0.4)) : 1, foundK = state === "found" ? 1 + 0.12 * pop(t, AT(8, "لقيناه") - 0.05, 0.4) - 0.12 * P(t, AT(8, "لقيناه") + 0.4, 0.4) : 1;
-    if (state === "found") { const r = imp(t, AT(8, "لقيناه"), 0.7); ring(x, y, 110 + 140 * (1 - r), hexA(C.teal, 0.6), 8 * r + 1, r); }
+    if (k <= 4 && t >= L0(4 + k) - 0.02) { face = P(t, L0(4 + k), 0.32); if (t >= AT(4 + k, k === 4 ? "وجدناه" : "لا") - 0.05) state = k === 4 ? "found" : "no"; }
+    const dimA = state === "no" ? lerp(1, 0.55, P(t, AT(4 + k, k === 4 ? "وجدناه" : "لا") + 0.3, 0.4)) : 1, foundK = state === "found" ? 1 + 0.12 * pop(t, AT(8, "وجدناه", "لقيناه") - 0.05, 0.4) - 0.12 * P(t, AT(8, "وجدناه", "لقيناه") + 0.4, 0.4) : 1;
+    if (state === "found") { const r = imp(t, AT(8, "وجدناه", "لقيناه"), 0.7); ring(x, y, 110 + 140 * (1 - r), hexA(C.teal, 0.6), 8 * r + 1, r); }
     if (nameM > 0) { const s = lerp(1, 0.001, nameM); drawCard(x, y, s * foundK, { face, val, state, a: out * dimA }); const r = lerp(0, state === "found" ? 30 : 20, nameM); circle(x, y, r, state === "found" ? C.teal : C.navy, out * nameM, 10); continue; }
     drawCard(x, y, foundK, { face, val, state, a: out * dimA });
-    if (state) badge(x + CW / 2 - 6, y - CH / 2 + 6, state === "found" ? "yes" : "no", pop(t, AT(4 + k, k === 4 ? "لقيناه" : "لأ") - 0.05, 0.3), out);
+    if (state) badge(x + CW / 2 - 6, y - CH / 2 + 6, state === "found" ? "yes" : "no", pop(t, AT(4 + k, k === 4 ? "وجدناه" : "لا") - 0.05, 0.3), out);
   }
-  if (t >= AT(8, "لقيناه")) sparkle(cx(4), ROWY, AT(8, "لقيناه"), { n: 30, r: 300 });
+  if (t >= AT(8, "وجدناه", "لقيناه")) sparkle(cx(4), ROWY, AT(8, "وجدناه", "لقيناه"), { n: 30, r: 300 });
   // "but it has a big problem": the list streams on and on, then snaps back to our seven cards
   const so = streamOff(t); if (so < -1) for (let j = 7; j < 22; j++) { const x = cx(j) + so; if (x > -100 && x < W + 100) drawCard(x, ROWY, 1, { a: 0.92 }); }
   const ca = win(t, T3() + 0.7, T4() - 0.3, 0.2); if (ca > 0) { const u = Math.pow(eio(P(t, T3() + 0.8, 1.4)), 3), n = Math.round(lerp(7, 1e6, u)), k = 1 + 0.1 * imp(t, T3() + 2.2, 0.3);
@@ -59,7 +59,7 @@ SCENES.cards = (t) => {
     const u = eio(P(t, AT(3, "من الأول"), Math.max(0.6, L1(3) - AT(3, "من الأول")))); if (u > 0) arrow(cx(0) - 30, ROWY + 210, lerp(cx(0) - 30, cx(6) + 34, u), ROWY + 210, C.teal, 7, ia, 24); }
   // demo: the pointer walks card by card
   if (t > L0(4) - 0.5 && t < SCN.demo.t1) { let px = cx(0); for (let k = 1; k <= 4; k++) px = lerp(px, cx(k), eio(P(t, AT(4 + k - 1, "لأ") + 0.15, 0.35)));
-    pointer(px, ROWY - CH / 2 - 24, P(t, L0(4) - 0.45, 0.3) * (1 - P(t, AT(8, "لقيناه") + 0.6, 0.3))); }
+    pointer(px, ROWY - CH / 2 - 24, P(t, L0(4) - 0.45, 0.3) * (1 - P(t, AT(8, "وجدناه", "لقيناه") + 0.6, 0.3))); }
   // name: the straight line through the dots + a dot travelling along it
   if (nameM > 0) { const la = out * nameM, u = eio(P(t, L0(9) + 0.25, 0.8)); seg(cx(0) - 40, ROWY, lerp(cx(0) - 40, cx(6) + 50, u), ROWY, hexA(C.teal, 0.55), 6, la);
     if (u >= 1) arrow(cx(6) + 10, ROWY, cx(6) + 62, ROWY, C.teal, 6, la, 20);
@@ -94,14 +94,14 @@ const HOSTX = 250, HOSTY = 1710, HOSTH = 500;
 // walks in from the left edge (waving) -> stands and watches the search -> jumps for joy on the find -> thumbs-up on the name.
 // Feet at y 1650: clear of the Reels caption/buttons zone at the bottom.
 function hostPose(t) {
-  const f = AT(8, "لقيناه"), seq = [[T4() - 0.15, "walking"], [T4() + 1.6, "front"], [f - 0.05, "celebrating"], [f + 1.3, "front"], [L0(9) + 0.35, "hero"]];
+  const f = AT(8, "وجدناه", "لقيناه"), seq = [[T4() - 0.15, "walking"], [T4() + 1.6, "front"], [f - 0.05, "celebrating"], [f + 1.3, "front"], [L0(9) + 0.35, "hero"]];
   let cur = seq[0]; for (const q of seq) if (t >= q[0]) cur = q; return cur;
 }
 SCENES.khwarizmo = (t) => {
   const t0 = T4() - 0.15, t1 = SCN.name.t1 - 0.1; if (t < t0 || t > t1 + 0.45) return;
   const [since, pose] = hostPose(t), sw = P(t, since, 0.3); let sx = 1, sy = 1;
   if (pose !== "walking" && sw < 1) { const b = back(sw, 2.0); sx = lerp(1.08, 1, b); sy = lerp(0.9, 1, b); }      // settle into the new pose
-  const f = AT(8, "لقيناه"), ju = P(t, f - 0.05, 0.62), exit = eio(P(t, t1, 0.4));
+  const f = AT(8, "وجدناه", "لقيناه"), ju = P(t, f - 0.05, 0.62), exit = eio(P(t, t1, 0.4));
   // walk-in: from off-screen left to his spot, with a step bounce, easing out as he arrives
   const wk = P(t, t0, 1.7), x = lerp(-260, HOSTX, eo(wk)); let y = HOSTY + exit * 900;
   if (pose === "walking" && wk < 1) { const st = Math.abs(Math.sin(wk * Math.PI * 4)); y -= st * 18 * (1 - wk); sy *= 1 - 0.025 * (1 - st); }
@@ -125,10 +125,10 @@ SCENES.rule = (t) => {
   const yb = 1300, yk = P(t, L0(11), 0.3), nk = P(t, AT(11, "وإذا"), 0.3), top = y + 240;
   if (yk > 0) { const u = eio(yk); poly([[XE, top], [XE, lerp(top, yb - 80, u)]], C.teal, 8, a); if (u >= 1) poly([[XE - 18, yb - 98], [XE, yb - 78], [XE + 18, yb - 98]], C.teal, 8, a);
     T("هو؟", XE + 40, (top + yb) / 2 - 30, { size: 44, color: C.teal, a: a * yk, align: "left" });
-    const k = pop(t, AT(11, "وقّف") - 0.05, 0.4); withT(XE, yb, k, k, 0, () => { fillRR(-165, -66, 330, 132, 66, C.teal, a * clamp(k * 2), 26); T("وقّف ✓", 0, 5, { size: 58, color: "#fff", a: a * clamp(k * 2) }); }); }
+    const k = pop(t, AT(11, "توقف", "وقّف") - 0.05, 0.4); withT(XE, yb, k, k, 0, () => { fillRR(-165, -66, 330, 132, 66, C.teal, a * clamp(k * 2), 26); T("توقف ✓", 0, 5, { size: 58, color: "#fff", a: a * clamp(k * 2) }); }); }
   if (nk > 0) { const u = eio(nk), xl = 330; poly([[XE - 60, top - 10], [lerp(XE - 60, xl + 60, u), lerp(top - 10, yb - 90, u)]], C.red, 8, a);
-    T("مش هو؟", 360, (top + yb) / 2 - 75, { size: 44, color: C.red, a: a * nk });
-    const k = pop(t, AT(11, "كمّل") - 0.05, 0.4); withT(xl, yb, k, k, 0, () => { fillRR(-170, -66, 340, 132, 66, "#ffffff", a * clamp(k * 2), 26); strokeRR(-170, -66, 340, 132, 66, hexA(C.red, 0.45), 4, a * clamp(k * 2)); T("كمّل ↻", 0, 5, { size: 58, color: C.navy, a: a * clamp(k * 2) }); }); }
+    T("ليس هو؟", 360, (top + yb) / 2 - 75, { size: 44, color: C.red, a: a * nk });
+    const k = pop(t, AT(11, "أكمل", "كمّل") - 0.05, 0.4); withT(xl, yb, k, k, 0, () => { fillRR(-170, -66, 340, 132, 66, "#ffffff", a * clamp(k * 2), 26); strokeRR(-170, -66, 340, 132, 66, hexA(C.red, 0.45), 4, a * clamp(k * 2)); T("أكمل ↻", 0, 5, { size: 58, color: C.navy, a: a * clamp(k * 2) }); }); }
 };
 // ------------------------------------------------ speed: worst case, a hundred, a million, O(n)
 const WORST = [7, 3, 9, 1, 8, 2, 5];
@@ -148,7 +148,7 @@ SCENES.speed = (t) => {
     const k2 = pop(t, L0(13) + 0.5, 0.45) * big; withT(540, 1020, k2, k2, 0, () => { T(str, 0, 0, { size: n > 99999 ? 150 : 200, color: C.teal, fam: "mono", a: a * r2 }); T("مقارنة", 0, 135, { size: 60, color: C.navy, a: a * r2 }); }); }
   // 3) O(n): time grows in a straight line with the size
   const r3 = P(t, L0(14) - 0.05, 0.3);
-  if (r3 > 0) { const k = pop(t, AT(14, "O(n)") - 0.1, 0.45); withT(540, 720, k, k, 0, () => { T("O(n)", 0, 0, { size: 180, color: C.navy, fam: "mono", a: a * r3 * clamp(k * 2) }); });
+  if (r3 > 0) { const k = pop(t, AT(14, "Big", "O(n)") - 0.1, 0.45); withT(540, 720, k, k, 0, () => { T("O(n)", 0, 0, { size: 180, color: C.navy, fam: "mono", a: a * r3 * clamp(k * 2) }); });
     const gx = 220, gy = 1420, gw = 640, gh = 420, u = eio(P(t, L0(14) + 0.2, 1.4)); seg(gx, gy, gx + gw + 20, gy, C.mut, 4, a * r3); seg(gx, gy, gx, gy - gh - 20, C.mut, 4, a * r3);
     seg(gx, gy, gx + gw * u, gy - gh * u, C.teal, 9, a * r3); if (u > 0.02) circle(gx + gw * u, gy - gh * u, 14, C.teal, a * r3);
     T("عدد العناصر", gx + gw / 2, gy + 46, { size: 32, color: C.mut, a: a * r3 }); T("الوقت", gx - 20, gy - gh - 40, { size: 32, color: C.mut, a: a * r3, align: "left" }); }
@@ -158,12 +158,12 @@ SCENES.speed = (t) => {
 SCENES.teaser = (t) => {
   const s0 = SCN.teaser.t0, tEnd = TL.total; if (t < s0 - 0.1) return; const a = P(t, s0, 0.3), sorted = [1, 2, 3, 5, 7, 8, 9], o1 = 1 - P(t, L0(16) - 0.2, 0.3);
   if (o1 > 0) { for (let i = 0; i < 7; i++) { const k = pop(t, L0(15) + 0.1 + i * 0.06, 0.4); withT(cx(i), 740, k, k, 0, () => { fillRR(-60, -60, 120, 120, 24, "#ffffff", a * o1 * clamp(k * 2), 16); strokeRR(-60, -60, 120, 120, 24, C.line, 3, a * o1 * clamp(k * 2)); T(String(sorted[i]), 0, 5, { size: 68, color: C.navy, fam: "mono", a: a * o1 * clamp(k * 2) }); }); }
-    const tk = pop(t, L0(15) + 0.7, 0.4); withT(540, 875, tk, tk, 0, () => { fillRR(-120, -36, 240, 72, 36, C.tealSoft, a * o1); T("مرتّبة ✓", 0, 2, { size: 38, color: C.teal, a: a * o1 }); });
-    const k2 = pop(t, AT(15, "في خوارزمية") + 0.6, 0.5); withT(540, 1130, k2, k2, 0, () => { T("20", 0, 0, { size: 250, color: C.teal, fam: "mono", a: a * o1 * clamp(k2 * 2) }); T("خطوة بس", 0, 150, { size: 60, color: C.navy, a: a * o1 * clamp(k2 * 2) }); });
+    const tk = pop(t, L0(15) + 0.7, 0.4); withT(540, 875, tk, tk, 0, () => { fillRR(-120, -36, 240, 72, 36, C.tealSoft, a * o1); T("مرتبة ✓", 0, 2, { size: 38, color: C.teal, a: a * o1 }); });
+    const k2 = pop(t, AT(15, "هناك", "في خوارزمية") + 0.6, 0.5); withT(540, 1130, k2, k2, 0, () => { T("20", 0, 0, { size: 250, color: C.teal, fam: "mono", a: a * o1 * clamp(k2 * 2) }); T("خطوة فقط", 0, 150, { size: 60, color: C.navy, a: a * o1 * clamp(k2 * 2) }); });
     const k3 = P(t, AT(15, "حتى") + 0.2, 0.35); T("من بين 1,000,000 عنصر", 540, 1400, { size: 46, color: C.mut, a: a * o1 * k3 }); }
   // ending: one big "?" -> it flips into a hidden (blurred) name -> "in the next reel" said once, big
   if (t > L0(16) - 0.3) { const e = eo(P(t, L0(16) - 0.25, 0.5)); KR("wink", 540, 1720 + (1 - e) * 600, 700, { bob: 0.6 });
-    const rv = AT(16, "بالريل"), f = P(t, rv - 0.12, 0.3), sx = Math.abs(Math.cos(f * Math.PI)), flipped = f > 0.5;
+    const rv = AT(16, "Reel", "بالريل"), f = P(t, rv - 0.12, 0.3), sx = Math.abs(Math.cos(f * Math.PI)), flipped = f > 0.5;
     if (!flipped) { const q = pop(t, L0(16) + 0.05, 0.45), wob = Math.sin(t * 9) * 0.06 * win(t, L0(16) + 0.4, rv, 0.15);
       for (let k = 0; k < 2; k++) { const u = ((t - L0(16)) * 1.3 + k / 2) % 1; ring(540, 680, 130 + u * 110, hexA(C.teal, 0.5), 6 * (1 - u), (1 - u) * clamp(q)); }
       withT(540, 680, q * Math.max(0.02, sx), q, wob, () => { circle(0, 0, 130, C.navy, clamp(q * 2), 30); T("؟", 0, 12, { size: 180, color: "#fff", a: clamp(q * 2) }); }); }
@@ -173,7 +173,7 @@ SCENES.teaser = (t) => {
         const sh = ((t - rv) * 0.7) % 1.4; if (sh < 1) { A(0.35); const gx = lerp(-w / 2 - 120, w / 2 + 120, sh); const g = ctx.createLinearGradient(gx - 90, 0, gx + 90, 0); g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(0.5, "rgba(120,240,230,0.9)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(gx - 90, -95, 180, 190); }
         ctx.restore(); T("🔒", w / 2 - 50, -60, { size: 40 }); });
       const r = imp(t, rv + 0.1, 0.7); ring(540, 680, 160 + 260 * (1 - r), hexA(C.teal, 0.6), 10 * r + 1, r); sparkle(540, 680, rv + 0.1, { n: 34, r: 420 });
-      const p = pop(t, rv + 0.35, 0.5); withT(540, 880, p, p, 0, () => T("بالريل الجاي 👀", 0, 0, { size: 84, color: C.teal, a: clamp(p * 2) })); }
+      const p = pop(t, rv + 0.35, 0.5); withT(540, 880, p, p, 0, () => T("في الريل القادم 👀", 0, 0, { size: 84, color: C.teal, a: clamp(p * 2) })); }
   }
 };
 SCENES.order = ["hook", "cards", "rule", "speed", "teaser", "khwarizmo"];
@@ -184,10 +184,10 @@ window.collectSfx = () => {
   ev(0.02, "hit");
   for (let c = 0; c < 7; c++) ev(T3() + 0.1 + c * 0.05, "card", c); ev(T3() + 0.7, "rise"); ev(T4() - 0.4, "swish");
   ev(T4() + 0.05, "pop"); ev(T4() - 0.15, "rise"); ev(L0(9) + 0.35, "pop"); ev(T4() + 0.93, "drop"); SWAPS.forEach((_, k) => ev(swapT(k), "swish", k));
-  for (let k = 0; k < 5; k++) { ev(L0(4 + k), "flip", k); ev(AT(4 + k, k === 4 ? "لقيناه" : "لأ"), k === 4 ? "found" : "no", k); }
-  for (let i = 0; i < 7; i++) ev(L0(3) + 0.15 + i * 0.2, "tick", i); ev(L0(9) + 0.7, "pop"); ev(AT(11, "وقّف"), "pop"); ev(AT(11, "كمّل"), "pop");
+  for (let k = 0; k < 5; k++) { ev(L0(4 + k), "flip", k); ev(AT(4 + k, k === 4 ? "وجدناه" : "لا"), k === 4 ? "found" : "no", k); }
+  for (let i = 0; i < 7; i++) ev(L0(3) + 0.15 + i * 0.2, "tick", i); ev(L0(9) + 0.7, "pop"); ev(AT(11, "توقف", "وقّف"), "pop"); ev(AT(11, "أكمل", "كمّل"), "pop");
   const scan0 = AT(12, "إذا") + 0.1, step = Math.max(0.2, (L1(12) - scan0 + 0.15) / 7); for (let i = 0; i < 7; i++) ev(scan0 + i * step, i === 6 ? "found" : "tick", i);
-  ev(AT(13, "ومليون"), "rise"); ev(AT(14, "O(n)") - 0.1, "pop"); ev(AT(15, "في خوارزمية") + 0.6, "pop"); ev(L0(16) + 0.05, "pop"); ev(AT(16, "بالريل") - 0.12, "swish"); ev(AT(16, "بالريل") + 0.1, "found", 9); ev(AT(16, "بالريل") + 0.35, "pop");
+  ev(AT(13, "ومليون"), "rise"); ev(AT(14, "Big", "O(n)") - 0.1, "pop"); ev(AT(15, "هناك", "في خوارزمية") + 0.6, "pop"); ev(L0(16) + 0.05, "pop"); ev(AT(16, "Reel", "بالريل") - 0.12, "swish"); ev(AT(16, "Reel", "بالريل") + 0.1, "found", 9); ev(AT(16, "Reel", "بالريل") + 0.35, "pop");
   TL.scenes.slice(1).forEach((s) => ev(s.t0, "swish", 9));
   return { total: TL.total, scenes: TL.scenes, events: e.sort((a, b) => a.t - b.t) };
 };

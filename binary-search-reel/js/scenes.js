@@ -6,7 +6,7 @@ const N = 11, VALS = [4, 9, 15, 22, 30, 37, 45, 51, 63, 78, 92], TARGET = 51;
 const CW = 86, CH = 150, ROWY = 900, cx = (i) => 80 + 92 * i;
 // the search: [lo, hi, mid, verdict] per step; verdict: -1 too small (drop left), 1 too big (drop right), 0 found
 const STEPS = [[0, 10, 5, -1], [6, 10, 8, 1], [6, 7, 6, -1], [7, 7, 7, 0]];
-const stepT = (k) => L0(3 + k), dropT = (k) => (k === 0 ? AT(3, "فمنرمي") : k === 1 ? AT(4, "فمنرمي") : AT(5, "أصغر") + 0.25), verdT = (k) => (k === 0 ? AT(3, "أصغر") : k === 1 ? AT(4, "أكبر") : k === 2 ? AT(5, "أصغر") : AT(6, "لقيناه"));
+const stepT = (k) => L0(3 + k), dropT = (k) => (k === 0 ? AT(3, "فنرمي", "فمنرمي") : k === 1 ? AT(4, "فنرمي", "فمنرمي") : AT(5, "أصغر") + 0.25), verdT = (k) => (k === 0 ? AT(3, "أصغر") : k === 1 ? AT(4, "أكبر") : k === 2 ? AT(5, "أصغر") : AT(6, "وجدناه", "لقيناه"));
 
 function card(x, y, s, o = {}) {
   const { val = "", state = "", a = 1, rot = 0 } = o; if (a <= 0 || s <= 0) return;
@@ -47,7 +47,7 @@ function globe(t, t0, t1, a, o = {}) {
   const people = Math.max(1, Math.round(8e9 * frac)), qn = Math.min(33, k);
   withT(540, GLOBE.y + GLOBE.r + 95, 1, 1, 0, () => { fillRR(-300, -50, 600, 100, 50, lit ? C.teal : C.navy, a, 20); T(`${people.toLocaleString("en-US")} إنسان`, 0, 4, { size: 48, color: "#fff", a }); });
   withT(540, GLOBE.y + GLOBE.r + 190, 1, 1, 0, () => T(`سؤال ${qn} / 33`, 0, 0, { size: 40, color: C.mut, a, weight: 800 }));
-  if (lit) { const p = pop(t, t0 + (t1 - t0) * (33 / 33.999), 0.4); withT(sx, sy - 80, p, p, 0, () => { fillRR(-110, -36, 220, 72, 36, "#fff", a * clamp(p * 2), 16); strokeRR(-110, -36, 220, 72, 36, C.teal, 3, a * clamp(p * 2)); T("هاد إنت 👆", 0, 3, { size: 36, a: a * clamp(p * 2) }); }); }
+  if (lit) { const p = pop(t, t0 + (t1 - t0) * (33 / 33.999), 0.4); withT(sx, sy - 80, p, p, 0, () => { fillRR(-110, -36, 220, 72, 36, "#fff", a * clamp(p * 2), 16); strokeRR(-110, -36, 220, 72, 36, C.teal, 3, a * clamp(p * 2)); T("هذا أنت 👆", 0, 3, { size: 36, a: a * clamp(p * 2) }); }); }
 }
 SCENES.hook = (t) => {
   const e = SCN.hook.t1; if (t > e + 0.3) return; const a = 1 - P(t, e - 0.05, 0.3);
@@ -55,12 +55,12 @@ SCENES.hook = (t) => {
 };
 SCENES.world = (t) => {
   const s0 = SCN.world.t0, s1 = SCN.world.t1; if (t < s0 - 0.1 || t > s1 + 0.3) return; const a = P(t, s0, 0.3) * (1 - P(t, s1 - 0.05, 0.3));
-  globe(t, AT(13, "تمن") + 0.3, L1(13) - 0.1, a);
+  globe(t, AT(13, "ثمانية", "تمن") + 0.3, L1(13) - 0.1, a);
 };
 // ------------------------------------------------ the secret: a long list, cut in half, then half again
 SCENES.secret = (t) => {
   const s0 = SCN.secret.t0, s1 = SCN.secret.t1; if (t < s0 - 0.1 || t > s1 + 0.3) return; const a = P(t, s0, 0.3) * (1 - P(t, s1 - 0.05, 0.3));
-  const y = 900, n = 32, w = 960, cut1 = AT(1, "منقسم") - 0.1, c2 = cut1 + 0.9;
+  const y = 900, n = 32, w = 960, cut1 = AT(1, "نقسم", "منقسم") - 0.1, c2 = cut1 + 0.9;
   for (let i = 0; i < n; i++) {
     const x0 = 60 + (i + 0.5) * w / n; let x = x0, yy = y, al = a;
     const g1 = eio(P(t, cut1 + 0.25, 0.5)), g2 = eio(P(t, c2 + 0.25, 0.5));
@@ -75,9 +75,9 @@ SCENES.cards = (t) => {
   const s0 = SCN.setup.t0, s1 = SCN.name.t1; if (t < s0 - 0.1 || t > s1 + 0.3) return; const out = 1 - P(t, s1 - 0.05, 0.3);
   const nm = eio(P(t, L0(7) - 0.15, 0.55)), keep = out * (1 - nm);   // name scene: the search UI clears, the found card takes the centre
   // target chip
-  const tk = pop(t, AT(2, "بدنا"), 0.45); withT(540, 690, tk, tk, 0, () => { fillRR(-170, -50, 340, 100, 50, C.tealSoft, keep * clamp(tk * 2)); T("المطلوب", 50, 3, { size: 34, color: C.teal, a: keep * clamp(tk * 2) }); T("51", -80, 4, { size: 64, color: C.teal, fam: "mono", a: keep * clamp(tk * 2) }); });
+  const tk = pop(t, AT(2, "نريد", "بدنا"), 0.45); withT(540, 690, tk, tk, 0, () => { fillRR(-170, -50, 340, 100, 50, C.tealSoft, keep * clamp(tk * 2)); T("المطلوب", 50, 3, { size: 34, color: C.teal, a: keep * clamp(tk * 2) }); T("51", -80, 4, { size: 64, color: C.teal, fam: "mono", a: keep * clamp(tk * 2) }); });
   // sorted tag under the row
-  const st = win(t, AT(2, "المرتبة") - 0.1, L0(3) + 0.6, 0.25); if (st > 0) { arrow(cx(0) - 10, ROWY + 105, cx(10) + 20, ROWY + 105, C.teal, 6, st * out, 20); T("مرتّبة من الصغير للكبير", 540, ROWY + 155, { size: 34, color: C.teal, a: st * out }); }
+  const st = win(t, AT(2, "المرتبة") - 0.1, L0(3) + 0.6, 0.25); if (st > 0) { arrow(cx(0) - 10, ROWY + 105, cx(10) + 20, ROWY + 105, C.teal, 6, st * out, 20); T("مرتبة من الأصغر للأكبر", 540, ROWY + 155, { size: 34, color: C.teal, a: st * out }); }
   let lo = 0, hi = 10, cur = -1;
   for (let k = 0; k < STEPS.length; k++) if (t >= stepT(k) - 0.05) cur = k;
   for (let i = 0; i < N; i++) {
@@ -100,7 +100,7 @@ SCENES.cards = (t) => {
   }
   // name: step counter "4 steps" vs 11 cards
   if (t > L0(7) - 0.1) { const k = pop(t, AT(7, "البحث") + 0.2, 0.45); withT(540, 1110, k, k, 0, () => { fillRR(-300, -58, 600, 116, 58, C.navy, out * clamp(k * 2), 20); T("Binary Search", 0, 4, { size: 60, color: "#fff", fam: "mono", a: out * clamp(k * 2) }); });
-    const sk = pop(t, AT(7, "البحث") + 0.6, 0.4); withT(540, 1210, sk, sk, 0, () => T("لقيناه بـ 4 خطوات من 11", 0, 0, { size: 38, color: C.mut, a: out * clamp(sk * 2) })); }
+    const sk = pop(t, AT(7, "البحث") + 0.6, 0.4); withT(540, 1210, sk, sk, 0, () => T("وجدناه بـ 4 خطوات من 11", 0, 0, { size: 38, color: C.mut, a: out * clamp(sk * 2) })); }
 };
 // خوارزمو, the host on the left (all poses drawn facing right, none mirrored): walks in, watches, jumps on the find, thumbs-up on the name
 const HOSTX = 250, HOSTY = 1710, HOSTH = 500;
@@ -129,7 +129,7 @@ SCENES.rule = (t) => {
       arr.forEach((v, i) => { const k = pop(t, k0 + i * 0.05, 0.35); withT(135 + 135 * i, y, k, k, 0, () => { fillRR(-55, -55, 110, 110, 20, "#fff", a * o1 * clamp(k * 2), 14); strokeRR(-55, -55, 110, 110, 20, r ? hexA(C.red, 0.4) : C.line, 3, a * o1 * clamp(k * 2)); T(String(v), 0, 5, { size: 56, color: C.navy, fam: "mono", a: a * o1 * clamp(k * 2) }); }); });
       const k = pop(t, k0 + 0.5, 0.4); withT(540, y + 110, k, k, 0, () => { fillRR(-130, -34, 260, 68, 34, r ? C.redSoft : C.tealSoft, a * o1 * clamp(k * 2)); T(lab, 0, 2, { size: 36, color: col, a: a * o1 * clamp(k * 2) }); }); }); }
   if (t > L0(9) - 0.2) { const b = P(t, L0(9), 0.3), y = 930, w0 = 900;
-    for (let s2 = 0; s2 < 5; s2++) { const ts = AT(9, "ومنرمي") + s2 * 0.32, u = eio(P(t, ts, 0.3)), w = w0 / Math.pow(2, s2) * (1 - 0.5 * u * (s2 < 4 ? 1 : 0)); const yy = y + s2 * 70;
+    for (let s2 = 0; s2 < 5; s2++) { const ts = AT(9, "نرمي", "ومنرمي") + s2 * 0.32, u = eio(P(t, ts, 0.3)), w = w0 / Math.pow(2, s2) * (1 - 0.5 * u * (s2 < 4 ? 1 : 0)); const yy = y + s2 * 70;
       if (t < ts - 0.3 && s2 > 0) continue; fillRR(540 - w / 2, yy - 22, w, 44, 22, s2 === 4 ? C.teal : C.navy, a * b, 10); T(String(Math.round(1000000 / Math.pow(2, s2))).replace(/\B(?=(\d{3})+(?!\d))/g, ","), 540, yy + 2, { size: 26, color: "#fff", fam: "mono", a: a * b * (w > 150 ? 1 : 0) }); } }
 };
 
@@ -137,9 +137,9 @@ SCENES.rule = (t) => {
 SCENES.speed = (t) => {
   const s0 = SCN.speed.t0, s1 = SCN.speed.t1; if (t < s0 - 0.1 || t > s1 + 0.3) return; const a = P(t, s0, 0.3) * (1 - P(t, s1 - 0.05, 0.3));
   const r1 = 1 - P(t, L0(11) - 0.2, 0.3);
-  if (r1 > 0) { const u = clamp((t - AT(10, "بيصيروا")) / (L1(10) - AT(10, "بيصيروا"))), k = Math.min(20, Math.floor(u * 20.99)), n = Math.max(1, Math.round(1e6 / Math.pow(2, k)));
-    withT(540, 800, 1 + 0.06 * imp(t, AT(10, "بيصيروا") + k / 20.99 * (L1(10) - AT(10, "بيصيروا")), 0.15), 1, 0, () => T(n.toLocaleString("en-US"), 0, 0, { size: n > 99999 ? 150 : 190, color: k >= 20 ? C.teal : C.navy, fam: "mono", a: a * r1 }));
-    T("عنصر باقي", 540, 930, { size: 44, color: C.mut, a: a * r1 });
+  if (r1 > 0) { const u = clamp((t - AT(10, "نصف", "بيصيروا")) / (L1(10) - AT(10, "نصف", "بيصيروا"))), k = Math.min(20, Math.floor(u * 20.99)), n = Math.max(1, Math.round(1e6 / Math.pow(2, k)));
+    withT(540, 800, 1 + 0.06 * imp(t, AT(10, "نصف", "بيصيروا") + k / 20.99 * (L1(10) - AT(10, "نصف", "بيصيروا")), 0.15), 1, 0, () => T(n.toLocaleString("en-US"), 0, 0, { size: n > 99999 ? 150 : 190, color: k >= 20 ? C.teal : C.navy, fam: "mono", a: a * r1 }));
+    T("عنصر متبقي", 540, 930, { size: 44, color: C.mut, a: a * r1 });
     for (let i = 0; i < 20; i++) { const x = 160 + i * 40; circle(x, 1050, 12, i < k ? C.teal : C.line, a * r1); }
     T(`خطوة ${k} / 20`, 540, 1120, { size: 42, color: C.navy, a: a * r1 }); }
   const r2 = P(t, L0(11) - 0.05, 0.3) * (1 - P(t, L0(12) - 0.15, 0.3));
@@ -147,7 +147,7 @@ SCENES.speed = (t) => {
     T("🐢 البحث الخطي", 900, 760, { size: 40, color: C.red, a: a * r2, align: "right" }); fillRR(980 - 880 * g2, 800, 880 * g2, 56, 28, C.red, a * r2); T("1,000,000", 540, 830, { size: 34, color: "#fff", fam: "mono", a: a * r2 * g2 });
     T("🚀 البحث الثنائي", 900, 960, { size: 40, color: C.teal, a: a * r2, align: "right" }); fillRR(980 - 60 * g, 1000, 60 * g, 56, 28, C.teal, a * r2); T("20", 860, 1030, { size: 40, color: C.teal, fam: "mono", a: a * r2 * g }); }
   const r3 = P(t, L0(12) - 0.05, 0.3);
-  if (r3 > 0) { const k = pop(t, AT(12, "O(log") - 0.1, 0.45); withT(540, 720, k, k, 0, () => T("O(log n)", 0, 0, { size: 140, color: C.navy, fam: "mono", a: a * r3 * clamp(k * 2) }));
+  if (r3 > 0) { const k = pop(t, AT(12, "Big", "O(log") - 0.1, 0.45); withT(540, 720, k, k, 0, () => T("O(log n)", 0, 0, { size: 140, color: C.navy, fam: "mono", a: a * r3 * clamp(k * 2) }));
     const gx = 200, gy = 1330, gw = 680, gh = 420, u = eio(P(t, L0(12) + 0.2, 1.2)); seg(gx, gy, gx + gw + 20, gy, C.mut, 4, a * r3); seg(gx, gy, gx, gy - gh - 20, C.mut, 4, a * r3);
     seg(gx, gy, gx + gw * u, gy - gh * u, hexA(C.red, 0.6), 6, a * r3); T("خطي", gx + gw * u + 10, gy - gh * u, { size: 30, color: C.red, a: a * r3 * u, align: "left" });
     const pts = []; for (let i = 0; i <= 60 * u; i++) { const xx = i / 60; pts.push([gx + gw * xx, gy - gh * 0.22 * Math.log2(1 + xx * 15) / 4]); } if (pts.length > 1) poly(pts, C.teal, 9, a * r3);
@@ -160,7 +160,7 @@ SCENES.teaser = (t) => {
   const s0 = SCN.teaser.t0; if (t < s0 - 0.1) return; const a = P(t, s0, 0.3), o1 = 1 - P(t, L0(15) - 0.2, 0.3), vals = [47, 3, 60, 15, 8, 34, 21];
   if (o1 > 0) vals.forEach((v, i) => { const wob = Math.sin(t * 7 + i * 1.7) * 14, k = pop(t, s0 + 0.1 + i * 0.05, 0.4); withT(135 + 135 * i, 900 + wob, k, k, Math.sin(t * 5 + i) * 0.12, () => { fillRR(-55, -55, 110, 110, 20, "#fff", a * o1 * clamp(k * 2), 14); strokeRR(-55, -55, 110, 110, 20, hexA(C.red, 0.4), 3, a * o1 * clamp(k * 2)); T(String(v), 0, 5, { size: 56, color: C.navy, fam: "mono", a: a * o1 * clamp(k * 2) }); }); });
   if (t > L0(15) - 0.3) { const e = eo(P(t, L0(15) - 0.25, 0.5)); KR("wink", 540, 1720 + (1 - e) * 600, 700, { bob: 0.6 });
-    const rv = AT(15, "بالريل"), f = P(t, rv - 0.12, 0.3), sx = Math.abs(Math.cos(f * Math.PI)), flipped = f > 0.5;
+    const rv = AT(15, "Reel", "بالريل"), f = P(t, rv - 0.12, 0.3), sx = Math.abs(Math.cos(f * Math.PI)), flipped = f > 0.5;
     if (!flipped) { const q = pop(t, L0(15) + 0.05, 0.45), wob = Math.sin(t * 9) * 0.06 * win(t, L0(15) + 0.4, rv, 0.15);
       for (let k = 0; k < 2; k++) { const u = ((t - L0(15)) * 1.3 + k / 2) % 1; ring(540, 680, 130 + u * 110, hexA(C.teal, 0.5), 6 * (1 - u), (1 - u) * clamp(q)); }
       withT(540, 680, q * Math.max(0.02, sx), q, wob, () => { circle(0, 0, 130, C.navy, clamp(q * 2), 30); T("؟", 0, 12, { size: 180, color: "#fff", a: clamp(q * 2) }); }); }
@@ -170,7 +170,7 @@ SCENES.teaser = (t) => {
         const sh = ((t - rv) * 0.7) % 1.4; if (sh < 1) { A(0.35); const gx = lerp(-w / 2 - 120, w / 2 + 120, sh); const g = ctx.createLinearGradient(gx - 90, 0, gx + 90, 0); g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(0.5, "rgba(120,240,230,0.9)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(gx - 90, -95, 180, 190); }
         ctx.restore(); T("🔒", w / 2 - 50, -60, { size: 40 }); });
       const r = imp(t, rv + 0.1, 0.7); ring(540, 680, 160 + 260 * (1 - r), hexA(C.teal, 0.6), 10 * r + 1, r); sparkle(540, 680, rv + 0.1, { n: 34, r: 420 });
-      const p = pop(t, rv + 0.35, 0.5); withT(540, 880, p, p, 0, () => T("بالريل الجاي 👀", 0, 0, { size: 84, color: C.teal, a: clamp(p * 2) })); }
+      const p = pop(t, rv + 0.35, 0.5); withT(540, 880, p, p, 0, () => T("في الريل القادم 👀", 0, 0, { size: 84, color: C.teal, a: clamp(p * 2) })); }
   }
 };
 SCENES.order = ["hook", "secret", "cards", "rule", "speed", "world", "teaser", "khwarizmo"];
@@ -179,13 +179,13 @@ SCENES.order = ["hook", "secret", "cards", "rule", "speed", "world", "teaser", "
 window.collectSfx = () => {
   const e = [], ev = (t, k, v = 0) => e.push({ t: +t.toFixed(3), k, v });
   ev(0.02, "hit"); for (let q = 0; q < 33; q += 3) ev(0.9 + (L1(0) - 1.1) * q / 33.999, "tick", q % 7);
-  ev(AT(1, "منقسم") - 0.1, "swish"); ev(AT(1, "منقسم") + 0.8, "swish");
-  for (let i = 0; i < N; i++) ev(SCN.setup.t0 + 0.2 + i * 0.04, "card", i); ev(AT(2, "بدنا"), "pop");
+  ev(AT(1, "نقسم", "منقسم") - 0.1, "swish"); ev(AT(1, "نقسم", "منقسم") + 0.8, "swish");
+  for (let i = 0; i < N; i++) ev(SCN.setup.t0 + 0.2 + i * 0.04, "card", i); ev(AT(2, "نريد", "بدنا"), "pop");
   for (let k = 0; k < 4; k++) { ev(stepT(k), "flip", k); ev(verdT(k), k === 3 ? "found" : "no", k); if (k < 3) ev(dropT(k), "swish", k); }
   ev(AT(7, "البحث") + 0.2, "pop"); ev(AT(8, "القائمة"), "pop"); ev(AT(8, "القائمة") + 0.5, "pop");
-  for (let s2 = 0; s2 < 5; s2++) ev(AT(9, "ومنرمي") + s2 * 0.32, "tick", s2);
-  ev(AT(10, "بيصيروا"), "rise"); ev(AT(12, "O(log") - 0.1, "pop"); ev(L1(13) - 0.1, "found", 9);
-  ev(L0(15) + 0.05, "pop"); ev(AT(15, "بالريل") - 0.12, "swish"); ev(AT(15, "بالريل") + 0.1, "found", 9); ev(AT(15, "بالريل") + 0.35, "pop");
+  for (let s2 = 0; s2 < 5; s2++) ev(AT(9, "نرمي", "ومنرمي") + s2 * 0.32, "tick", s2);
+  ev(AT(10, "نصف", "بيصيروا"), "rise"); ev(AT(12, "Big", "O(log") - 0.1, "pop"); ev(L1(13) - 0.1, "found", 9);
+  ev(L0(15) + 0.05, "pop"); ev(AT(15, "Reel", "بالريل") - 0.12, "swish"); ev(AT(15, "Reel", "بالريل") + 0.1, "found", 9); ev(AT(15, "Reel", "بالريل") + 0.35, "pop");
   TL.scenes.slice(1).forEach((s) => ev(s.t0, "swish", 9));
   return { total: TL.total, scenes: TL.scenes, events: e.sort((a, b) => a.t - b.t) };
 };
