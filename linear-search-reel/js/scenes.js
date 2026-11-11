@@ -89,7 +89,7 @@ SCENES.hook = (t) => {
 };
 // خوارزمو as the host, bottom-right, from "خلينا نجرب" to the name: materialises like a hologram, talks, blinks, reacts
 // (thinks -> presents -> jumps for joy on the find -> presents -> thumbs-up on the name), every pose change with a squash-pop.
-const HOSTX = 260, HOSTY = 1660, HOSTH = 555;
+const HOSTX = 250, HOSTY = 1710, HOSTH = 500;
 // He stands on the left and every pose used here is drawn facing right (toward the cards), so nothing is mirrored:
 // walks in from the left edge (waving) -> stands and watches the search -> jumps for joy on the find -> thumbs-up on the name.
 // Feet at y 1650: clear of the Reels caption/buttons zone at the bottom.

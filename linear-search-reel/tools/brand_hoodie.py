@@ -4,7 +4,7 @@ The mark is rebuilt from techno-injaz-intro/assets/logo (three facets + the grad
 import json, os, cv2, numpy as np
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); LOGO = os.path.join(ROOT, "../techno-injaz-intro/assets/logo")
 EMB = {"angry": (141, 363, 75, 51), "idea": (164, 348, 59, 50), "presenting": (209, 336, 63, 51), "celebrating": (217, 311, 63, 49),
-       "hero": (292, 656, 124, 99), "wink": (169, 381, 79, 56), "surprised": (155, 369, 81, 59),
+       "hero": (292, 656, 124, 99), "wink": (171, 378, 79, 56), "surprised": (155, 369, 81, 59),
        "walking": (162, 322, 51, 49), "front": (142, 441, 86, 64)}
 # ---- the mark
 d = json.load(open(os.path.join(LOGO, "logo.json"))); Wc, Hc = d["canvas"]; mark = np.zeros((Hc, Wc, 4), np.float32)

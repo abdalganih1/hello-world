@@ -8,7 +8,7 @@ R = {  # eyes: (x, y, r) · mouth: (x, y, w, h, open?) · tips: antenna balls ·
     "hero":        {"eyes": [(196, 370, 76), (424, 316, 66)], "mouth": (338, 418, 80, 40, True), "tips": [(89, 27), (291, 34)], "blink": False},
     "idea":        {"eyes": [(118, 203, 42), (226, 181, 30)], "mouth": (191, 246, 44, 8, False), "tips": [(40, 32), (162, 21)], "blink": True},
     "celebrating": {"eyes": [], "mouth": (237, 229, 50, 29, True), "tips": [(119, 29), (280, 29)], "blink": False},
-    "wink":        {"eyes": [], "mouth": (203, 243, 46, 30, True), "tips": [(136, 12)], "blink": False},
+    "wink":        {"eyes": [], "mouth": (205, 285, 46, 30, True), "tips": [(28, 42), (197, 18)], "blink": False},
     "surprised":   {"eyes": [(125, 195, 46), (244, 190, 38)], "mouth": (190, 240, 30, 40, True), "tips": [(47, 16), (170, 9)], "blink": True},
     "thinking":    {"eyes": [(122, 205, 45), (238, 203, 38)], "mouth": (185, 262, 50, 8, False), "tips": [(48, 16), (184, 16)], "blink": True},    "front":       {"eyes": [], "mouth": (175, 230, 30, 8, False), "tips": [], "blink": False},
     "walking":     {"eyes": [], "mouth": (200, 180, 30, 20, True), "tips": [], "blink": False},
