@@ -63,7 +63,37 @@ function K(name, x, y, h, o = {}) {
   const im = IMG[name]; if (!im) return; const { a = 1, sx = 1, sy = 1, rot = 0, bob = 1, shadow = 1 } = o; if (a <= 0.001 || h <= 1) return;
   const m = META[name], w = h * m.w / m.h, by = Math.sin(NOW * 2.4 + x * 0.01) * 0.01 * h * bob;
   if (shadow) { ctx.save(); A(a * 0.22 * shadow); ctx.beginPath(); ctx.ellipse(x, y + h * 0.01, w * 0.34, h * 0.025, 0, 0, 6.2832); ctx.fillStyle = "#1d3557"; ctx.filter = "blur(6px)"; ctx.fill(); ctx.restore(); }
-  ctx.save(); A(a); ctx.translate(x, y + by); ctx.rotate(rot); ctx.scale(sx, sy); ctx.drawImage(im, -w / 2, -h, w, h); ctx.restore();
+  ctx.save(); A(a); ctx.translate(x, y + by); ctx.rotate(rot); ctx.scale(sx, sy); ctx.drawImage(im, -w / 2, -h, w, h);
+  if (o.overlay) { ctx.translate(-w / 2, -h); ctx.scale(h / m.h, h / m.h); o.overlay(a); } ctx.restore();
+}
+// ---------- خوارزمو alive: talks (mouth opens with the voice), blinks, antennas glow while he speaks
+let RIG = {}, BLC = null;
+const ENV = (t) => { const e = TL.env || []; const f = t * 30, i = Math.floor(f); if (i < 0 || i >= e.length - 1) return 0; return lerp(e[i], e[i + 1], f - i); };
+function blinkAt(t) { // deterministic blinks every 2.4..4.2 s: close 0.06, hold 0.04, open 0.09
+  let bt = 0.9, k = 0; while (bt < t + 0.5) { const u = t - bt; if (u >= 0 && u < 0.19) return u < 0.06 ? u / 0.06 : u < 0.1 ? 1 : 1 - (u - 0.1) / 0.09; bt += 2.4 + 1.8 * rnd(k++ + 17); } return 0;
+}
+function KR(pose, x, y, h, o = {}) {
+  const r = RIG[pose], talk = o.talk ?? 1, amp = clamp(ENV(NOW) * talk) * (o.mute ? 0 : 1), bl = r && r.blink ? blinkAt(NOW + (o.blinkShift || 0)) : 0;
+  K(pose, x, y, h, { ...o, overlay: r ? (a) => {
+    // antenna glow (pulses with the voice)
+    for (const [tx, ty] of r.tips) { const g = 0.55 + 0.9 * amp + 0.15 * Math.sin(NOW * 6 + tx); halo(tx, ty, 34 + 26 * amp, `rgba(130,245,255,${0.45 * a})`, clamp(g)); circle(tx, ty, 6 + 5 * amp, "#f2feff", a * (0.35 + 0.6 * amp)); }
+    // mouth: a dark rounded opening with a tongue, growing with the voice level, over his own mouth
+    const [mx, my, mw, mh, open] = r.mouth; if (amp > 0.07) {
+      const ww = mw * (open ? 0.92 + 0.25 * amp : 0.8 + 0.3 * amp), hh = Math.max(mh, mw * 0.35) * (open ? 0.55 + 0.9 * amp : 0.35 + 1.0 * amp), top = open ? my - mh * 0.45 : my - hh * 0.25;
+      ctx.save(); A(a); ctx.beginPath(); ctx.moveTo(mx - ww / 2, top); ctx.quadraticCurveTo(mx, top + hh * 0.18, mx + ww / 2, top); ctx.ellipse(mx, top, ww / 2, hh, 0, 0, Math.PI); ctx.closePath();
+      const g = ctx.createLinearGradient(0, top, 0, top + hh); g.addColorStop(0, "#2a0b1c"); g.addColorStop(1, "#5c1832"); ctx.fillStyle = g; ctx.fill(); ctx.clip();
+      ctx.beginPath(); ctx.ellipse(mx, top + hh * 0.95, ww * 0.32, hh * 0.42, 0, 0, 6.2832); ctx.fillStyle = "#ef7f99"; ctx.fill(); ctx.restore();
+      ctx.save(); A(a); ctx.beginPath(); ctx.moveTo(mx - ww / 2, top); ctx.quadraticCurveTo(mx, top + hh * 0.18, mx + ww / 2, top); ctx.ellipse(mx, top, ww / 2, hh, 0, 0, Math.PI); ctx.closePath(); ctx.strokeStyle = "#13233f"; ctx.lineWidth = Math.max(2, mw * 0.06); ctx.stroke(); ctx.restore(); }
+    // blink: on a scratch canvas, skin + his own eye squashed toward a closed line, then feathered with a radial mask so no hard edge shows
+    if (bl > 0) r.eyes.forEach(([ex, ey, er], k) => { const [c1, c2] = r.skin[k] || ["#1d97d9", "#1880c0"], rx = er * 1.3, ry = er * 1.22, sq = 1 - bl * 0.94, img = IMG[pose];
+      const S = Math.ceil(Math.max(rx, ry) * 2 + 8); if (!BLC || BLC.width < S) { BLC = document.createElement("canvas"); BLC.width = BLC.height = Math.max(S, 256); } const b = BLC.getContext("2d");
+      b.setTransform(1, 0, 0, 1, 0, 0); b.globalCompositeOperation = "source-over"; b.clearRect(0, 0, BLC.width, BLC.height); const ox = S / 2 - ex, oy = S / 2 - ey;
+      const g = b.createLinearGradient(0, ey - ry + oy, 0, ey + ry + oy); g.addColorStop(0, c1); g.addColorStop(1, c2); b.fillStyle = g; b.fillRect(0, 0, S, S);
+      const cy = ey + ry * 0.3 * bl; b.drawImage(img, ex - rx, ey - ry, rx * 2, ry * 2, ex - rx + ox, cy - ry * sq + oy, rx * 2, ry * 2 * sq);
+      if (bl > 0.55) { b.globalAlpha = clamp((bl - 0.55) * 3); b.beginPath(); b.moveTo(ex - er * 0.95 + ox, cy - er * 0.05 + oy); b.quadraticCurveTo(ex + ox, cy + er * 0.3 + oy, ex + er * 0.95 + ox, cy - er * 0.05 + oy); b.strokeStyle = "#102347"; b.lineWidth = er * 0.14; b.lineCap = "round"; b.stroke(); b.globalAlpha = 1; }
+      b.globalCompositeOperation = "destination-in"; b.setTransform(rx / ry, 0, 0, 1, S / 2 * (1 - rx / ry), 0); const m = b.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, ry); m.addColorStop(0, "rgba(0,0,0,1)"); m.addColorStop(0.72, "rgba(0,0,0,1)"); m.addColorStop(1, "rgba(0,0,0,0)"); b.fillStyle = m; b.fillRect(0, 0, S, S);
+      ctx.save(); A(a); ctx.drawImage(BLC, 0, 0, S, S, ex - S / 2, ey - S / 2, S, S); ctx.restore(); });
+  } : null });
 }
 // small confetti in brand colours
 function sparkle(x, y, t0, o = {}) { const { n = 26, r = 260, dur = 1.0 } = o, u = (NOW - t0) / dur; if (u <= 0 || u >= 1) return; const cols = [C.teal, C.teal2, C.navy, C.gold];
@@ -142,6 +172,7 @@ window.setup = async (tl) => {
   TL = tl; TL.scenes.forEach((s) => (SCN[s.name] = s)); cv = document.getElementById("c"); ctx = cv.getContext("2d");
   for (const [fam, file, w] of [["Cairo", "cairo-800.ttf", 800], ["Cairo", "cairo-900.ttf", 900], ["JBMono", "jbmono-800.ttf", 800]]) { const f = new FontFace(fam, `url(assets/${file})`, { weight: String(w) }); await f.load(); document.fonts.add(f); }
   META = await (await fetch("assets/k/meta.json")).json();
+  RIG = await (await fetch("assets/k/rig.json")).json();
   await Promise.all(Object.keys(META).map((k) => new Promise((res, rej) => { const im = new Image(); im.onload = () => { IMG[k] = im; res(); }; im.onerror = rej; im.src = `assets/k/${k}.png`; })));
   await document.fonts.ready; render(0); return TL.total;
 };

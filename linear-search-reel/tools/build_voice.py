@@ -65,5 +65,8 @@ v = np.zeros(int(total * SR) + SR, np.float32)
 for e, c in zip(out, clips): a = int(e["t0"] * SR); v[a:a + len(c)] += c
 v = v / (np.abs(v).max() + 1e-9) * 10 ** (-1.5 / 20)
 with wave.open(os.path.join(ROOT, "build/voice.wav"), "wb") as w: w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((v * 32767).astype(np.int16).tobytes())
-json.dump({"total": total, "scenes": scenes, "lines": out}, open(os.path.join(ROOT, "voice/timeline.json"), "w", encoding="utf8"), ensure_ascii=False, indent=1)
+fr = int(SR / 30); nf = int(total * 30) + 1; env = np.array([np.sqrt(np.mean(v[i * fr:(i + 1) * fr] ** 2)) if i * fr < len(v) else 0 for i in range(nf)])
+env = np.clip(env / (np.percentile(env[env > 1e-3], 92) + 1e-9), 0, 1.2); sm = np.zeros_like(env); g = 0.0
+for i, x in enumerate(env): g = x if x > g else g * 0.55 + x * 0.45; sm[i] = g   # fast open, quick close
+json.dump({"total": total, "scenes": scenes, "lines": out, "env": [round(float(x), 3) for x in sm]}, open(os.path.join(ROOT, "voice/timeline.json"), "w", encoding="utf8"), ensure_ascii=False, indent=1)
 print(f"{len(out)} lines, total {total:.1f}s")

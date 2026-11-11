@@ -83,12 +83,33 @@ SCENES.hook = (t) => {
   if (t > T3() + 0.3) return;
   // frame 0: خوارزمو, serious and challenging, with the line already on screen
   const out1 = eio(P(t, T3() - 0.35, 0.35)); if (out1 >= 1) return; const k = 0.94 + 0.06 * back(P(t, 0, 0.4)), push = 1 + 0.05 * P(t, 0.3, 2.2), nod = Math.sin(t * 6) * 0.015 * P(t, 0.5, 0.3);
-  K("angry", 540, 1990 + out1 * 1300, 1250 * k * push, { rot: nod, shadow: 0, bob: 0.3 });
+  KR("angry", 540, 1990 + out1 * 1300, 1250 * k * push, { rot: nod, shadow: 0, bob: 0.3 });
   const r = imp(t, 0.02, 0.7); ring(540, 1250, 300 + 420 * (1 - r), hexA(C.red, 0.4), 12 * r + 1, r * (1 - out1));
   [[-330, 900, -0.3], [330, 880, 0.3]].forEach(([dx, y, rt], i) => { const q = pop(t, 0.1 + i * 0.08, 0.35); withT(540 + dx, y, q, q, rt, () => { fillRR(-9, -50, 18, 72, 9, C.red, (1 - out1) * clamp(q * 2)); circle(0, 42, 10, C.red, (1 - out1) * clamp(q * 2)); }); });
 };
+// خوارزمو as the host, bottom-right, from "خلينا نجرب" to the name: materialises like a hologram, talks, blinks, reacts
+// (thinks -> presents -> jumps for joy on the find -> presents -> thumbs-up on the name), every pose change with a squash-pop.
+const HOSTX = 840, HOSTY = 1890, HOSTH = 660;
+function hostPose(t) {
+  const f = AT(8, "لقيناه"), seq = [[T4() - 0.15, "idea"], [L0(3) - 0.1, "presenting"], [f - 0.05, "celebrating"], [f + 1.3, "presenting"], [L0(9) + 0.35, "hero"]];
+  let cur = seq[0]; for (const q of seq) if (t >= q[0]) cur = q; return cur;
+}
 SCENES.khwarizmo = (t) => {
-  const n0 = L0(9) + 0.5, n1 = SCN.name.t1 - 0.1; if (t > n0 && t < n1 + 0.5) { const e = eo(P(t, n0, 0.45)), o = eio(P(t, n1, 0.4)); K("hero", 540, 1740 + (1 - e) * 600 + o * 700, 560); }
+  const t0 = T4() - 0.15, t1 = SCN.name.t1 - 0.1; if (t < t0 || t > t1 + 0.45) return;
+  const [since, pose] = hostPose(t), sw = P(t, since, 0.34); let sx = 1, sy = 1;
+  if (since > t0 + 0.01 && sw < 1) { const b = back(sw, 2.4); sx = lerp(1.16, 1, b); sy = lerp(0.82, 1, b); }
+  const f = AT(8, "لقيناه"), ju = P(t, f - 0.05, 0.6), exit = eio(P(t, t1, 0.4)); let y = HOSTY + exit * 900; const x = HOSTX;
+  if (ju > 0 && ju < 1) { y -= Math.sin(ju * Math.PI) * 190; sy *= 1 + 0.06 * Math.sin(ju * Math.PI); }
+  const h = pose === "celebrating" ? HOSTH * 0.96 : HOSTH, rot = -0.02 + Math.sin(t * 1.3) * 0.012, rev = P(t, t0, 0.65);
+  if (since > t0 + 0.01) { const u = P(t, since, 0.5); if (u < 1) { ring(x, y - h * 0.5, 120 + 260 * eo(u), hexA(C.teal, 0.5), 10 * (1 - u) + 1, 1 - u); halo(x, y - h * 0.5, 300, "rgba(31,181,181,0.25)", 1 - u); } }
+  if (rev < 1) { // hologram build: revealed top -> bottom behind a glowing scan line, with scan lines over what is not solid yet
+    const top = y - h - 30, ry = lerp(top, y + 20, eio(rev));
+    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, ry); ctx.clip(); KR(pose, x, y, h, { sx, sy, rot }); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.rect(0, ry, W, H - ry); ctx.clip(); A(0.28); KR(pose, x + Math.sin(t * 90) * 6, y, h, { sx, sy, rot, a: 0.28, shadow: 0, mute: 1 }); ctx.restore();
+    for (let yy = ry; yy < y + 10; yy += 9) seg(x - 230, yy, x + 230, yy, hexA(C.teal, 0.18), 2, 1 - rev);
+    halo(x, ry, 260, "rgba(31,181,181,0.35)", 1 - rev * 0.5); fillRR(x - 250, ry - 4, 500, 8, 4, C.teal, 1 - rev * 0.4); fillRR(x - 160, ry - 2, 320, 4, 2, "#e6fffb", 1 - rev * 0.4);
+  } else KR(pose, x, y, h, { sx, sy, rot });
+  if (pose === "celebrating") sparkle(x, y - h * 1.02, f, { n: 40, r: 420, dur: 1.3 });
 };
 
 // ------------------------------------------------ rule: compare, then stop or continue
@@ -142,7 +163,7 @@ SCENES.teaser = (t) => {
     const k2 = pop(t, AT(15, "في خوارزمية") + 0.6, 0.5); withT(540, 1130, k2, k2, 0, () => { T("20", 0, 0, { size: 250, color: C.teal, fam: "mono", a: a * o1 * clamp(k2 * 2) }); T("خطوة بس", 0, 150, { size: 60, color: C.navy, a: a * o1 * clamp(k2 * 2) }); });
     const k3 = P(t, AT(15, "حتى") + 0.2, 0.35); T("من بين 1,000,000 عنصر", 540, 1400, { size: 46, color: C.mut, a: a * o1 * k3 }); }
   // ending: one big "?" -> it flips into a hidden (blurred) name -> "in the next reel" said once, big
-  if (t > L0(16) - 0.3) { const e = eo(P(t, L0(16) - 0.25, 0.5)); K("wink", 540, 1720 + (1 - e) * 600, 700, { bob: 0.6 });
+  if (t > L0(16) - 0.3) { const e = eo(P(t, L0(16) - 0.25, 0.5)); KR("wink", 540, 1720 + (1 - e) * 600, 700, { bob: 0.6 });
     const rv = AT(16, "بالريل"), f = P(t, rv - 0.12, 0.3), sx = Math.abs(Math.cos(f * Math.PI)), flipped = f > 0.5;
     if (!flipped) { const q = pop(t, L0(16) + 0.05, 0.45), wob = Math.sin(t * 9) * 0.06 * win(t, L0(16) + 0.4, rv, 0.15);
       for (let k = 0; k < 2; k++) { const u = ((t - L0(16)) * 1.3 + k / 2) % 1; ring(540, 680, 130 + u * 110, hexA(C.teal, 0.5), 6 * (1 - u), (1 - u) * clamp(q)); }
@@ -163,7 +184,7 @@ window.collectSfx = () => {
   const e = [], ev = (t, k, v = 0) => e.push({ t: +t.toFixed(3), k, v });
   ev(0.02, "hit");
   for (let c = 0; c < 7; c++) ev(T3() + 0.1 + c * 0.05, "card", c); ev(T3() + 0.7, "rise"); ev(T4() - 0.4, "swish");
-  ev(T4() + 0.05, "pop"); ev(T4() + 0.93, "drop"); SWAPS.forEach((_, k) => ev(swapT(k), "swish", k));
+  ev(T4() + 0.05, "pop"); ev(T4() - 0.15, "rise"); ev(L0(3) - 0.1, "pop"); ev(L0(9) + 0.35, "pop"); ev(T4() + 0.93, "drop"); SWAPS.forEach((_, k) => ev(swapT(k), "swish", k));
   for (let k = 0; k < 5; k++) { ev(L0(4 + k), "flip", k); ev(AT(4 + k, k === 4 ? "لقيناه" : "لأ"), k === 4 ? "found" : "no", k); }
   for (let i = 0; i < 7; i++) ev(L0(3) + 0.15 + i * 0.2, "tick", i); ev(L0(9) + 0.7, "pop"); ev(AT(11, "وقّف"), "pop"); ev(AT(11, "كمّل"), "pop");
   const scan0 = AT(12, "إذا") + 0.1, step = Math.max(0.2, (L1(12) - scan0 + 0.15) / 7); for (let i = 0; i < 7; i++) ev(scan0 + i * step, i === 6 ? "found" : "tick", i);
