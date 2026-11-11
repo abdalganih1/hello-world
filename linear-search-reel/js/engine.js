@@ -61,9 +61,9 @@ function background(t, o = {}) {
 // ---------- خوارزمو  (x, y) = feet/bottom centre
 function K(name, x, y, h, o = {}) {
   const im = IMG[name]; if (!im) return; const { a = 1, sx = 1, sy = 1, rot = 0, bob = 1, shadow = 1 } = o; if (a <= 0.001 || h <= 1) return;
-  const m = META[name], w = h * m.w / m.h, by = Math.sin(NOW * 2.4 + x * 0.01) * 0.01 * h * bob;
+  const m = META[name], w = h * m.w / m.h, by = 0, br = Math.sin(NOW * 1.7 + x * 0.003) * bob; // breathing: chest rises, weight sits on the feet
   if (shadow) { ctx.save(); A(a * 0.22 * shadow); ctx.beginPath(); ctx.ellipse(x, y + h * 0.01, w * 0.34, h * 0.025, 0, 0, 6.2832); ctx.fillStyle = "#1d3557"; ctx.filter = "blur(6px)"; ctx.fill(); ctx.restore(); }
-  ctx.save(); A(a); ctx.translate(x, y + by); ctx.rotate(rot); ctx.scale(sx, sy); ctx.drawImage(im, -w / 2, -h, w, h);
+  ctx.save(); A(a); ctx.translate(x, y + by); ctx.rotate(rot + br * 0.006); ctx.scale(sx * (1 - 0.004 * br), sy * (1 + 0.01 * br)); ctx.drawImage(im, -w / 2, -h, w, h);
   if (o.overlay) { ctx.translate(-w / 2, -h); ctx.scale(h / m.h, h / m.h); o.overlay(a); } ctx.restore();
 }
 // ---------- خوارزمو alive: talks (mouth opens with the voice), blinks, antennas glow while he speaks
@@ -73,12 +73,12 @@ function blinkAt(t) { // deterministic blinks every 2.4..4.2 s: close 0.06, hold
   let bt = 0.9, k = 0; while (bt < t + 0.5) { const u = t - bt; if (u >= 0 && u < 0.19) return u < 0.06 ? u / 0.06 : u < 0.1 ? 1 : 1 - (u - 0.1) / 0.09; bt += 2.4 + 1.8 * rnd(k++ + 17); } return 0;
 }
 function KR(pose, x, y, h, o = {}) {
-  const r = RIG[pose], talk = o.talk ?? 1, amp = clamp(ENV(NOW) * talk) * (o.mute ? 0 : 1), bl = r && r.blink ? blinkAt(NOW + (o.blinkShift || 0)) : 0;
+  const r = RIG[pose], amp = 0, bl = r && r.blink ? blinkAt(NOW + (o.blinkShift || 0)) : 0;
   K(pose, x, y, h, { ...o, overlay: r ? (a) => {
     // antenna glow (pulses with the voice)
-    for (const [tx, ty] of r.tips) { const g = 0.55 + 0.9 * amp + 0.15 * Math.sin(NOW * 6 + tx); halo(tx, ty, 34 + 26 * amp, `rgba(130,245,255,${0.45 * a})`, clamp(g)); circle(tx, ty, 6 + 5 * amp, "#f2feff", a * (0.35 + 0.6 * amp)); }
+    for (const [tx, ty] of r.tips) { const g = 0.5 + 0.2 * Math.sin(NOW * 2.2 + tx * 0.05); halo(tx, ty, 34 + 26 * amp, `rgba(130,245,255,${0.45 * a})`, clamp(g)); circle(tx, ty, 6 + 5 * amp, "#f2feff", a * (0.35 + 0.6 * amp)); }
     // mouth: a dark rounded opening with a tongue, growing with the voice level, over his own mouth
-    const [mx, my, mw, mh, open] = r.mouth; if (amp > 0.07) {
+    const [mx, my, mw, mh, open] = r.mouth; if (false) {
       const ww = mw * (open ? 0.92 + 0.25 * amp : 0.8 + 0.3 * amp), hh = Math.max(mh, mw * 0.35) * (open ? 0.55 + 0.9 * amp : 0.35 + 1.0 * amp), top = open ? my - mh * 0.45 : my - hh * 0.25;
       ctx.save(); A(a); ctx.beginPath(); ctx.moveTo(mx - ww / 2, top); ctx.quadraticCurveTo(mx, top + hh * 0.18, mx + ww / 2, top); ctx.ellipse(mx, top, ww / 2, hh, 0, 0, Math.PI); ctx.closePath();
       const g = ctx.createLinearGradient(0, top, 0, top + hh); g.addColorStop(0, "#2a0b1c"); g.addColorStop(1, "#5c1832"); ctx.fillStyle = g; ctx.fill(); ctx.clip();
