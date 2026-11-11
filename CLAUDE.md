@@ -8,7 +8,9 @@ This repository holds short vertical videos (Instagram Reels, 1080x1920) that Cl
 mistake already made, so the first result is the right one. The key rules:
 
 - Deliver a finished video, not a production kit. Decide creatively; don't stall on questions.
-- No voiceover / TTS ever: on-screen Arabic text + an original synthesized music bed + synced SFX.
+- Default: no voiceover: on-screen Arabic text + an original synthesized music bed + synced SFX.
+  When a voiceover is wanted, load the skill `george-voice` (`.claude/skills/george-voice/SKILL.md`): it is the approved setup
+  (George via vibi.pro, eleven_v4, simple MSA with full tashkeel, English terms in Latin letters). The key `VIBI_API_KEY` never goes in a file.
 - Strong, detailed motion, but every element lands in a fixed position; the frame never shifts.
 - Review the rendered mp4 with `.claude/skills/reels-video/scripts/review.py` before delivering.
 
