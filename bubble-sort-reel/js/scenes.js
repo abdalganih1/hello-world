@@ -7,7 +7,7 @@ function schedule() {
   const ev = [], a = START.slice(); const cmp = [];
   for (let p = 0; p < N - 1; p++) for (let j = 0; j < N - 1 - p; j++) cmp.push([p, j]);
   // compare 0 is shown slowly during the idea line; the rest of pass 1 during line 5; passes 2..6 during line 6 + its pause
-  const t0 = AT(4, "نقارن", "منقارن"), sw0 = AT(4, "نبدلهما", "منبدّلهن");
+  const t0 = AT(4, "نقارن", "منقارن"), sw0 = AT(4, "نبدل", "نبدلهما", "منبدّلهن");
   const p1 = cmp.filter((c) => c[0] === 0).slice(1), rest = cmp.filter((c) => c[0] > 0);
   const a5 = L0(5) + 0.2, b5 = L1(5) - 0.1, a6 = L0(6) + 0.1, b6 = L1(6) + 2.0;
   const times = [[t0, sw0]]; p1.forEach((_, k) => { const t = a5 + (b5 - a5) * k / p1.length; times.push([t, t + 0.22]); });
@@ -103,7 +103,7 @@ SCENES.speed = (t) => {
   const r2 = P(t, L0(9) - 0.05, 0.3) * (1 - P(t, L0(10) - 0.15, 0.3));
   if (r2 > 0) { const u = Math.pow(eio(P(t, AT(9, "يحتاج", "بدهن"), 1.4)), 3), n = Math.round(lerp(1e6, 5e11, u)); T(n.toLocaleString("en-US"), 540, 900, { size: n > 1e10 ? 104 : 130, color: u >= 1 ? C.red : C.navy, fam: "mono", a: a * r2 }); T("مقارنة", 540, 1020, { size: 50, color: C.mut, a: a * r2 }); }
   const r3 = P(t, L0(10) - 0.05, 0.3) * (1 - P(t, L0(11) - 0.15, 0.3));
-  if (r3 > 0) { const u = eio(P(t, AT(10, "لانتهينا", "بتخلص"), 1.3)), yr = Math.round(lerp(2026, 2026 + 15855, u)); T("🐢", 540, 720, { size: 130, a: a * r3 }); T(String(yr), 540, 930, { size: 150, color: u >= 1 ? C.red : C.navy, fam: "mono", a: a * r3 }); T("سنة الانتهاء", 540, 1060, { size: 42, color: C.mut, a: a * r3 });
+  if (r3 > 0) { const u = eio(P(t, AT(10, "ننتهي", "لانتهينا", "بتخلص"), 1.3)), yr = Math.round(lerp(2026, 2026 + 15855, u)); T("🐢", 540, 720, { size: 130, a: a * r3 }); T(String(yr), 540, 930, { size: 150, color: u >= 1 ? C.red : C.navy, fam: "mono", a: a * r3 }); T("سنة الانتهاء", 540, 1060, { size: 42, color: C.mut, a: a * r3 });
     fillRR(240, 1140, 600, 18, 9, C.line, a * r3); fillRR(240, 1140, 600 * u, 18, 9, C.red, a * r3); }
   const r4 = P(t, L0(11) - 0.05, 0.3);
   if (r4 > 0) { const k = pop(t, AT(11, "أو إن", "O(n²).") - 0.1, 0.45); withT(540, 700, k, k, 0, () => T("O(n²)", 0, 0, { size: 150, color: C.navy, fam: "mono", a: a * r4 * clamp(k * 2) }));
@@ -135,7 +135,7 @@ window.collectSfx = () => {
   ev(0.02, "hit"); ev(0.35, "pop"); ev(AT(1, "أكيد") - 0.1, "no"); ev(AT(1, "أكيد") + 0.3, "pop", 1);
   for (let v = 1; v <= N; v++) ev(SCN.setup.t0 + 0.2 + v * 0.05, "card", v);
   SCH.forEach((c, k) => { ev(c.t, "tick", k % 7); if (c.sw) ev(c.ts, "swish", k); }); ev(SCH[SCH.length - 1].ts + 0.2, "found", 4);
-  ev(AT(7, "ترتيب") + 0.25, "pop"); ev(AT(9, "يحتاج", "بدهن"), "rise"); ev(AT(10, "لانتهينا", "بتخلص"), "rise"); ev(AT(11, "أو إن", "O(n²).") - 0.1, "pop"); ev(AT(12, "حق") - 0.2, "found", 9);
+  ev(AT(7, "ترتيب") + 0.25, "pop"); ev(AT(9, "يحتاج", "بدهن"), "rise"); ev(AT(10, "ننتهي", "لانتهينا", "بتخلص"), "rise"); ev(AT(11, "أو إن", "O(n²).") - 0.1, "pop"); ev(AT(12, "حق") - 0.2, "found", 9);
   ev(SCN.teaser.t0 + 0.05, "pop"); ev(AT(13, "الريل", "بالريل") - 0.12, "swish"); ev(AT(13, "الريل", "بالريل") + 0.1, "found", 9); ev(AT(13, "الريل", "بالريل") + 0.35, "pop");
   TL.scenes.slice(1).forEach((s) => ev(s.t0, "swish", 9));
   return { total: TL.total, scenes: TL.scenes, events: e.sort((a, b) => a.t - b.t) };
