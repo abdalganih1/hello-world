@@ -122,13 +122,13 @@ SCENES.rule = (t) => {
   tile(XT, "5", C.navy, "#fff", null, "المطلوب");
   const qk = pop(t, s0 + 0.25, 0.4); withT(540, y, qk, qk, 0, () => { circle(0, 0, 62, C.tealSoft, a); T(idx >= 0 ? (hit ? "=" : "≠") : "=", 0, 4, { size: 80, color: idx >= 0 && !hit ? C.red : C.teal, fam: "mono", a }); });
   // two branches under the element: "it is" -> stop (right), "it isn't" -> carry on (left)
-  const yb = 1300, yk = P(t, L0(11), 0.3), nk = P(t, AT(11, "وإذا"), 0.3), top = y + 240;
+  const yb = 1300, yk = P(t, L0(11), 0.3), nk = P(t, AT(11, "وإلا", "وإذا"), 0.3), top = y + 240;
   if (yk > 0) { const u = eio(yk); poly([[XE, top], [XE, lerp(top, yb - 80, u)]], C.teal, 8, a); if (u >= 1) poly([[XE - 18, yb - 98], [XE, yb - 78], [XE + 18, yb - 98]], C.teal, 8, a);
     T("هو؟", XE + 40, (top + yb) / 2 - 30, { size: 44, color: C.teal, a: a * yk, align: "left" });
     const k = pop(t, AT(11, "توقف", "وقّف") - 0.05, 0.4); withT(XE, yb, k, k, 0, () => { fillRR(-165, -66, 330, 132, 66, C.teal, a * clamp(k * 2), 26); T("توقف ✓", 0, 5, { size: 58, color: "#fff", a: a * clamp(k * 2) }); }); }
   if (nk > 0) { const u = eio(nk), xl = 330; poly([[XE - 60, top - 10], [lerp(XE - 60, xl + 60, u), lerp(top - 10, yb - 90, u)]], C.red, 8, a);
     T("ليس هو؟", 360, (top + yb) / 2 - 75, { size: 44, color: C.red, a: a * nk });
-    const k = pop(t, AT(11, "أكمل", "كمّل") - 0.05, 0.4); withT(xl, yb, k, k, 0, () => { fillRR(-170, -66, 340, 132, 66, "#ffffff", a * clamp(k * 2), 26); strokeRR(-170, -66, 340, 132, 66, hexA(C.red, 0.45), 4, a * clamp(k * 2)); T("أكمل ↻", 0, 5, { size: 58, color: C.navy, a: a * clamp(k * 2) }); }); }
+    const k = pop(t, AT(11, "فانتقل", "أكمل", "كمّل") - 0.05, 0.4); withT(xl, yb, k, k, 0, () => { fillRR(-170, -66, 340, 132, 66, "#ffffff", a * clamp(k * 2), 26); strokeRR(-170, -66, 340, 132, 66, hexA(C.red, 0.45), 4, a * clamp(k * 2)); T("أكمل ↻", 0, 5, { size: 58, color: C.navy, a: a * clamp(k * 2) }); }); }
 };
 // ------------------------------------------------ speed: worst case, a hundred, a million, O(n)
 const WORST = [7, 3, 9, 1, 8, 2, 5];
@@ -160,7 +160,7 @@ SCENES.teaser = (t) => {
   if (o1 > 0) { for (let i = 0; i < 7; i++) { const k = pop(t, L0(15) + 0.1 + i * 0.06, 0.4); withT(cx(i), 740, k, k, 0, () => { fillRR(-60, -60, 120, 120, 24, "#ffffff", a * o1 * clamp(k * 2), 16); strokeRR(-60, -60, 120, 120, 24, C.line, 3, a * o1 * clamp(k * 2)); T(String(sorted[i]), 0, 5, { size: 68, color: C.navy, fam: "mono", a: a * o1 * clamp(k * 2) }); }); }
     const tk = pop(t, L0(15) + 0.7, 0.4); withT(540, 875, tk, tk, 0, () => { fillRR(-120, -36, 240, 72, 36, C.tealSoft, a * o1); T("مرتبة ✓", 0, 2, { size: 38, color: C.teal, a: a * o1 }); });
     const k2 = pop(t, AT(15, "هناك", "في خوارزمية") + 0.6, 0.5); withT(540, 1130, k2, k2, 0, () => { T("20", 0, 0, { size: 250, color: C.teal, fam: "mono", a: a * o1 * clamp(k2 * 2) }); T("خطوة فقط", 0, 150, { size: 60, color: C.navy, a: a * o1 * clamp(k2 * 2) }); });
-    const k3 = P(t, AT(15, "حتى") + 0.2, 0.35); T("من بين 1,000,000 عنصر", 540, 1400, { size: 46, color: C.mut, a: a * o1 * k3 }); }
+    const k3 = P(t, AT(15, "فقط", "حتى") + 0.2, 0.35); T("من بين 1,000,000 عنصر", 540, 1400, { size: 46, color: C.mut, a: a * o1 * k3 }); }
   // ending: one big "?" -> it flips into a hidden (blurred) name -> "in the next reel" said once, big
   if (t > L0(16) - 0.3) { const e = eo(P(t, L0(16) - 0.25, 0.5)); KR("wink", 540, 1720 + (1 - e) * 600, 700, { bob: 0.6 });
     const rv = AT(16, "Reel", "بالريل"), f = P(t, rv - 0.12, 0.3), sx = Math.abs(Math.cos(f * Math.PI)), flipped = f > 0.5;
@@ -185,7 +185,7 @@ window.collectSfx = () => {
   for (let c = 0; c < 7; c++) ev(T3() + 0.1 + c * 0.05, "card", c); ev(T3() + 0.7, "rise"); ev(T4() - 0.4, "swish");
   ev(T4() + 0.05, "pop"); ev(T4() - 0.15, "rise"); ev(L0(9) + 0.35, "pop"); ev(T4() + 0.93, "drop"); SWAPS.forEach((_, k) => ev(swapT(k), "swish", k));
   for (let k = 0; k < 5; k++) { ev(L0(4 + k), "flip", k); ev(AT(4 + k, k === 4 ? "وجدناه" : "لا"), k === 4 ? "found" : "no", k); }
-  for (let i = 0; i < 7; i++) ev(L0(3) + 0.15 + i * 0.2, "tick", i); ev(L0(9) + 0.7, "pop"); ev(AT(11, "توقف", "وقّف"), "pop"); ev(AT(11, "أكمل", "كمّل"), "pop");
+  for (let i = 0; i < 7; i++) ev(L0(3) + 0.15 + i * 0.2, "tick", i); ev(L0(9) + 0.7, "pop"); ev(AT(11, "توقف", "وقّف"), "pop"); ev(AT(11, "فانتقل", "أكمل", "كمّل"), "pop");
   const scan0 = AT(12, "إذا") + 0.1, step = Math.max(0.2, (L1(12) - scan0 + 0.15) / 7); for (let i = 0; i < 7; i++) ev(scan0 + i * step, i === 6 ? "found" : "tick", i);
   ev(AT(13, "ومليون"), "rise"); ev(AT(14, "Big", "O(n)") - 0.1, "pop"); ev(AT(15, "هناك", "في خوارزمية") + 0.6, "pop"); ev(L0(16) + 0.05, "pop"); ev(AT(16, "Reel", "بالريل") - 0.12, "swish"); ev(AT(16, "Reel", "بالريل") + 0.1, "found", 9); ev(AT(16, "Reel", "بالريل") + 0.35, "pop");
   TL.scenes.slice(1).forEach((s) => ev(s.t0, "swish", 9));
