@@ -89,30 +89,26 @@ SCENES.hook = (t) => {
 };
 // خوارزمو as the host, bottom-right, from "خلينا نجرب" to the name: materialises like a hologram, talks, blinks, reacts
 // (thinks -> presents -> jumps for joy on the find -> presents -> thumbs-up on the name), every pose change with a squash-pop.
-const HOSTX = 250, HOSTY = 1890, HOSTH = 660;
-// he stands on the left, so every pose must open toward the cards (to the right): the presenting pose points to
-// the left in the drawing, so it is mirrored; the thumbs-up and the jump already face right, so they are not.
-const FACE = { presenting: -1, celebrating: 1, hero: 1 };
+const HOSTX = 260, HOSTY = 1660, HOSTH = 555;
+// He stands on the left and every pose used here is drawn facing right (toward the cards), so nothing is mirrored:
+// walks in from the left edge (waving) -> stands and watches the search -> jumps for joy on the find -> thumbs-up on the name.
+// Feet at y 1650: clear of the Reels caption/buttons zone at the bottom.
 function hostPose(t) {
-  const f = AT(8, "لقيناه"), seq = [[T4() - 0.15, "presenting"], [f - 0.05, "celebrating"], [f + 1.3, "presenting"], [L0(9) + 0.35, "hero"]];
+  const f = AT(8, "لقيناه"), seq = [[T4() - 0.15, "walking"], [T4() + 1.6, "front"], [f - 0.05, "celebrating"], [f + 1.3, "front"], [L0(9) + 0.35, "hero"]];
   let cur = seq[0]; for (const q of seq) if (t >= q[0]) cur = q; return cur;
 }
 SCENES.khwarizmo = (t) => {
   const t0 = T4() - 0.15, t1 = SCN.name.t1 - 0.1; if (t < t0 || t > t1 + 0.45) return;
-  const [since, pose] = hostPose(t), sw = P(t, since, 0.34); let sx = 1, sy = 1;
-  if (since > t0 + 0.01 && sw < 1) { const b = back(sw, 2.4); sx = lerp(1.16, 1, b); sy = lerp(0.82, 1, b); }
-  const f = AT(8, "لقيناه"), ju = P(t, f - 0.05, 0.6), exit = eio(P(t, t1, 0.4)); let y = HOSTY + exit * 900; const x = HOSTX;
-  if (ju > 0 && ju < 1) { y -= Math.sin(ju * Math.PI) * 190; sy *= 1 + 0.06 * Math.sin(ju * Math.PI); }
-  const h = pose === "celebrating" ? HOSTH * 0.96 : HOSTH, rot = 0.012 * (FACE[pose] || 1), rev = P(t, t0, 0.65); sx *= FACE[pose] || 1;
-  if (since > t0 + 0.01) { const u = P(t, since, 0.5); if (u < 1) { ring(x, y - h * 0.5, 120 + 260 * eo(u), hexA(C.teal, 0.5), 10 * (1 - u) + 1, 1 - u); halo(x, y - h * 0.5, 300, "rgba(31,181,181,0.25)", 1 - u); } }
-  if (rev < 1) { // hologram build: revealed top -> bottom behind a glowing scan line, with scan lines over what is not solid yet
-    const top = y - h - 30, ry = lerp(top, y + 20, eio(rev));
-    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, ry); ctx.clip(); KR(pose, x, y, h, { sx, sy, rot }); ctx.restore();
-    ctx.save(); ctx.beginPath(); ctx.rect(0, ry, W, H - ry); ctx.clip(); A(0.28); KR(pose, x + Math.sin(t * 90) * 6, y, h, { sx, sy, rot, a: 0.28, shadow: 0, mute: 1 }); ctx.restore();
-    for (let yy = ry; yy < y + 10; yy += 9) seg(x - 230, yy, x + 230, yy, hexA(C.teal, 0.18), 2, 1 - rev);
-    halo(x, ry, 260, "rgba(31,181,181,0.35)", 1 - rev * 0.5); fillRR(x - 250, ry - 4, 500, 8, 4, C.teal, 1 - rev * 0.4); fillRR(x - 160, ry - 2, 320, 4, 2, "#e6fffb", 1 - rev * 0.4);
-  } else KR(pose, x, y, h, { sx, sy, rot });
-  if (pose === "celebrating") sparkle(x, y - h * 1.02, f, { n: 40, r: 420, dur: 1.3 });
+  const [since, pose] = hostPose(t), sw = P(t, since, 0.3); let sx = 1, sy = 1;
+  if (pose !== "walking" && sw < 1) { const b = back(sw, 2.0); sx = lerp(1.08, 1, b); sy = lerp(0.9, 1, b); }      // settle into the new pose
+  const f = AT(8, "لقيناه"), ju = P(t, f - 0.05, 0.62), exit = eio(P(t, t1, 0.4));
+  // walk-in: from off-screen left to his spot, with a step bounce, easing out as he arrives
+  const wk = P(t, t0, 1.7), x = lerp(-260, HOSTX, eo(wk)); let y = HOSTY + exit * 900;
+  if (pose === "walking" && wk < 1) { const st = Math.abs(Math.sin(wk * Math.PI * 4)); y -= st * 18 * (1 - wk); sy *= 1 - 0.025 * (1 - st); }
+  if (ju > 0 && ju < 1) { y -= Math.sin(ju * Math.PI) * 95; sy *= 1 + 0.05 * Math.sin(ju * Math.PI); }
+  const h = pose === "celebrating" ? HOSTH * 0.97 : pose === "walking" ? HOSTH * 0.97 : HOSTH;
+  KR(pose, x, y, h, { sx, sy, rot: 0, shadow: ju > 0 && ju < 1 ? 1 - 0.6 * Math.sin(ju * Math.PI) : 1 });
+  if (pose === "celebrating") sparkle(x + 40, y - h * 1.0, f, { n: 40, r: 420, dur: 1.3 });
 };
 
 // ------------------------------------------------ rule: compare, then stop or continue

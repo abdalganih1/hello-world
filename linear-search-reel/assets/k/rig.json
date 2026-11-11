@@ -162,7 +162,7 @@
     "#0f77b4"
    ],
    [
-    "#58b3ea",
+    "#59b4ea",
     "#3ca8e1"
    ]
   ]
@@ -290,5 +290,31 @@
     "#30a8e1"
    ]
   ]
+ },
+ "front": {
+  "eyes": [],
+  "mouth": [
+   175,
+   230,
+   30,
+   8,
+   false
+  ],
+  "tips": [],
+  "blink": false,
+  "skin": []
+ },
+ "walking": {
+  "eyes": [],
+  "mouth": [
+   200,
+   180,
+   30,
+   20,
+   true
+  ],
+  "tips": [],
+  "blink": false,
+  "skin": []
  }
 }

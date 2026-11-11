@@ -14,7 +14,15 @@ for pose in POSES:
     if im is None: continue
     H, W = im.shape[:2]; a = im[:, :, 3].astype(np.float32) / 255; hsv = cv2.cvtColor(im[:, :, :3], cv2.COLOR_BGR2HSV)
     S, V = hsv[:, :, 1].astype(int), hsv[:, :, 2].astype(int)
-    bgl = ((S < 50) & (V > 150)) | (a < 0.35)                                   # looks like the light background, or is already clear
+    bgl = ((S < 50) & (V > 150)) | (a < 0.35)
+    if pose == "front":  # the sheet's dark title bar sits behind his antennas in this crop: drop dark pixels above the head
+        top = np.zeros((H, W), bool); top[: int(0.138 * H)] = True
+        tube = cv2.dilate(((V > 215) & (a > 0.5)).astype(np.uint8), np.ones((7, 7))) > 0          # keep the glowing tubes, drop the fog
+        a[top & ~tube] = 0
+        band = np.zeros((H, W), bool); band[int(0.138 * H):int(0.205 * H)] = True
+        near = cv2.dilate(((V > 215) & (a > 0.5)).astype(np.uint8), np.ones((15, 15))) > 0
+        a[band & (V > 85) & (V < 165) & ~near] = 0                                                         # the bar's leftover between the caps
+        feet = np.zeros((H, W), bool); feet[int(0.965 * H):] = True; a[feet & (V < 215)] = 0              # the dark floor slab under his shoes                                   # looks like the light background, or is already clear
     pad = np.pad(bgl.astype(np.uint8), 1, constant_values=1); ff = pad.copy(); msk = np.zeros((H + 4, W + 4), np.uint8)
     cv2.floodFill(ff, msk, (0, 0), 2); outside = (ff[1:-1, 1:-1] == 2)
     a[outside] = 0
