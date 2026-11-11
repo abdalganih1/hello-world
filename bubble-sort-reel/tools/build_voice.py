@@ -12,7 +12,9 @@ lines = json.load(open(os.path.join(ROOT, "voice/script.json"), encoding="utf8")
 cache = os.path.join(ROOT, "audio/cache"); os.makedirs(cache, exist_ok=True); os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
 say = [l.get("tts", l["text"]) for l in lines]
 def key_of(i): return os.path.join(cache, hashlib.sha1(json.dumps([TAG + say[i], MODEL, VOICE, lines[i].get("take", 1)] + (["auto", lines[i].get("style", "")] if lines[i].get("auto") else []), ensure_ascii=False).encode()).hexdigest()[:12] + ".mp3")
+SRC = os.environ.get("VOICE_SRC", "owner")   # "george": ElevenLabs George via vibi.pro, picked by tools/vibi_voice.py
 def tts(i):
+    if SRC == "george": return os.path.join(ROOT, json.load(open(os.path.join(ROOT, "voice/takes_george.json"), encoding="utf8"))[str(i)]["pick"]["file"])
     p = key_of(i)
     if os.path.exists(p): return p
     # the exact takes he approved (variant 10 + the picked line options) live in audio/variants_cache: reuse them as they are
