@@ -13,6 +13,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))); KEY = os.env
 VOICE, MODEL, BASE = "JBFqnCBsd6RMkjVDRZzb", "eleven_v4", "https://vibi.pro"
 SET = {"stability": 0.5, "similarity_boost": 0.75, "speed": 1.0}
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+FIELD = sys.argv[sys.argv.index("--field") + 1] if "--field" in sys.argv else "george"   # "fusha": near-MSA spellings, picked on clarity only
 TAKES = int(sys.argv[sys.argv.index("--takes") + 1]) if "--takes" in sys.argv else 2
 lines = json.load(open(os.path.join(ROOT, "voice/script.json"), encoding="utf8"))["lines"]
 only = {int(x) - 1 for x in sys.argv[sys.argv.index("--lines") + 1].split(",")} if "--lines" in sys.argv else None
@@ -36,7 +37,7 @@ def tts(text, take):
         except Exception as e: print("  retry", e, flush=True); time.sleep(3 * (k + 1))
     raise SystemExit("tts failed: " + text)
 
-jobs = [(i, s, t) for i, l in enumerate(lines) if only is None or i in only for s in l["george"] for t in range(1, TAKES + 1)]
+jobs = [(i, s, t) for i, l in enumerate(lines) if only is None or i in only for s in l[FIELD] for t in range(1, TAKES + 1)]
 with ThreadPoolExecutor(3) as ex: files = dict(zip(jobs, ex.map(lambda j: tts(j[1], j[2]), jobs)))
 print("generated", len(files), flush=True)
 
@@ -58,19 +59,19 @@ def match(a, text):
     segs, _ = ASR.transcribe(a, language="ar", beam_size=3); hyp = " ".join(s.text for s in segs)
     r, h = norm(text).split(), norm(hyp).split(); return difflib.SequenceMatcher(None, "".join(r), "".join(h)).ratio(), len(h) / max(1, len(r)), hyp
 
-out_p = os.path.join(ROOT, "voice/takes_george.json"); res = json.load(open(out_p, encoding="utf8")) if os.path.exists(out_p) else {}
+out_p = os.path.join(ROOT, "voice/takes_george.json" if FIELD == "george" else f"voice/takes_{FIELD}.json"); res = json.load(open(out_p, encoding="utf8")) if os.path.exists(out_p) else {}
 for i, l in enumerate(lines):
     if only is not None and i not in only: continue
     rows = []
-    for s in l["george"]:
+    for s in l[FIELD]:
         for t in range(1, TAKES + 1):
             p = files[(i, s, t)]; a = pcm16(p); sc, d = dialect(a); sim, wr, hyp = match(a, s)
-            rows.append({"file": os.path.relpath(p, ROOT), "say": s, "hamza": s != l["george"][0], "take": t, "syr": round(sc, 3), "SYR": round(d["SYR"], 3), "sim": round(sim, 2), "wr": round(wr, 2), "dur": round(len(a) / 16000, 2), "heard": hyp})
+            rows.append({"file": os.path.relpath(p, ROOT), "say": s, "hamza": FIELD == "george" and s != l["george"][0], "take": t, "syr": round(sc, 3), "SYR": round(d["SYR"], 3), "sim": round(sim, 2), "wr": round(wr, 2), "dur": round(len(a) / 16000, 2), "heard": hyp})
     # the owner's rule: in Damascene every qaf is a hamza, so a line that has the hamza spelling always uses it (consistent across lines)
     if any(r["hamza"] for r in rows): rows_all, rows = rows, [r for r in rows if r["hamza"]]
     else: rows_all = rows
     best = max(r["sim"] for r in rows); med = float(np.median([r["dur"] for r in rows]))
     ok = [r for r in rows if r["sim"] >= best - 0.1 and 0.7 <= r["wr"] <= 1.4 and r["dur"] <= med * 1.3] or rows
-    pick = max(ok, key=lambda r: r["syr"]); res[str(i)] = {"text": l["text"], "pick": pick, "all": rows_all}
+    pick = max(ok, key=(lambda r: r["syr"]) if FIELD == "george" else (lambda r: (r["sim"], -abs(r["wr"] - 1)))); res[str(i)] = {"text": l["text"], "pick": pick, "all": rows_all}
     print(f"{i + 1:2d} {'hamza' if pick['hamza'] else 'qaf  '} t{pick['take']} syr {pick['syr']:+.2f} sim {pick['sim']:.2f} | {pick['heard'][:60]}", flush=True)
     json.dump(res, open(out_p, "w", encoding="utf8"), ensure_ascii=False, indent=1)
