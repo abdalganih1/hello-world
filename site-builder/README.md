@@ -47,12 +47,12 @@
 
 ```bash
 cd site-builder
-npx wrangler secret put AI_KEY      # مفتاح مزود الذكاء الاصطناعي
+npx wrangler secret put OPENROUTER_API_KEY   # مفتاح OpenRouter
 npx wrangler secret put ADMIN_KEY   # مفتاح لوحة المراجعة
 npx wrangler deploy
 curl https://build.md2.dev/api/health
 ```
 
-- الإعدادات بـ `wrangler.jsonc`: `AI_BASE_URL` و`AI_MODEL` و`AI_NO_THINK` (بيطفي التفكير بـ GLM فبيصير أسرع)، `SITE_DOMAIN`، `TRIAL_DAYS`، `CONTACT_URL`.
-- إذا مزودك وقف، الـ Worker بيرجع تلقائياً لـ Workers AI.
+- الإعدادات بـ `wrangler.jsonc`: `AI_MODEL` و`AI_FALLBACK_MODELS` (موديلات OpenRouter) و`AI_REASONING` (أقل تفكير لـ GLM فبيصير أسرع)، `SITE_DOMAIN`، `TRIAL_DAYS`، `CONTACT_URL`.
+- كل طلبات الذكاء الاصطناعي بتمر عبر OpenRouter. إذا الموديل الأساسي وقف، OpenRouter بيجرب موديلات الاحتياط تلقائياً.
 - الحد اليومي لكل زائر بـ KV (`LIMITS`): 5 كتابات و20 تعديل.
