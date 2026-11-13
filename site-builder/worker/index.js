@@ -2,7 +2,7 @@
    - بيخدم ملفات المنصة (static assets)
    - POST /api/edit  : بياخد طلب الزبون بالكلمات + محتوى الموقع، وبيرجّع بس الأقسام اللي تغيّرت
    - POST /api/write : نفس الشي، بس لكتابة نصوص الموقع أول مرة من فكرة الزبون
-   الموديل: مزود متوافق مع OpenAI (AI_BASE_URL + AI_MODEL + السر AI_KEY)، واحتياط Workers AI إذا فشل. */
+   الموديل: عبر OpenRouter (AI_MODEL + AI_FALLBACK_MODELS + السر OPENROUTER_API_KEY). */
 
 const EDITABLE = ["hero", "marquee", "about", "services", "menu", "process", "gallery", "team", "testimonials", "pricing", "products", "faq", "cta", "contact"];
 const PALETTES = ["luxe", "calm", "bold", "olive", "sea", "rose", "sand", "night", "ruby"];
@@ -55,25 +55,24 @@ function validate(out, content) {
   return res;
 }
 
-async function callProvider(env, messages) {
-  const base = (env.AI_BASE_URL || "").replace(/\/$/, "");
-  if (!base || !env.AI_KEY) throw new Error("provider not configured");
+// كل طلبات الذكاء الاصطناعي بتمر عبر OpenRouter (متوافق مع OpenAI). الاحتياط موديلات تانية بنفس الطلب (models[]).
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+async function callAI(env, messages) {
+  if (!env.OPENROUTER_API_KEY) throw new Error("OPENROUTER_API_KEY not set");
+  const models = [env.AI_MODEL || "z-ai/glm-5.3-flash", ...String(env.AI_FALLBACK_MODELS || "").split(",").map((m) => m.trim()).filter(Boolean)].slice(0, 3);
   const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 45000);
   try {
-    const r = await fetch(base + "/chat/completions", {
+    const r = await fetch(OPENROUTER_URL, {
       method: "POST", signal: ctrl.signal,
-      headers: { "content-type": "application/json", authorization: "Bearer " + env.AI_KEY },
-      body: JSON.stringify(Object.assign({ model: env.AI_MODEL || "glm-5.3-flash", messages, temperature: 0.4, max_tokens: 6000 }, env.AI_NO_THINK === "1" ? { thinking: { type: "disabled" } } : {})),
+      headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENROUTER_API_KEY, "HTTP-Referer": "https://build." + (env.SITE_DOMAIN || "md2.dev"), "X-Title": "Sammem" },
+      // GLM موديل تفكير وما بيقبل نطفي التفكير، فمنخليه بأقل حد ومنخفي نصه
+      body: JSON.stringify({ models, messages, temperature: 0.4, max_tokens: 6000, reasoning: { effort: env.AI_REASONING || "minimal", exclude: true } }),
     });
-    if (!r.ok) throw new Error("provider " + r.status + ": " + (await r.text()).slice(0, 200));
+    if (!r.ok) throw new Error("openrouter " + r.status + ": " + (await r.text()).slice(0, 200));
     const d = await r.json();
+    if (d.error) throw new Error("openrouter: " + String(d.error.message || "").slice(0, 200));
     return d.choices?.[0]?.message?.content;
   } finally { clearTimeout(timer); }
-}
-async function callWorkersAI(env, messages) {
-  if (!env.AI) throw new Error("no workers ai binding");
-  const d = await env.AI.run(env.FALLBACK_MODEL || "@cf/meta/llama-3.3-70b-instruct-fp8-fast", { messages, max_tokens: 4000, temperature: 0.4 });
-  return d.response;
 }
 
 // حد يومي لكل زائر (إذا في KV مربوط باسم LIMITS)
@@ -108,12 +107,8 @@ async function handleAI(req, env, kind) {
 
   const results = await Promise.all(groups.map(async (c, gi) => {
     const messages = [{ role: "system", content: SYSTEM }, { role: "user", content: askFor(c) + (gi ? "\n(هاد جزء من الموقع، رجّع بس هالأقسام.)" : "") }];
-    try { const t = await callProvider(env, messages); return { out: extractJSON(t), via: "provider" }; }
-    catch (e1) {
-      console.warn("provider failed:", e1.message);
-      try { return { out: extractJSON(await callWorkersAI(env, messages)), via: "workers-ai" }; }
-      catch (e2) { console.warn("fallback failed:", e2.message); return { err: e1.message }; }
-    }
+    try { const t = await callAI(env, messages); return { out: extractJSON(t), via: "openrouter" }; }
+    catch (e1) { console.warn("ai failed:", e1.message); return { err: e1.message }; }
   }));
   const ok = results.filter((r) => r.out);
   if (!ok.length) return json({ error: "ai unavailable", detail: results[0].err, reply: "الذكاء الاصطناعي مو متاح هلق، جرّب بعد شوي." }, 502);
@@ -246,7 +241,7 @@ export default {
     if (url.pathname === "/admin/preview") return adminPreview(req, env, url);
     if (req.method === "POST" && url.pathname === "/api/submit") return handleSubmit(req, env);
     if (url.pathname === "/api/slug") return handleSlug(url, env);
-    if (url.pathname === "/api/health") return json({ ok: true, domain: env.SITE_DOMAIN, storage: !!env.SITES, model: env.AI_MODEL || "glm-5.3-flash", provider: !!(env.AI_BASE_URL && env.AI_KEY), fallback: !!env.AI });
+    if (url.pathname === "/api/health") return json({ ok: true, domain: env.SITE_DOMAIN, storage: !!env.SITES, model: env.AI_MODEL || "z-ai/glm-5.3-flash", provider: "openrouter", key: !!env.OPENROUTER_API_KEY, fallback: env.AI_FALLBACK_MODELS || "" });
     if (req.method === "POST" && url.pathname === "/api/edit") return handleAI(req, env, "edit");
     if (req.method === "POST" && url.pathname === "/api/write") return handleAI(req, env, "write");
     if (url.pathname.startsWith("/api/")) return json({ error: "not found" }, 404);
