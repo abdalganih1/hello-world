@@ -9,6 +9,9 @@
     "AI_MODEL": "z-ai/glm-5.3-flash",
     "AI_FALLBACK_MODELS": "deepseek/deepseek-v4-flash",
     "AI_REASONING": "minimal",
+    // جسر مؤقت لحد ما ينضاف سر OPENROUTER_API_KEY: مزودك القديم مع السر AI_KEY
+    "LEGACY_BASE_URL": "https://api.abdalgani.com/v1",
+    "LEGACY_MODEL": "glm-5.3-flash",
     "DAILY_EDITS": "20",
     "DAILY_WRITES": "5",
     // مواقع الزبائن: <slug>.SITE_DOMAIN ، والمنصة نفسها على build.SITE_DOMAIN

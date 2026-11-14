@@ -57,8 +57,23 @@ function validate(out, content) {
 
 // كل طلبات الذكاء الاصطناعي بتمر عبر OpenRouter (متوافق مع OpenAI). الاحتياط موديلات تانية بنفس الطلب (models[]).
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+// جسر مؤقت: إذا سر OPENROUTER_API_KEY لسا مو مضاف، منكمّل على مزودك القديم (AI_KEY). ما في Workers AI أبداً.
+async function callLegacy(env, messages) {
+  const base = (env.LEGACY_BASE_URL || "").replace(/\/$/, "");
+  if (!base || !env.AI_KEY) throw new Error("OPENROUTER_API_KEY not set");
+  const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 45000);
+  try {
+    const r = await fetch(base + "/chat/completions", {
+      method: "POST", signal: ctrl.signal,
+      headers: { "content-type": "application/json", authorization: "Bearer " + env.AI_KEY },
+      body: JSON.stringify({ model: env.LEGACY_MODEL || "glm-5.3-flash", messages, temperature: 0.4, max_tokens: 6000, thinking: { type: "disabled" } }),
+    });
+    if (!r.ok) throw new Error("legacy " + r.status + ": " + (await r.text()).slice(0, 200));
+    return (await r.json()).choices?.[0]?.message?.content;
+  } finally { clearTimeout(timer); }
+}
 async function callAI(env, messages) {
-  if (!env.OPENROUTER_API_KEY) throw new Error("OPENROUTER_API_KEY not set");
+  if (!env.OPENROUTER_API_KEY) return callLegacy(env, messages);
   const models = [env.AI_MODEL || "z-ai/glm-5.3-flash", ...String(env.AI_FALLBACK_MODELS || "").split(",").map((m) => m.trim()).filter(Boolean)].slice(0, 3);
   const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 45000);
   try {
@@ -300,7 +315,7 @@ export default {
     if (req.method === "POST" && url.pathname === "/api/submit") return handleSubmit(req, env, ctx);
     if (url.pathname === "/api/slug") return handleSlug(url, env);
     if (req.method === "POST" && url.pathname === "/api/plan") return handlePlan(req, env);
-    if (url.pathname === "/api/health") return json({ ok: true, domain: env.SITE_DOMAIN, storage: !!env.SITES, model: env.AI_MODEL || "z-ai/glm-5.3-flash", provider: "openrouter", key: !!env.OPENROUTER_API_KEY, fallback: env.AI_FALLBACK_MODELS || "" });
+    if (url.pathname === "/api/health") return json({ ok: true, domain: env.SITE_DOMAIN, storage: !!env.SITES, model: env.AI_MODEL || "z-ai/glm-5.3-flash", provider: env.OPENROUTER_API_KEY ? "openrouter" : (env.AI_KEY ? "legacy" : "none"), key: !!env.OPENROUTER_API_KEY, fallback: env.AI_FALLBACK_MODELS || "" });
     if (req.method === "POST" && url.pathname === "/api/edit") return handleAI(req, env, "edit");
     if (req.method === "POST" && url.pathname === "/api/write") return handleAI(req, env, "write");
     if (url.pathname.startsWith("/api/")) return json({ error: "not found" }, 404);
