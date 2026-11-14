@@ -162,11 +162,30 @@ function atFrac(l, frac) { const est = l.t0 + (l.t1 - l.t0) * frac; let b = est,
 // a word's moment in the line: looked up in what the voice actually says (say), else in the on-screen text
 const AT = (i, ...ws) => { const l = TL.lines[i]; for (const src of [l.say, l.text]) { if (!src) continue; for (const w of ws) { const k = src.indexOf(w); if (k >= 0) return atFrac(l, k / src.length); } } return atFrac(l, 0.5); };
 const SCENES = {};
+// ---------- series badge «خوارزموسفير · #N»: pops in at the start, then stays small and quiet above the headline zone
+const SERIES = "خوارزموسفير";
+function seriesBadge(t) {
+  const ep = window.EPISODE; if (!ep) return; const p = back(P(t, 0.15, 0.5), 1.6), q = 1 - 0.18 * eio(P(t, 3.2, 0.6)), al = clamp(P(t, 0.15, 0.25) * 2) * (1 - 0.35 * eio(P(t, 3.2, 0.6))) * (1 - P(t, TL.total - 0.6, 0.4));
+  if (al <= 0) return; ctx.save(); ctx.font = font(34, 900); const tw = ctx.measureText(SERIES).width; ctx.restore();
+  const W2 = tw + 160, H2 = 62; withT(540, 150, p * q, p * q, 0, () => {
+    fillRR(-W2 / 2, -H2 / 2, W2, H2, H2 / 2, "#ffffff", al * 0.96, 18); strokeRR(-W2 / 2, -H2 / 2, W2, H2, H2 / 2, hexA(C.teal, 0.45), 2.5, al);
+    // the sphere: a teal globe with an orbit ring and a small electron that keeps circling
+    const gx = W2 / 2 - 38; circle(gx, 0, 15, C.teal, al); A(al); ctx.save(); ctx.translate(gx, 0); ctx.rotate(-0.5); ctx.beginPath(); ctx.ellipse(0, 0, 25, 9, 0, 0, 6.2832); ctx.strokeStyle = C.navy; ctx.lineWidth = 2.5; ctx.stroke();
+    const an = t * 2.4; circle(Math.cos(an) * 25, Math.sin(an) * 9, 4, C.navy, al); ctx.restore();
+    T(SERIES, gx - 40 - tw / 2, 3, { size: 34, color: C.navy, a: al });
+    // the episode number in a navy chip on the left
+    const cx = -W2 / 2 + 36; circle(cx, 0, 24, C.navy, al); T("#" + ep, cx, 3, { size: 24, fam: "mono", color: "#ffffff", a: al });
+    // a shine sweeps once on entry
+    const sh = P(t, 0.55, 0.7); if (sh > 0 && sh < 1) { ctx.save(); rr(-W2 / 2, -H2 / 2, W2, H2, H2 / 2); ctx.clip(); A(0.5 * al); const x = lerp(-W2 / 2 - 60, W2 / 2 + 60, sh), g = ctx.createLinearGradient(x - 50, 0, x + 50, 0); g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(0.5, "rgba(140,240,232,0.9)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(x - 50, -H2 / 2, 100, H2); ctx.restore(); }
+  });
+}
+
 function render(t) {
   NOW = t; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; ctx.shadowBlur = 0; ctx.filter = "none";
   background(t);
   for (const name of SCENES.order) SCENES[name](t);
   captions(t);
+  seriesBadge(t);
   const fade = P(t, TL.total - 0.4, 0.4); if (fade > 0) { ctx.globalAlpha = fade; ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
 }
 window.setup = async (tl) => {

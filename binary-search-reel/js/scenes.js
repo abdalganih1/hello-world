@@ -2,6 +2,7 @@
 // Lines: 0 hook (8 billion -> you, 33 questions) · 1 secret (we don't search, we split) · 2 setup · 3-6 demo · 7 name · 8-9 rule
 //        10-12 speed · 13 world (payoff of the hook) · 14-15 teaser (sorting, next reel)
 "use strict";
+window.EPISODE = 2; // خوارزموسفير #2
 const N = 11, VALS = [4, 9, 15, 22, 30, 37, 45, 51, 63, 78, 92], TARGET = 51;
 const CW = 86, CH = 150, ROWY = 900, cx = (i) => 80 + 92 * i;
 // the search: [lo, hi, mid, verdict] per step; verdict: -1 too small (drop left), 1 too big (drop right), 0 found

@@ -2,6 +2,7 @@
 // 3 setup (8 numbers) · 4 split down to singles · 5 merge (compare the two heads, take the smaller) · 6 keep merging · 7 name
 // 8-11 speed (half a trillion vs 20 million · 16,000 years vs < 8 months · n log n) · 12 teaser + follow card
 "use strict";
+window.EPISODE = 4; // خوارزموسفير #4
 const START = [5, 2, 7, 1, 8, 3, 6, 4], N = 8, TS = 92, SP = 104, LY = [650, 830, 1010, 1190];
 // ---- layouts: x/y of every value for each stage of the algorithm
 const GAPS = [0, 40, 24, 14];

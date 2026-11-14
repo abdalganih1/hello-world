@@ -1,6 +1,7 @@
 // Bubble Sort reel. Lines: 0 hook (Obama at Google, 2007) · 1 his answer · 2 why? · 3 setup · 4 idea (compare + swap)
 // 5-6 passes · 7 name · 8-11 speed (21, half a trillion, 16,000 years, O(n²)) · 12 callback · 13 teaser (Merge Sort)
 "use strict";
+window.EPISODE = 3; // خوارزموسفير #3
 const START = [5, 2, 7, 1, 6, 3, 4], N = START.length, BX = (i) => 150 + 130 * i, BASE = 1130, UNIT = 52;
 // ---- the sorting schedule: every comparison of bubble sort, timed on the voice
 function schedule() {

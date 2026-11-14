@@ -1,6 +1,7 @@
 // Scenes. One idea per scene, keyed to the narration: L0(i)/L1(i) = start/end of spoken line i, SG(i, j) = start of its j-th phrase.
 // Lines: 0-1 hook (no voice: "if you don't know this algorithm, don't call yourself a programmer", the big problem) · 2 setup (shell game) · 3 idea · 4-8 demo · 9 name · 10-11 rule · 12-14 speed · 15-16 teaser
 "use strict";
+window.EPISODE = 1; // خوارزموسفير #1
 const SGB = (i, k) => { const sg = TL.lines[i].segs; return sg[Math.max(0, sg.length - 1 - k)]; }; // k-th phrase from the end
 const CW = 130, CH = 180, ROWY = 930, cx = (i) => 108 + 144 * i;
 const FINAL = [7, 3, 9, 1, 5, 8, 2];
