@@ -17,14 +17,18 @@ const LAY = {
 function mergeDelays(groupSize, stagger) { const d = {}; for (const big of chunk(START, groupSize * 2)) { const a = sorted(big.slice(0, groupSize)), b = sorted(big.slice(groupSize)); let i = 0, j = 0, k = 0;
   while (i < a.length || j < b.length) { const take = j >= b.length || (i < a.length && a[i] < b[j]) ? a[i++] : b[j++]; d[take] = k++ * stagger; } } return d; }
 let PLAN = null;
+// the slow, explained merge: [2,5] + [1,7] (the left half), one comparison at a time, on «نقارن» / «ونأخذ»
+const SLOW = [{ a: 2, b: 1, v: 1 }, { a: 2, b: 7, v: 2 }, { a: 5, b: 7, v: 5 }, { a: 7, b: null, v: 7 }];
 function plan() {
-  const sA = AT(4, "نقسمها") + 0.25, sB = AT(4, "ثم كل"), sC = AT(4, "حتى"), cmp = AT(5, "نقارن"), take = AT(5, "ونأخذ", "نأخذ"), m1 = L0(6) + 0.1, end = L1(6) + 1.3;
-  const m0 = m1 + (end - m1) * 0.42;
-  return { sA, sB, sC, cmp, take, m1, m0, end, steps: [
+  const sA = AT(4, "نقسمها") + 0.25, sB = AT(4, "ثم كل"), sC = AT(4, "حتى"), pr = AT(5, "كل") + 0.15;
+  const c1 = AT(6, "نقارن"), k1 = AT(6, "ونأخذ", "نأخذ"), slow = [[c1, k1], [k1 + 0.75, k1 + 1.2], [k1 + 1.6, k1 + 2.05], [k1 + 2.45, k1 + 2.75]];
+  const r0 = L0(7) + 0.1, m0 = r0 + 1.25, end = m0 + 8 * 0.16 + 0.5;
+  const del2 = {}; SLOW.forEach((s, i) => (del2[s.v] = slow[i][1] - k1)); [3, 4, 6, 8].forEach((v, i) => (del2[v] = r0 + i * 0.22 - k1));
+  return { sA, sB, sC, pr, c1, k1, slow, r0, m0, end, steps: [
     { t0: sA, from: "s0", to: "s1", dur: 0.55 }, { t0: sB, from: "s1", to: "s2", dur: 0.5 }, { t0: sC, from: "s2", to: "s3", dur: 0.5 },
-    { t0: take, from: "s3", to: "m2", dur: 0.5, del: mergeDelays(1, 0.12), arc: 1 },
-    { t0: m1, from: "m2", to: "m1", dur: 0.42, del: mergeDelays(2, 0.2), arc: 1 },
-    { t0: m0, from: "m1", to: "m0", dur: 0.36, del: mergeDelays(4, 0.17), arc: 1 }] };
+    { t0: pr, from: "s3", to: "m2", dur: 0.5, del: mergeDelays(1, 0.1), arc: 1 },
+    { t0: k1, from: "m2", to: "m1", dur: 0.4, del: del2, arc: 1 },
+    { t0: m0, from: "m1", to: "m0", dur: 0.34, del: mergeDelays(4, 0.16), arc: 1 }] };
 }
 function posAt(v, t) {
   let p = LAY.s0[v], lift = 0, moving = false;
@@ -43,34 +47,37 @@ function frames(level, a) { if (a <= 0) return; const gs = N >> level; for (let 
   strokeRR(x0, LY[level] - TS / 2 - 12, x1 - x0, TS + 24, 30, hexA(C.teal, 0.35), 3, a); } }
 SCENES.tiles = (t) => {
   if (!PLAN) PLAN = plan(); const s0 = SCN.setup.t0, s1 = SCN.name.t1; if (t < s0 - 0.1 || t > s1 + 0.3) return; const out = 1 - P(t, s1 - 0.05, 0.3), k = stageAt(t);
-  // ghost rows: where the numbers came from (the tree)
-  // group frames only around the row the numbers sit on now (fade in with the move, out with the next move)
+  // group frames only around the row the numbers sit on now
   const LV = [0, 1, 2, 3, 2, 1, 0]; for (let j = 0; j < 7; j++) { const tin = j === 0 ? s0 + 0.5 : PLAN.steps[j - 1].t0 + 0.2, tout = j < 6 ? PLAN.steps[j].t0 : 1e9;
     const al = P(t, tin, 0.35) * (1 - P(t, tout - 0.05, 0.2)) * (j === 6 ? 1 - P(t, PLAN.end + 0.4, 0.4) : 1); frames(LV[j], out * al); }
+  // while the left half is merged slowly: its target frame on the row above is already drawn, the right half waits dimmed
+  const slowOn = t >= PLAN.c1 - 0.15 && t < PLAN.r0, foc = win(t, PLAN.c1 - 0.15, PLAN.r0 + 0.2, 0.25);
+  if (slowOn || foc > 0) { const x0 = slotX(1, 0) - TS / 2 - 12, x1 = slotX(1, 3) + TS / 2 + 12; strokeRR(x0, LY[1] - TS / 2 - 12, x1 - x0, TS + 24, 30, hexA(C.teal, 0.55), 3, out * foc); }
   const done = t >= PLAN.end - 0.15, doneT = PLAN.end - 0.15;
-  // the compare demo on the first pair (5 vs 2): both heads navy, then the smaller one (gold) is taken first
-  const demo = t >= PLAN.cmp - 0.05 && t < PLAN.take + 0.6;
+  let cur = null; PLAN.slow.forEach((w, i) => { if (t >= w[0] - 0.05 && t < w[1] + 0.55) cur = { ...SLOW[i], cmp: w[0], take: w[1] }; });
   for (let v = 1; v <= N; v++) {
-    const enter = eo(P(t, s0 + 0.2 + START.indexOf(v) * 0.05, 0.45)), q = posAt(v, t); let state = "";
-    if (k >= 2 && k < 3 && t > PLAN.sC + 0.5) state = "merged";          // a single number is already sorted
+    const enter = eo(P(t, s0 + 0.2 + START.indexOf(v) * 0.05, 0.45)), q = posAt(v, t); let state = "", a = 1;
+    if (k === 2 && t > PLAN.sC + 0.5) state = "merged";                 // a single number is already sorted
     if (k >= 3) state = "merged";
-    if (demo && (v === 5 || v === 2)) state = t >= PLAN.take ? (v === 2 ? "take" : "head") : "head";
+    if (cur && (v === cur.a || v === cur.b)) state = t >= cur.take && v === cur.v ? "take" : "head";
+    if ([3, 4, 6, 8].includes(v)) a = 1 - 0.6 * foc;
     if (done) state = "done";
     const bob = done ? Math.max(0, Math.sin((t - doneT) * 7 - START.indexOf(v) * 0.6)) * 22 * (1 - P(t, doneT + 1.4, 0.4)) : 0;
     const sgl = k === 2 && t > PLAN.sC + 0.5 ? 1 + 0.12 * imp(t, PLAN.sC + 0.5 + v * 0.03, 0.4) : 1;
-    tile(v, q.x, q.y - bob + (1 - enter) * -500, { a: out * enter, state, s: sgl });
+    tile(v, q.x, q.y - bob + (1 - enter) * -500, { a: out * enter * a, state, s: sgl });
   }
   if (k === 2 && t > PLAN.sC + 0.5) for (let v = 1; v <= N; v++) { const q = posAt(v, t), r = imp(t, PLAN.sC + 0.5 + v * 0.03, 0.6); ring(q.x, q.y, 50 + 40 * (1 - r), hexA(C.teal, 0.8), 5 * r, out * r); }
-  // compare chip under the first pair
-  if (demo) { const xm = (LAY.s3[5][0] + LAY.s3[2][0]) / 2, kk = pop(t, PLAN.cmp, 0.3), a2 = out * clamp(kk * 2) * (1 - P(t, PLAN.take + 0.45, 0.15));
-    withT(xm, LY[3] + 92, kk, kk, 0, () => { fillRR(-110, -36, 220, 72, 36, "#fff4dc", a2, 10); T("2 < 5", 0, 3, { size: 38, fam: "mono", color: "#b9781a", a: a2 }); }); }
+  // pointers on the two heads + the comparison chip
+  if (cur) { const kk = pop(t, cur.cmp, 0.3), fa = out * clamp(kk * 2) * (1 - P(t, cur.take + 0.4, 0.15));
+    [cur.a, cur.b].forEach((v) => { if (v == null) return; const q = posAt(v, t); poly([[q.x - 16, q.y - 84], [q.x + 16, q.y - 84], [q.x, q.y - 62]], C.gold, 0, fa, true, C.gold); });
+    const xm = (slotX(2, 0) + slotX(2, 3)) / 2, txt = cur.b == null ? `${cur.a} ✓` : `${Math.min(cur.a, cur.b)} < ${Math.max(cur.a, cur.b)}`;
+    withT(xm, LY[2] + 96, kk, kk, 0, () => { fillRR(-110, -36, 220, 72, 36, "#fff4dc", fa, 10); T(txt, 0, 3, { size: 38, fam: "mono", color: "#b9781a", a: fa }); }); }
   if (done) sparkle(540, LY[0], doneT, { n: 40, r: 440 });
-  // name chip
-  if (t > L0(7) - 0.1) { const kk = pop(t, AT(7, "Merge") - 0.05, 0.45); withT(540, 800, kk, kk, 0, () => { fillRR(-250, -54, 500, 108, 54, C.navy, out * clamp(kk * 2), 20); T("Merge Sort", 0, 4, { size: 58, color: "#fff", fam: "mono", a: out * clamp(kk * 2) }); }); }
+  if (t > L0(8) - 0.1) { const kk = pop(t, AT(8, "Merge") - 0.05, 0.45); withT(540, 800, kk, kk, 0, () => { fillRR(-250, -54, 500, 108, 54, C.navy, out * clamp(kk * 2), 20); T("Merge Sort", 0, 4, { size: 58, color: "#fff", fam: "mono", a: out * clamp(kk * 2) }); }); }
 };
 // ---- host on the left (poses drawn facing right): walks in, watches, jumps when it is sorted, thumbs-up on the name
 const HOSTX = 220, HOSTY = 1730, HOSTH = 450;
-function hostPose(t) { const d = PLAN ? PLAN.end - 0.15 : 1e9; const seq = [[SCN.setup.t0 + 0.1, "walking"], [SCN.setup.t0 + 1.9, "front"], [d - 0.05, "celebrating"], [d + 1.3, "front"], [L0(7) + 0.3, "hero"]]; let c = seq[0]; for (const q of seq) if (t >= q[0]) c = q; return c; }
+function hostPose(t) { const d = PLAN ? PLAN.end - 0.15 : 1e9; const seq = [[SCN.setup.t0 + 0.1, "walking"], [SCN.setup.t0 + 1.9, "front"], [d - 0.05, "celebrating"], [d + 1.3, "front"], [L0(8) + 0.3, "hero"]]; let c = seq[0]; for (const q of seq) if (t >= q[0]) c = q; return c; }
 SCENES.khwarizmo = (t) => {
   const t0 = SCN.setup.t0 + 0.1, t1 = SCN.name.t1 - 0.1; if (t < t0 || t > t1 + 0.45 || !PLAN) return;
   const [since, pose] = hostPose(t), sw = P(t, since, 0.3); let sx = 1, sy = 1; if (pose !== "walking" && sw < 1) { const b = back(sw, 2.0); sx = lerp(1.08, 1, b); sy = lerp(0.9, 1, b); }
@@ -108,27 +115,28 @@ SCENES.hook = (t) => {
     const ar = eio(P(t, AT(2, "ادمج") - 0.25, 0.35)); if (ar > 0) arrow(470, 1010, lerp(470, 600, ar), 1010, C.teal, 6, ex * ar, 18); }
 };
 
-// ---- speed: half a trillion vs 20 million · 16,000 years vs < 8 months · n log n
+// ---- speed: why it is fast — 20 levels × a million comparisons = 20 million (vs half a trillion) · n log n
 SCENES.speed = (t) => {
   const s0 = SCN.speed.t0, s1 = SCN.speed.t1; if (t < s0 - 0.1 || t > s1 + 0.3) return; const a = P(t, s0, 0.3) * (1 - P(t, s1 - 0.05, 0.3));
-  const r1 = 1 - P(t, L0(10) - 0.2, 0.3);
-  if (r1 > 0) { const BXL = 150, BW = 780;
-    // Bubble Sort row
-    const u1 = Math.pow(eio(P(t, AT(8, "يحتاج") - 0.1, 1.4)), 2.2), n1 = Math.round(lerp(0, 5e11, u1)), e1 = eo(P(t, s0 + 0.1, 0.4));
-    T("🐢 Bubble Sort", 930, 720, { size: 46, fam: "mono", color: C.navy, a: a * r1 * e1, align: "right" });
-    fillRR(BXL, 760, BW, 46, 23, C.line, a * r1 * e1); fillRR(BXL + BW * (1 - u1), 760, BW * u1, 46, 23, C.red, a * r1 * e1);
-    T(n1.toLocaleString("en-US"), 540, 860, { size: 64, fam: "mono", color: u1 >= 1 ? C.red : C.navy, a: a * r1 * e1 });
-    // Merge Sort row
-    const e2 = eo(P(t, L0(9) - 0.1, 0.4)), u2 = eio(P(t, AT(9, "فيحتاج", "عشرين") - 0.05, 0.7)), n2 = Math.round(lerp(0, 2e7, u2));
-    T("⚡ Merge Sort", 930, 1000, { size: 46, fam: "mono", color: C.navy, a: a * r1 * e2, align: "right" });
-    fillRR(BXL, 1040, BW, 46, 23, C.line, a * r1 * e2); fillRR(BXL + BW - Math.max(46, BW * 0.004) * u2, 1040, Math.max(46, BW * 0.004) * u2, 46, 23, C.teal, a * r1 * e2);
-    T(n2.toLocaleString("en-US"), 540, 1140, { size: 64, fam: "mono", color: C.teal, a: a * r1 * e2 });
-    const bd = pop(t, AT(9, "فقط") + 0.1, 0.45); withT(540, 1250, bd, bd, -0.04, () => { fillRR(-210, -44, 420, 88, 44, C.tealSoft, a * r1 * clamp(bd * 2), 10); T("أقل بـ 25,000 مرة", 0, 3, { size: 42, color: C.teal, a: a * r1 * clamp(bd * 2) }); }); }
-  const r2 = P(t, L0(10) - 0.05, 0.3) * (1 - P(t, L0(11) - 0.15, 0.3));
-  if (r2 > 0) { const cut = eio(P(t, AT(10, "أقل") - 0.15, 0.35)), p = pop(t, AT(10, "أقل") + 0.05, 0.5);
-    T("🐢", 540, 650, { size: 110, a: a * r2 * (1 - 0.6 * cut) }); T("16,000 سنة", 540, 800, { size: 96, color: C.red, a: a * r2 * (1 - 0.55 * cut) }); seg(300, 800, lerp(300, 780, cut), 800, C.red, 10, a * r2 * cut);
-    withT(540, 1010, p, p, 0, () => { T("🚀", -365, -6, { size: 84, a: a * r2 * clamp(p * 2) }); T("أقل من 8 أشهر", 40, 0, { size: 96, color: C.teal, a: a * r2 * clamp(p * 2) }); });
-    const r = imp(t, AT(10, "أقل") + 0.05, 0.7); ring(540, 1010, 120 + 300 * (1 - r), hexA(C.teal, 0.5), 8 * r + 1, a * r); }
+  const RX = 170, RW = 700, RY = 620, RH = 18, RG = 9, lit = AT(10, "وكل", "مستوى") - 0.1;
+  const rA = 1 - P(t, AT(10, "أي") - 0.15, 0.3);
+  if (rA > 0) { // the 20 levels: a million split in two, again and again, down to single numbers
+    for (let i = 0; i < 20; i++) { const ti = s0 + 0.3 + i * Math.max(0.08, (L1(9) - s0 - 0.6) / 20), e = eo(P(t, ti, 0.25)); if (e <= 0) continue;
+      const nseg = Math.min(1 << i, 64), y = RY + i * (RH + RG), gap = nseg > 1 ? Math.max(2, 10 - i) : 0, w = (RW - gap * (nseg - 1)) / nseg, on = t >= lit + i * 0.06;
+      for (let s = 0; s < nseg; s++) fillRR(RX + s * (w + gap), y, Math.max(2, w), RH, Math.min(9, w / 2), on ? C.teal : C.navy, a * rA * e * (on ? 1 : 0.85)); }
+    T("1,000,000", RX + RW / 2, RY - 40, { size: 36, fam: "mono", color: C.navy, a: a * rA });
+    T("1  1  1  1 …", RX + RW / 2, RY + 20 * (RH + RG) + 26, { size: 32, fam: "mono", color: C.mut, a: a * rA * P(t, L1(9) - 0.6, 0.3) });
+    const bk = pop(t, AT(9, "عشرين") - 0.05, 0.45); seg(RX + RW + 34, RY, RX + RW + 34, RY + 20 * (RH + RG) - RG, C.teal, 6, a * rA * clamp(bk * 2));
+    withT(RX + RW + 34, RY + 10 * (RH + RG), bk, bk, 0, () => { circle(0, 0, 50, "#ffffff", a * rA * clamp(bk * 2), 14); T("20", 0, 4, { size: 50, fam: "mono", color: C.teal, a: a * rA * clamp(bk * 2) }); });
+    const mx = pop(t, lit + 0.2, 0.4); withT(RX - 60, RY + 10 * (RH + RG), mx, mx, 0, () => T("× 1M", 0, 0, { size: 34, fam: "mono", color: C.teal, a: a * rA * clamp(mx * 2) })); }
+  const rB = P(t, AT(10, "أي") - 0.1, 0.3) * (1 - P(t, L0(11) - 0.15, 0.3));
+  if (rB > 0) { const BXL = 150, BW = 780, u2 = eio(P(t, AT(10, "أي"), 0.6)), n2 = Math.round(lerp(0, 2e7, u2));
+    T("20 × 1,000,000", 540, 640, { size: 64, fam: "mono", color: C.navy, a: a * rB }); T(`= ${n2.toLocaleString("en-US")}`, 540, 740, { size: 80, fam: "mono", color: C.teal, a: a * rB });
+    const e1 = eo(P(t, AT(10, "فقط") - 0.2, 0.4));
+    T("⚡ Merge Sort", 930, 900, { size: 42, fam: "mono", color: C.navy, a: a * rB, align: "right" }); fillRR(BXL, 935, BW, 40, 20, C.line, a * rB); fillRR(BXL + BW - 40, 935, 40, 40, 20, C.teal, a * rB);
+    T("🐢 Bubble Sort", 930, 1050, { size: 42, fam: "mono", color: C.navy, a: a * rB * e1, align: "right" }); fillRR(BXL, 1085, BW, 40, 20, C.line, a * rB * e1); fillRR(BXL + BW * (1 - e1), 1085, BW * e1, 40, 20, C.red, a * rB * e1);
+    T("500,000,000,000", 540, 1170, { size: 52, fam: "mono", color: C.red, a: a * rB * e1 });
+    const bd = pop(t, AT(10, "فقط") + 0.35, 0.45); withT(540, 1280, bd, bd, -0.04, () => { fillRR(-210, -44, 420, 88, 44, C.tealSoft, a * rB * clamp(bd * 2), 10); T("أقل بـ 25,000 مرة", 0, 3, { size: 42, color: C.teal, a: a * rB * clamp(bd * 2) }); }); }
   const r4 = P(t, L0(11) - 0.05, 0.3);
   if (r4 > 0) { const k = pop(t, AT(11, "Big") - 0.1, 0.45); withT(540, 690, k, k, 0, () => T("O(n log n)", 0, 0, { size: 118, color: C.navy, fam: "mono", a: a * r4 * clamp(k * 2) }));
     const gx = 200, gy = 1300, gw = 680, gh = 420, u = eio(P(t, L0(11) + 0.2, 1.0)); seg(gx, gy, gx + gw + 20, gy, C.mut, 4, a * r4); seg(gx, gy, gx, gy - gh - 20, C.mut, 4, a * r4);
@@ -162,9 +170,10 @@ window.collectSfx = () => {
   PLAN = PLAN || plan(); const e = [], ev = (t, k, v = 0) => e.push({ t: +t.toFixed(3), k, v });
   ev(0.02, "hit"); ev(0.05, "no"); ev(L0(1) - 0.1, "flip"); ev(AT(2, "Merge") - 0.15, "flip", 1); ev(AT(2, "Merge") + 0.05, "found", 9); ev(AT(2, "قسم") - 0.05, "pop"); ev(AT(2, "ادمج") - 0.05, "pop", 1);
   for (let i = 0; i < N; i++) ev(SCN.setup.t0 + 0.2 + i * 0.05, "card", i);
-  PLAN.steps.forEach((s, i) => { if (i < 3) ev(s.t0, "swish", i); else Object.values(s.del).forEach((d, j) => ev(s.t0 + d + s.dur * 0.5, "tick", j % 7)); });
-  ev(PLAN.sC + 0.5, "pop", 2); ev(PLAN.cmp, "tick", 3); ev(PLAN.end - 0.15, "found", 4);
-  ev(AT(7, "Merge") - 0.05, "pop"); ev(AT(8, "يحتاج") - 0.1, "rise"); ev(AT(9, "فقط") + 0.1, "pop", 1); ev(AT(10, "أقل") - 0.15, "swish", 3); ev(AT(10, "أقل") + 0.05, "found", 9); ev(AT(11, "Big") - 0.1, "pop");
+  PLAN.steps.forEach((s, i) => { if (i < 3) ev(s.t0, "swish", i); else if (i !== 4) Object.values(s.del).forEach((d, j) => ev(s.t0 + d + s.dur * 0.5, "tick", j % 7)); });
+  PLAN.slow.forEach(([c, k], i) => { ev(c, "pop", i); ev(k + 0.2, "tick", i + 2); }); [3, 4, 6, 8].forEach((v, i) => ev(PLAN.r0 + i * 0.22 + 0.2, "tick", i));
+  ev(PLAN.sC + 0.5, "pop", 2); ev(PLAN.end - 0.15, "found", 4);
+  ev(AT(8, "Merge") - 0.05, "pop"); ev(AT(9, "عشرين") - 0.05, "pop", 1); ev(AT(10, "وكل", "مستوى") - 0.1, "rise"); ev(AT(10, "أي"), "swish", 3); ev(AT(10, "فقط") + 0.35, "found", 9); ev(AT(11, "Big") - 0.1, "pop");
   ev(SCN.teaser.t0 + 0.05, "pop"); ev(AT(12, "Reel") - 0.12, "swish"); ev(AT(12, "Reel") + 0.1, "found", 9); ev(AT(12, "Reel") + 0.35, "pop"); { const tf = AT(12, "تابع") - 0.2, tt = Math.max(tf + 0.85, AT(12, "إنجاز") + 0.05); ev(tf, "card"); ev(tt - 0.04, "pop", 2); ev(tt + 0.04, "found", 9); ev(tt + 0.2, "rise", 3); }
   TL.scenes.slice(1).forEach((s) => ev(s.t0, "swish", 9));
   return { total: TL.total, scenes: TL.scenes, events: e.sort((a, b) => a.t - b.t) };
