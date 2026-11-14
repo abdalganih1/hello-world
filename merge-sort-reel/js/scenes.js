@@ -107,11 +107,11 @@ SCENES.hook = (t) => {
   else if (f2 < 0.5) { const q = Math.max(0.02, f1 < 1 ? sx1 : sx2), wob = Math.sin(t * 9) * 0.06 * win(t, L0(1) + 0.3, AT(2, "Merge") - 0.2, 0.15);
     for (let kk = 0; kk < 2; kk++) { const u = ((t - L0(1)) * 1.3 + kk / 2) % 1; ring(540, 750, 120 + u * 110, hexA(C.teal, 0.5), 6 * (1 - u), (1 - u) * sa); }
     withT(540, 750, q, 1, wob, () => { circle(0, 0, 120, C.navy, 1, 30); T("؟", 0, 12, { size: 170, color: "#fff" }); }); }
-  else { const k = lerp(0.8, 1, back(P(t, AT(2, "Merge") - 0.1, 0.45), 1.5)), y = lerp(750, 770, eio(P(t, AT(2, "قسم") - 0.3, 0.4)));
+  else { const k = lerp(0.8, 1, back(P(t, AT(2, "Merge") - 0.1, 0.45), 1.5)), y = lerp(750, 770, eio(P(t, AT(2, "قسسم", "قسم") - 0.3, 0.4)));
     withT(540, y, Math.max(0.02, sx2) * k * ex, k * ex, 0, () => { fillRR(-300, -90, 600, 180, 46, C.navy, 1, 36); T("Merge Sort", 0, 6, { size: 82, color: "#ffffff", fam: "mono" }); });
     const r = imp(t, AT(2, "Merge") + 0.05, 0.7); ring(540, 750, 160 + 260 * (1 - r), hexA(C.teal, 0.6), 10 * r + 1, r); sparkle(540, 750, AT(2, "Merge") + 0.05, { n: 34, r: 420 });
     // the two words: split ✂️ / merge 🔗
-    [["قسم", "✂️ قسّم", 360], ["ادمج", "🔗 ادمج", 720]].forEach(([w, lab, x]) => { const p = pop(t, AT(2, w) - 0.05, 0.45); withT(x, 1010, p * ex, p * ex, 0, () => { fillRR(-140, -54, 280, 108, 54, "#ffffff", clamp(p * 2), 16); strokeRR(-140, -54, 280, 108, 54, hexA(C.teal, 0.6), 4, clamp(p * 2)); T(lab, 0, 4, { size: 48, color: C.navy, a: clamp(p * 2) }); }); });
+    [[["قسسم", "قسم"], "✂️ قسّم", 360], [["ادمج"], "🔗 ادمج", 720]].forEach(([w, lab, x]) => { const p = pop(t, AT(2, ...w) - 0.05, 0.45); withT(x, 1010, p * ex, p * ex, 0, () => { fillRR(-140, -54, 280, 108, 54, "#ffffff", clamp(p * 2), 16); strokeRR(-140, -54, 280, 108, 54, hexA(C.teal, 0.6), 4, clamp(p * 2)); T(lab, 0, 4, { size: 48, color: C.navy, a: clamp(p * 2) }); }); });
     const ar = eio(P(t, AT(2, "ادمج") - 0.25, 0.35)); if (ar > 0) arrow(470, 1010, lerp(470, 600, ar), 1010, C.teal, 6, ex * ar, 18); }
 };
 
@@ -168,7 +168,7 @@ SCENES.order = ["hook", "tiles", "speed", "teaser", "khwarizmo"];
 
 window.collectSfx = () => {
   PLAN = PLAN || plan(); const e = [], ev = (t, k, v = 0) => e.push({ t: +t.toFixed(3), k, v });
-  ev(0.02, "hit"); ev(0.05, "no"); ev(L0(1) - 0.1, "flip"); ev(AT(2, "Merge") - 0.15, "flip", 1); ev(AT(2, "Merge") + 0.05, "found", 9); ev(AT(2, "قسم") - 0.05, "pop"); ev(AT(2, "ادمج") - 0.05, "pop", 1);
+  ev(0.02, "hit"); ev(0.05, "no"); ev(L0(1) - 0.1, "flip"); ev(AT(2, "Merge") - 0.15, "flip", 1); ev(AT(2, "Merge") + 0.05, "found", 9); ev(AT(2, "قسسم", "قسم") - 0.05, "pop"); ev(AT(2, "ادمج") - 0.05, "pop", 1);
   for (let i = 0; i < N; i++) ev(SCN.setup.t0 + 0.2 + i * 0.05, "card", i);
   PLAN.steps.forEach((s, i) => { if (i < 3) ev(s.t0, "swish", i); else if (i !== 4) Object.values(s.del).forEach((d, j) => ev(s.t0 + d + s.dur * 0.5, "tick", j % 7)); });
   PLAN.slow.forEach(([c, k], i) => { ev(c, "pop", i); ev(k + 0.2, "tick", i + 2); }); [3, 4, 6, 8].forEach((v, i) => ev(PLAN.r0 + i * 0.22 + 0.2, "tick", i));
