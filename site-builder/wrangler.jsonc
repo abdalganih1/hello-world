@@ -5,10 +5,13 @@
   "compatibility_date": "2025-10-01",
   "assets": { "directory": ".", "binding": "ASSETS", "run_worker_first": true },
   "vars": {
-    // رابط مزودك المتوافق مع OpenAI لحد /v1 (بدون /chat/completions)
-    "AI_BASE_URL": "https://api.abdalgani.com/v1",
-    "AI_MODEL": "glm-5.3-flash",
-    "AI_NO_THINK": "1",
+    // الذكاء الاصطناعي عبر OpenRouter: الموديل الأساسي، وموديلات احتياط مفصولة بفاصلة
+    "AI_MODEL": "z-ai/glm-5.3-flash",
+    "AI_FALLBACK_MODELS": "deepseek/deepseek-v4-flash",
+    "AI_REASONING": "minimal",
+    // جسر مؤقت لحد ما ينضاف سر OPENROUTER_API_KEY: مزودك القديم مع السر AI_KEY
+    "LEGACY_BASE_URL": "https://api.abdalgani.com/v1",
+    "LEGACY_MODEL": "glm-5.3-flash",
     "DAILY_EDITS": "20",
     "DAILY_WRITES": "5",
     // مواقع الزبائن: <slug>.SITE_DOMAIN ، والمنصة نفسها على build.SITE_DOMAIN
@@ -17,10 +20,9 @@
     "TRIAL_DAYS": "3",
     "CONTACT_URL": "https://abdalgani.com"
   },
-  // الأسرار (ما بتنكتب هون): AI_KEY مفتاح المزود، ADMIN_KEY مفتاح لوحة المراجعة /admin
+  // الأسرار (ما بتنكتب هون): OPENROUTER_API_KEY مفتاح OpenRouter، ADMIN_KEY مفتاح لوحة المراجعة /admin
   "r2_buckets": [{ "binding": "SITES", "bucket_name": "sammem-sites" }],
   "kv_namespaces": [{ "binding": "LIMITS", "id": "5146807065d74f6abbcc9f6893d5983c" }],
-  "ai": { "binding": "AI" },
   "routes": [
     { "pattern": "*.md2.dev/*", "zone_name": "md2.dev" }
   ],
