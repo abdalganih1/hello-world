@@ -13,12 +13,12 @@
    "style": "[incredulous, disapproving]",
    "cap": {
     "k": "إن كنت لا تعرف هذه الخوارزمية…",
-    "p": "فلا تقل إنك مبرمج 😬",
+    "p": "فلا تقل أنك مبرمج 😬",
     "em": "مبرمج",
     "pAt": "فلا"
    },
    "fusha": [
-    "إِنْ كُنْت لا تَعْرِف هذِه الخَوارِزْمِيَّة، فَلا تَقُل إِنَّك مُبَرْمِج."
+    "إِنْ كُنْت لا تَعْرِف هذِه الخَوارِزْمِيَّة، فَلا تَقُل أَنَّك مُبَرْمِج."
    ]
   },
   {
@@ -37,7 +37,7 @@
     "pAt": "لكن"
    },
    "fusha": [
-    "أَبْسَط خَوارِزْمِيَّة في البَرْمَجَة، لكِنْ فيها مُشْكِلَة كَبيرَة."
+    "أَبْسَط خَوارِزْمِيَّةٍ في البَرْمَجَة، لكِنْ فيها مُشْكِلَة كَبيرَة."
    ]
   },
   {
@@ -66,7 +66,7 @@
     "وحدة",
     "وحدة،"
    ],
-   "pause": 0.2,
+   "pause": 0.1,
    "auto": true,
    "style": "[energetic, enthusiastic, friendly]",
    "cap": {
@@ -171,7 +171,7 @@
    "hl": [
     "الخطّي."
    ],
-   "pause": 0.15,
+   "pause": 0.1,
    "auto": true,
    "style": "[energetic, enthusiastic, friendly]",
    "cap": {
@@ -209,7 +209,7 @@
     "وقّف.",
     "كمّل"
    ],
-   "pause": 0.15,
+   "pause": 0.1,
    "auto": true,
    "style": "[energetic, enthusiastic, friendly]",
    "cap": {
@@ -243,7 +243,7 @@
    "hl": [
     "مليون"
    ],
-   "pause": 0.15,
+   "pause": 0.1,
    "auto": true,
    "style": "[energetic, enthusiastic, friendly]",
    "cap": {
@@ -263,7 +263,7 @@
    "hl": [
     "O(n)"
    ],
-   "pause": 0.2,
+   "pause": 0.1,
    "auto": true,
    "style": "[energetic, enthusiastic, friendly]",
    "cap": {
@@ -284,7 +284,7 @@
     "مرتّبة،",
     "بعشرين"
    ],
-   "pause": 0.2,
+   "pause": 0.1,
    "auto": true,
    "style": "[energetic, enthusiastic, friendly]",
    "cap": {
@@ -303,7 +303,7 @@
    "hl": [
     "هي؟"
    ],
-   "pause": 0.7,
+   "pause": 0.3,
    "auto": true,
    "style": "[energetic, enthusiastic, friendly]",
    "cap": {
@@ -312,7 +312,7 @@
     "em": "هي؟"
    },
    "fusha": [
-    "ما هِيَ؟ في الـ Reel القادِم."
+    "ما هِيَ؟ في الـ Reel القادِم. تابِع تِكْنو إِنْجاز."
    ]
   }
  ]

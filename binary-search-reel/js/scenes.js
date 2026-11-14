@@ -170,7 +170,7 @@ SCENES.teaser = (t) => {
         const sh = ((t - rv) * 0.7) % 1.4; if (sh < 1) { A(0.35); const gx = lerp(-w / 2 - 120, w / 2 + 120, sh); const g = ctx.createLinearGradient(gx - 90, 0, gx + 90, 0); g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(0.5, "rgba(120,240,230,0.9)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(gx - 90, -95, 180, 190); }
         ctx.restore(); T("🔒", w / 2 - 50, -60, { size: 40 }); });
       const r = imp(t, rv + 0.1, 0.7); ring(540, 680, 160 + 260 * (1 - r), hexA(C.teal, 0.6), 10 * r + 1, r); sparkle(540, 680, rv + 0.1, { n: 34, r: 420 });
-      const p = pop(t, rv + 0.35, 0.5); withT(540, 880, p, p, 0, () => T("في الريل القادم 👀", 0, 0, { size: 84, color: C.teal, a: clamp(p * 2) })); }
+      const p = pop(t, rv + 0.35, 0.5); withT(540, 880, p, p, 0, () => T("في الريل القادم 👀", 0, 0, { size: 84, color: C.teal, a: clamp(p * 2) })); const fo = pop(t, AT(15, "تابع") - 0.05, 0.5); withT(540, 995, fo, fo, 0, () => T("تابع تكنو إنجاز", 0, 0, { size: 62, color: C.navy, a: clamp(fo * 2) })); }
   }
 };
 SCENES.order = ["hook", "secret", "cards", "rule", "speed", "world", "teaser", "khwarizmo"];
@@ -185,7 +185,7 @@ window.collectSfx = () => {
   ev(AT(7, "البحث") + 0.2, "pop"); ev(AT(8, "القائمة"), "pop"); ev(AT(8, "القائمة") + 0.5, "pop");
   for (let s2 = 0; s2 < 5; s2++) ev(AT(9, "نرمي", "ومنرمي") + s2 * 0.32, "tick", s2);
   ev(AT(10, "نصف", "بيصيروا"), "rise"); ev(AT(12, "Big", "O(log") - 0.1, "pop"); ev(L1(13) - 0.1, "found", 9);
-  ev(L0(15) + 0.05, "pop"); ev(AT(15, "Reel", "بالريل") - 0.12, "swish"); ev(AT(15, "Reel", "بالريل") + 0.1, "found", 9); ev(AT(15, "Reel", "بالريل") + 0.35, "pop");
+  ev(L0(15) + 0.05, "pop"); ev(AT(15, "Reel", "بالريل") - 0.12, "swish"); ev(AT(15, "Reel", "بالريل") + 0.1, "found", 9); ev(AT(15, "Reel", "بالريل") + 0.35, "pop"); ev(AT(15, "تابع") - 0.05, "pop", 1);
   TL.scenes.slice(1).forEach((s) => ev(s.t0, "swish", 9));
   return { total: TL.total, scenes: TL.scenes, events: e.sort((a, b) => a.t - b.t) };
 };

@@ -126,7 +126,7 @@ SCENES.teaser = (t) => {
       const sh = ((t - rv) * 0.7) % 1.4; if (sh < 1) { A(0.35); const gx = lerp(-w / 2 - 120, w / 2 + 120, sh); const g = ctx.createLinearGradient(gx - 90, 0, gx + 90, 0); g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(0.5, "rgba(120,240,230,0.9)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(gx - 90, -95, 180, 190); }
       ctx.restore(); T("🔒", w / 2 - 50, -60, { size: 40 }); });
     const r = imp(t, rv + 0.1, 0.7); ring(540, 680, 160 + 260 * (1 - r), hexA(C.teal, 0.6), 10 * r + 1, r); sparkle(540, 680, rv + 0.1, { n: 34, r: 420 });
-    const p = pop(t, rv + 0.35, 0.5); withT(540, 880, p, p, 0, () => T("في الريل القادم 👀", 0, 0, { size: 84, color: C.teal, a: clamp(p * 2) })); }
+    const p = pop(t, rv + 0.35, 0.5); withT(540, 880, p, p, 0, () => T("في الريل القادم 👀", 0, 0, { size: 84, color: C.teal, a: clamp(p * 2) })); const fo = pop(t, AT(13, "تابع") - 0.05, 0.5); withT(540, 995, fo, fo, 0, () => T("تابع تكنو إنجاز", 0, 0, { size: 62, color: C.navy, a: clamp(fo * 2) })); }
 };
 SCENES.order = ["hook", "why", "bars", "speed", "callback", "teaser", "khwarizmo"];
 
@@ -136,7 +136,7 @@ window.collectSfx = () => {
   for (let v = 1; v <= N; v++) ev(SCN.setup.t0 + 0.2 + v * 0.05, "card", v);
   SCH.forEach((c, k) => { ev(c.t, "tick", k % 7); if (c.sw) ev(c.ts, "swish", k); }); ev(SCH[SCH.length - 1].ts + 0.2, "found", 4);
   ev(AT(7, "ترتيب") + 0.25, "pop"); ev(AT(9, "يحتاج", "بدهن"), "rise"); ev(AT(10, "ننتهي", "لانتهينا", "بتخلص"), "rise"); ev(AT(11, "Big", "أو إن", "O(n²).") - 0.1, "pop"); ev(AT(12, "حق") - 0.2, "found", 9);
-  ev(SCN.teaser.t0 + 0.05, "pop"); ev(AT(13, "Reel", "الريل", "بالريل") - 0.12, "swish"); ev(AT(13, "Reel", "الريل", "بالريل") + 0.1, "found", 9); ev(AT(13, "Reel", "الريل", "بالريل") + 0.35, "pop");
+  ev(SCN.teaser.t0 + 0.05, "pop"); ev(AT(13, "Reel", "الريل", "بالريل") - 0.12, "swish"); ev(AT(13, "Reel", "الريل", "بالريل") + 0.1, "found", 9); ev(AT(13, "Reel", "الريل", "بالريل") + 0.35, "pop"); ev(AT(13, "تابع") - 0.05, "pop", 1);
   TL.scenes.slice(1).forEach((s) => ev(s.t0, "swish", 9));
   return { total: TL.total, scenes: TL.scenes, events: e.sort((a, b) => a.t - b.t) };
 };
