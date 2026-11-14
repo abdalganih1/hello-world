@@ -85,8 +85,8 @@ function stage(t, a) {
   if (a <= 0) return;
   A(a * 0.5); ctx.beginPath(); ctx.moveTo(470, 380); ctx.lineTo(610, 380); ctx.lineTo(860, 1250); ctx.lineTo(220, 1250); ctx.closePath(); const g = ctx.createLinearGradient(0, 380, 0, 1250); g.addColorStop(0, "rgba(31,181,181,0.22)"); g.addColorStop(1, "rgba(31,181,181,0)"); ctx.fillStyle = g; ctx.fill();
   fillRR(140, 1230, 800, 26, 13, "rgba(29,53,87,0.12)", a);
-  fillRR(532, 960, 16, 270, 8, C.navy, a); fillRR(470, 1222, 140, 18, 9, C.navy, a);
-  withT(540, 900, 1, 1, -0.25, () => { fillRR(-34, -70, 68, 110, 34, C.navy, a, 14); for (let i = 0; i < 4; i++) seg(-22, -48 + i * 18, 22, -48 + i * 18, "rgba(255,255,255,0.35)", 3, a); });
+  fillRR(532, 1060, 16, 170, 8, C.navy, a); fillRR(470, 1222, 140, 18, 9, C.navy, a);
+  withT(540, 1000, 1, 1, -0.25, () => { fillRR(-34, -70, 68, 110, 34, C.navy, a, 14); for (let i = 0; i < 4; i++) seg(-22, -48 + i * 18, 22, -48 + i * 18, "rgba(255,255,255,0.35)", 3, a); });
   withT(540, 560, 1, 1, 0, () => { fillRR(-170, -40, 340, 80, 40, "#ffffff", a, 16); strokeRR(-170, -40, 340, 80, 40, C.line, 3, a); T("Google · 2007", 0, 3, { size: 38, color: C.navy, fam: "mono", a }); });
   for (let i = 0; i < 9; i++) { const x = 150 + i * 97, y = 1420 - Math.abs(Math.sin(t * 2.6 + i * 1.7)) * 6; circle(x, y - 46, 26, "rgba(29,53,87,0.75)", a); fillRR(x - 40, y - 18, 80, 90, 34, "rgba(29,53,87,0.75)", a); }
 }
@@ -95,16 +95,16 @@ SCENES.hook = (t) => {
   // the crossed-out answer bubble (from frame 0) -> flips to "?" on «فماذا» -> flips to the Merge Sort card on «Merge»
   const f1 = P(t, L0(1) - 0.1, 0.3), f2 = P(t, AT(2, "Merge") - 0.15, 0.3), ex = 1 - P(t, e - 0.05, 0.3);
   const sx1 = Math.abs(Math.cos(f1 * Math.PI)), sx2 = Math.abs(Math.cos(f2 * Math.PI)); const hd = imp(t, 0.02, 0.5);
-  if (f1 < 0.5) { const k = 1 + 0.08 * hd; withT(540, 720 + Math.sin(t * 2.2) * 6, Math.max(0.02, sx1) * k, k, Math.sin(t * 1.7) * 0.02, () => { fillRR(-300, -66, 600, 132, 40, "#ffffff", 1, 24); strokeRR(-300, -66, 600, 132, 40, C.red, 4, 1); poly([[-30, 66], [0, 110], [30, 66]], null, 0, 1, true, "#ffffff");
+  if (f1 < 0.5) { const k = 1 + 0.08 * hd; withT(540, 750 + Math.sin(t * 2.2) * 6, Math.max(0.02, sx1) * k, k, Math.sin(t * 1.7) * 0.02, () => { fillRR(-300, -66, 600, 132, 40, "#ffffff", 1, 24); strokeRR(-300, -66, 600, 132, 40, C.red, 4, 1); poly([[-30, 66], [0, 110], [30, 66]], null, 0, 1, true, "#ffffff");
       T("Bubble Sort", 40, 4, { size: 62, fam: "mono", color: C.navy }); seg(-150, 4, 230, 4, C.red, 8, 1); circle(-230, 0, 38, C.red, 1); seg(-246, -16, -214, 16, "#fff", 7, 1); seg(-214, -16, -246, 16, "#fff", 7, 1); }); }
   else if (f2 < 0.5) { const q = Math.max(0.02, f1 < 1 ? sx1 : sx2), wob = Math.sin(t * 9) * 0.06 * win(t, L0(1) + 0.3, AT(2, "Merge") - 0.2, 0.15);
-    for (let kk = 0; kk < 2; kk++) { const u = ((t - L0(1)) * 1.3 + kk / 2) % 1; ring(540, 720, 120 + u * 110, hexA(C.teal, 0.5), 6 * (1 - u), (1 - u) * sa); }
-    withT(540, 720, q, 1, wob, () => { circle(0, 0, 120, C.navy, 1, 30); T("؟", 0, 12, { size: 170, color: "#fff" }); }); }
-  else { const k = lerp(0.8, 1, back(P(t, AT(2, "Merge") - 0.1, 0.45), 1.5)), y = lerp(720, 760, eio(P(t, AT(2, "قسم") - 0.3, 0.4)));
+    for (let kk = 0; kk < 2; kk++) { const u = ((t - L0(1)) * 1.3 + kk / 2) % 1; ring(540, 750, 120 + u * 110, hexA(C.teal, 0.5), 6 * (1 - u), (1 - u) * sa); }
+    withT(540, 750, q, 1, wob, () => { circle(0, 0, 120, C.navy, 1, 30); T("؟", 0, 12, { size: 170, color: "#fff" }); }); }
+  else { const k = lerp(0.8, 1, back(P(t, AT(2, "Merge") - 0.1, 0.45), 1.5)), y = lerp(750, 770, eio(P(t, AT(2, "قسم") - 0.3, 0.4)));
     withT(540, y, Math.max(0.02, sx2) * k * ex, k * ex, 0, () => { fillRR(-300, -90, 600, 180, 46, C.navy, 1, 36); T("Merge Sort", 0, 6, { size: 82, color: "#ffffff", fam: "mono" }); });
-    const r = imp(t, AT(2, "Merge") + 0.05, 0.7); ring(540, 720, 160 + 260 * (1 - r), hexA(C.teal, 0.6), 10 * r + 1, r); sparkle(540, 720, AT(2, "Merge") + 0.05, { n: 34, r: 420 });
+    const r = imp(t, AT(2, "Merge") + 0.05, 0.7); ring(540, 750, 160 + 260 * (1 - r), hexA(C.teal, 0.6), 10 * r + 1, r); sparkle(540, 750, AT(2, "Merge") + 0.05, { n: 34, r: 420 });
     // the two words: split ✂️ / merge 🔗
-    [["قسم", "✂️ قسم", 360], ["ادمج", "🔗 ادمج", 720]].forEach(([w, lab, x]) => { const p = pop(t, AT(2, w) - 0.05, 0.45); withT(x, 1010, p * ex, p * ex, 0, () => { fillRR(-140, -54, 280, 108, 54, "#ffffff", clamp(p * 2), 16); strokeRR(-140, -54, 280, 108, 54, hexA(C.teal, 0.6), 4, clamp(p * 2)); T(lab, 0, 4, { size: 48, color: C.navy, a: clamp(p * 2) }); }); });
+    [["قسم", "✂️ قسّم", 360], ["ادمج", "🔗 ادمج", 720]].forEach(([w, lab, x]) => { const p = pop(t, AT(2, w) - 0.05, 0.45); withT(x, 1010, p * ex, p * ex, 0, () => { fillRR(-140, -54, 280, 108, 54, "#ffffff", clamp(p * 2), 16); strokeRR(-140, -54, 280, 108, 54, hexA(C.teal, 0.6), 4, clamp(p * 2)); T(lab, 0, 4, { size: 48, color: C.navy, a: clamp(p * 2) }); }); });
     const ar = eio(P(t, AT(2, "ادمج") - 0.25, 0.35)); if (ar > 0) arrow(470, 1010, lerp(470, 600, ar), 1010, C.teal, 6, ex * ar, 18); }
 };
 
