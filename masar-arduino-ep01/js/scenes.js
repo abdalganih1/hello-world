@@ -13,7 +13,7 @@ function panel(cx, cy, s, a, label, col, inner) {
   });
 }
 function miniCar(cx, cy, s, u, a) {
-  panel(cx, cy, s, a, "سيارة بتتجنّب الحيط", C.teal, () => {
+  panel(cx, cy, s, a, "سيارة تتجنب الجدار", C.teal, () => {
     for (let x = -380; x < 380; x += 60) seg(x, -220, x, 220, "rgba(80,120,180,0.12)", 2, a);
     for (let y = -220; y < 220; y += 60) seg(-380, y, 380, y, "rgba(80,120,180,0.12)", 2, a);
     fillRR(-380, -216, 760, 40, 0, "#3a2a1a", a); for (let x = -380; x < 380; x += 40) seg(x, -176, x + 30, -216, "rgba(255,176,32,0.35)", 4, a);
@@ -46,7 +46,7 @@ function ik(x, y, L1 = 150, L2 = 130) {
   const t1 = Math.atan2(y, x) - Math.atan2(L2 * Math.sin(t2), L1 + L2 * Math.cos(t2)); return [t1, t2];
 }
 function miniArm(cx, cy, s, u, a) {
-  panel(cx, cy, s, a, "ذراع روبوت بيرتّب", C.violet, () => {
+  panel(cx, cy, s, a, "ذراع روبوت ترتب", C.violet, () => {
     fillRR(-380, 150, 760, 70, 0, "#121a2a", a); seg(-380, 150, 380, 150, "#2a3a58", 3, a);
     const p = u % 4, q = armPose(p); const [t1, t2] = ik(q.x, q.y);
     fillRR(-240, 82, 80, 16, 3, "#2a3a58", a); fillRR(160, 82, 80, 16, 3, "#2a3a58", a);
@@ -58,7 +58,7 @@ function miniArm(cx, cy, s, u, a) {
   });
 }
 function miniPlant(cx, cy, s, u, a) {
-  panel(cx, cy, s, a, "نبتة بتسقي حالها", C.green, () => {
+  panel(cx, cy, s, a, "نبتة تسقي نفسها", C.green, () => {
     const p = u % 4.2; let m = p < 1.6 ? lerp(0.75, 0.15, eio(p / 1.6)) : p < 3.0 ? lerp(0.15, 0.9, eio((p - 1.6) / 1.4)) : 0.9;
     fillRR(-380, 120, 760, 100, 0, "#1a140e", a);
     I.plant(-60, 20, 2.6, { a, v: clamp(m * 1.3) });
@@ -67,7 +67,7 @@ function miniPlant(cx, cy, s, u, a) {
     if (p > 1.6 && p < 3.0) for (let i = 0; i < 6; i++) { const w = ((p * 2 + i / 6) % 1); circle(-100 + Math.sin(i) * 6, -140 + w * 190, 8, "#6cc4ff", a * (1 - w * 0.3)); }
     strokeRR(200, -160, 50, 260, 12, C.mut, 4, a); const col = m < 0.35 ? C.red : C.blue; fillRR(208, -152 + 244 * (1 - m), 34, 244 * m, 8, col, a);
     T("رطوبة", 225, 130, { size: 26, weight: 800, color: C.mut, a });
-    if (m < 0.3) T("عطشانة!", 0, -160, { size: 32, weight: 900, color: C.red, a, g: 12 });
+    if (m < 0.3) T("عطشى!", 0, -160, { size: 32, weight: 900, color: C.red, a, g: 12 });
   });
 }
 SCENES.hook = (t, L, E) => {
@@ -96,7 +96,7 @@ SCENES.hook = (t, L, E) => {
     halo(cx, cy, 340, "rgba(255,176,32,0.25)", a);
     T("؟", cx, cy - 150, { size: 170 * pop(t, q, 0.5), weight: 900, color: C.amber, a: a * 0.9, g: 40 });
     card(cx - 470, cy - 70, 940, 140, { a, col: C.teal, r: 70, fill: "rgba(6,12,24,0.94)" });
-    TW("شو بيجمع بين كل هدول؟", cx, cy + 4, q, { size: 76, weight: 900, color: C.text, g: 24, gc: "rgba(46,230,197,0.6)", colors: { "هدول؟": C.amber } });
+    TW("ما الذي يجمع بين كل هذه؟", cx, cy + 4, q, { size: 76, weight: 900, color: C.text, g: 24, gc: "rgba(46,230,197,0.6)", colors: { "هذه؟": C.amber } });
   }
 };
 function miniF(fn, x, y, s, u, a) { if (a > 0.001) fn(x, y, s, Math.max(0, u), a); }
@@ -114,7 +114,7 @@ SCENES.title = (t, L, E) => {
     arrow(bx, y, bx - half * g, y, C.amber, 4, da, 14); arrow(bx, y, bx + half * g, y, C.amber, 4, da, 14);
     seg(bx - half, y - 20, bx - half, y + 20, C.amber, 3, da); seg(bx + half, y - 20, bx + half, y + 20, C.amber, 3, da);
     chip("حوالي 7 سم", bx, y + 52, { size: 30, col: C.amber, a: da * g });
-    chip("أصغر من كف الإيد ✋", bx + half + 210, by - 60, { size: 28, col: C.teal, a: da * eo(P(t, L(0) + 1.4, 0.4)) });
+    chip("أصغر من كف اليد ✋", bx + half + 210, by - 60, { size: 28, col: C.teal, a: da * eo(P(t, L(0) + 1.4, 0.4)) });
   }
   // title
   if (t > L(1) - 0.2) {
@@ -157,13 +157,13 @@ SCENES.what = (t, L, E) => {
   if (t > L(2) - 0.2 && t < L(4) + 0.3) { // awake: rotating loop arcs
     const a = win(t, L(2), L(4) + 0.2, 0.3); const r = t * 2.2;
     glow(C.teal, 14, () => { ring(1280, 470, 230, C.teal, 5, a * 0.8, r, r + 1.6); ring(1280, 470, 230, C.amber, 5, a * 0.8, r + Math.PI, r + Math.PI + 1.6); });
-    chip("صاحي دايماً", 1280, 770, { size: 28, col: C.amber, a: a * win(t, L(2) + 0.4, L(3), 0.3) });
+    chip("مستيقظ دائما", 1280, 770, { size: 28, col: C.amber, a: a * win(t, L(2) + 0.4, L(3), 0.3) });
   }
   // instruction + window + lamp
   const ia = win(t, L(1) - 0.1, L(4) + 0.2, 0.35);
   if (ia > 0) {
     card(340, 200, 600, 140, { a: ia * pop(t, L(1) - 0.1, 0.5), col: C.amber });
-    TW("إذا صار الجو عتمة ← ضوّي اللمبة", 640, 270, L(1) + 0.2, { size: 38, weight: 900, colors: { "عتمة": C.blue, "ضوّي": C.amber }, a: ia });
+    TW("إذا أظلم الجو ← أشعل المصباح", 640, 270, L(1) + 0.2, { size: 38, weight: 900, colors: { "أظلم": C.blue, "أشعل": C.amber }, a: ia });
     let night = 0; if (t > L(1) + 0.6) night = 0.5 - 0.5 * Math.cos(Math.max(0, t - (L(1) + 0.6)) * (t > L(3) ? 3.6 : 1.4));
     if (t < L(3)) night = clamp((t - L(1) - 0.6) / 1.2) > 0 ? Math.min(1, (t - L(1) - 0.6) / 1.2) : 0;
     if (t >= L(3)) night = 0.5 + 0.5 * Math.sin((t - L(3)) * 3.2 + Math.PI / 2);
@@ -187,8 +187,8 @@ SCENES.what = (t, L, E) => {
     card(250, 250, 760, 420, { a: da, col: C.teal });
     T("الأردوينو", 630, 320, { size: 40, weight: 900, color: C.teal, a: da });
     TW("لوحة إلكترونية صغيرة", 630, 400, L(5), { size: 52, weight: 900, a: da });
-    [["بتنبرمج", C.amber, 1], ["بتتحكّم", C.violet, 2], ["بالعالم الحقيقي", C.blue, 3]].forEach(([s, c, i]) => chip(s, 870 - (i - 1) * 230, 530, { size: 30, col: c, a: da * pop(t, L(5) + 0.5 + i * 0.5, 0.4) }));
-    T("ضو · صوت · حركة · حساسات", 630, 615, { size: 28, weight: 700, color: C.mut, a: da * P(t, L(5) + 2.2, 0.5) });
+    [["تبرمج", C.amber, 1], ["تتحكم", C.violet, 2], ["في العالم الحقيقي", C.blue, 3]].forEach(([s, c, i]) => chip(s, 870 - (i - 1) * 230, 530, { size: 30, col: c, a: da * pop(t, L(5) + 0.5 + i * 0.5, 0.4) }));
+    T("ضوء · صوت · حركة · حساسات", 630, 615, { size: 28, weight: 700, color: C.mut, a: da * P(t, L(5) + 2.2, 0.5) });
   }
   // laptop + cable
   const la = win(t, L(6) - 0.1, L(8) + 1.4, 0.4);
@@ -206,11 +206,11 @@ SCENES.what = (t, L, E) => {
   if (bta > 0) {
     const jack = unoPt(bx, by, bs, -18, 378); I.battery(jack[0] - 260, jack[1], 1.2, { a: bta });
     seg(jack[0] - 230, jack[1], jack[0], jack[1], C.red, 6, bta * eo(P(t, L(8) + 0.5, 0.4)));
-    chip("شغّالة لحالها ✓", 1280, 780, { size: 30, col: C.green, a: bta * pop(t, L(8) + 0.9, 0.5) });
+    chip("تعمل وحدها ✓", 1280, 780, { size: 30, col: C.green, a: bta * pop(t, L(8) + 0.9, 0.5) });
   }
   // outputs
   if (t > L(9) - 0.1) {
-    const outs = [[I.bulb, 470, 430, "ضو", C.amber], [I.speaker, 1450, 430, "صوت", C.blue], [I.motor, 960, 740, "حركة", C.violet]];
+    const outs = [[I.bulb, 470, 430, "ضوء", C.amber], [I.speaker, 1450, 430, "صوت", C.blue], [I.motor, 960, 740, "حركة", C.violet]];
     outs.forEach(([fn, x, y, name, c], i) => {
       const tt = L(9) + 0.4 + i * 0.75, a = pop(t, tt, 0.45); if (t < tt) return;
       const from = i === 2 ? [960, 440 + 150] : [960 + (i ? 1 : -1) * 200, 440];
@@ -223,17 +223,17 @@ SCENES.what = (t, L, E) => {
 
 // ---------------------------------------------------------------- 4. ANATOMY
 const ANAT = [null,
-  { p: ["chip"], ic: "brain", ti: "الدماغ", te: "", su: "القطعة السودا بالنص", c: C.amber },
-  { p: ["chip"], ic: "brain", ti: "متحكّم صغير", te: "Microcontroller", su: "فيه بينحفظ برنامجك وبيتنفّذ", c: C.amber },
-  { p: ["usb"], ic: "plug", ti: "مدخل USB", te: "USB", su: "منه البرنامج… ومنه الكهربا", c: C.blue },
+  { p: ["chip"], ic: "brain", ti: "الدماغ", te: "", su: "القطعة السوداء في الوسط", c: C.amber },
+  { p: ["chip"], ic: "brain", ti: "متحكم صغير", te: "Microcontroller", su: "فيه يحفظ برنامجك وينفذ", c: C.amber },
+  { p: ["usb"], ic: "plug", ti: "مدخل USB", te: "USB", su: "منه البرنامج… ومنه الكهرباء", c: C.blue },
   { p: ["power"], ic: "battery", ti: "مدخل الطاقة", te: "Power Jack", su: "بطارية أو شاحن", c: C.green },
   { p: ["digital", "analog", "powerpins"], ic: "pins", ti: "أرجل اللوحة", te: "Pins", su: "صفوف ثقوب على الأطراف", c: C.teal },
-  { p: ["digital", "analog", "powerpins"], ic: "nerve", ti: "متل الأعصاب", te: "Pins", su: "بتوصل اللوحة بالقطع التانية", c: C.teal },
-  { p: ["digital"], ic: "switch", ti: "يا شغّال… يا طافي", te: "Digital Pins", su: "متل كبسة الضو", c: C.teal },
-  { p: ["analog"], ic: "knob", ti: "كل الدرجات", te: "Analog Pins", su: "متل زر الصوت", c: C.blue },
-  { p: ["powerpins"], ic: "bolt", ti: "أرجل الطاقة", te: "5V · 3.3V · GND", su: "كهربا للقطع اللي منوصلها", c: C.amber },
-  { p: ["reset"], ic: "refresh", ti: "زر إعادة التشغيل", te: "Reset", su: "بيرجّع البرنامج من أوله", c: C.red },
-  { p: ["led"], ic: "bulb", ti: "ضو صغير", te: "LED  ·  L", su: "أول شي رح نخلّيه يرمش", c: C.amber },
+  { p: ["digital", "analog", "powerpins"], ic: "nerve", ti: "مثل الأعصاب", te: "Pins", su: "توصل اللوحة بالقطع الأخرى", c: C.teal },
+  { p: ["digital"], ic: "switch", ti: "إما تشغيل… أو إطفاء", te: "Digital Pins", su: "مثل مفتاح الضوء", c: C.teal },
+  { p: ["analog"], ic: "knob", ti: "كل الدرجات", te: "Analog Pins", su: "مثل زر الصوت", c: C.blue },
+  { p: ["powerpins"], ic: "bolt", ti: "أرجل الطاقة", te: "5V · 3.3V · GND", su: "كهرباء للقطع التي نوصلها", c: C.amber },
+  { p: ["reset"], ic: "refresh", ti: "زر إعادة التشغيل", te: "Reset", su: "يعيد البرنامج من بدايته", c: C.red },
+  { p: ["led"], ic: "bulb", ti: "ضوء صغير", te: "LED  ·  L", su: "أول ما سنجعله يومض", c: C.amber },
 ];
 const TAGS = { chip: ["الدماغ", 700, 820], usb: ["USB", 200, 300], power: ["الطاقة", 200, 640], digital: ["Digital", 860, 150], analog: ["Analog", 1060, 790], powerpins: ["أرجل الطاقة", 440, 790], reset: ["Reset", 380, 150], led: ["L", 620, 150] };
 SCENES.anatomy = (t, L, E) => {
@@ -318,15 +318,15 @@ SCENES.compare = (t, L, E) => {
     const icons = [I.mail, I.film, I.game, I.globe, I.mail, I.film, I.game, I.globe];
     const n = Math.min(8, 1 + Math.floor((t - L(1)) * 2.5));
     for (let i = 0; i < n; i++) { const an = t * 0.9 + (i / 8) * Math.PI * 2, r = 300; icons[i](R[0] + Math.cos(an) * r, R[1] - 20 + Math.sin(an) * r * 0.62, 0.95 * pop(t, L(1) + i * 0.4, 0.4), { a }); }
-    if (t > L(2) - 0.1) ["إيميلات", "أفلام", "ألعاب", "برامج كتير"].forEach((s, i) => chip(s, 1700 - i * 160, 700, { size: 26, col: C.blue, a: a * pop(t, L(2) + i * 0.45, 0.4) }));
-    chip("موظّف بمكتب = الكمبيوتر", R[0], 760, { size: 30, col: C.blue, a: a * win(t, L(1) + 0.4, L(5), 0.3) });
+    if (t > L(2) - 0.1) ["رسائل بريد", "أفلام", "ألعاب", "برامج كثيرة"].forEach((s, i) => chip(s, 1700 - i * 160, 700, { size: 26, col: C.blue, a: a * pop(t, L(2) + i * 0.45, 0.4) }));
+    chip("موظف في مكتب = الكمبيوتر", R[0], 760, { size: 30, col: C.blue, a: a * win(t, L(1) + 0.4, L(5), 0.3) });
   }
   // arduino side (left)
   if (t < L(3) - 0.1 || tab > 0) { const ua = t < L(3) - 0.1 ? ca * (1 - P(t, L(3) - 0.4, 0.3)) : tab; uno(Lf[0], Lf[1] + (tab ? 0 : -20), tab ? 0.3 : 0.62, { a: ua, led: blink(t, 0.6) }); }
   if (t > L(3) - 0.3 && tab < 1) {
     const a = eo(P(t, L(3) - 0.3, 0.5)) * (1 - tab); const gate = t > L(4) ? 0.5 - 0.5 * Math.cos((t - L(4)) * 2.4) : 0;
     guard(Lf[0] - 90, Lf[1] + 40, sc, a, gate);
-    if (t > L(4) - 0.1) { I.target(Lf[0] - 120, Lf[1] - 240, 1.1 * pop(t, L(4), 0.4), { a }); for (let i = 0; i < 2; i++) { const w = (t * 0.8 + i / 2) % 1; ring(Lf[0] - 120, Lf[1] - 240, 40 + w * 90, C.teal, 3, a * (1 - w)); } chip("مهمة وحدة", Lf[0] + 120, Lf[1] - 240, { size: 30, col: C.teal, a: a * pop(t, L(4) + 0.4, 0.4) }); }
+    if (t > L(4) - 0.1) { I.target(Lf[0] - 120, Lf[1] - 240, 1.1 * pop(t, L(4), 0.4), { a }); for (let i = 0; i < 2; i++) { const w = (t * 0.8 + i / 2) % 1; ring(Lf[0] - 120, Lf[1] - 240, 40 + w * 90, C.teal, 3, a * (1 - w)); } chip("مهمة واحدة", Lf[0] + 120, Lf[1] - 240, { size: 30, col: C.teal, a: a * pop(t, L(4) + 0.4, 0.4) }); }
     chip("حارس بوابة = الأردوينو", Lf[0], 760, { size: 30, col: C.teal, a: a * win(t, L(3) + 0.4, L(5), 0.3) });
   }
   // VS
@@ -336,10 +336,10 @@ SCENES.compare = (t, L, E) => {
   if (tab > 0) {
     T("الكمبيوتر", 1460, 305, { size: 40, weight: 900, color: C.blue, a: tab }); T("الأردوينو", 460, 305, { size: 40, weight: 900, color: C.teal, a: tab });
     const rows = [
-      [L(5), "شاشة · ماوس · نظام تشغيل", ["check", ""], ["cross", ""]],
-      [L(6), "التشغيل", ["clock", "بياخد وقت"], ["bolt", "فوراً تقريباً"]],
-      [L(7), "الكهربا", ["bolt", "كتير"], ["battery", "قليلة · بطارية"]],
-      [L(8), "حساسات ومحرّكات", ["cross", "مش بسهولة"], ["check", "مباشرة"]],
+      [L(5), "شاشة · فأرة · نظام تشغيل", ["check", ""], ["cross", ""]],
+      [L(6), "التشغيل", ["clock", "يأخذ وقتا"], ["bolt", "فورا تقريبا"]],
+      [L(7), "الكهرباء", ["bolt", "كثيرة"], ["battery", "قليلة · بطارية"]],
+      [L(8), "حساسات ومحركات", ["cross", "ليس بسهولة"], ["check", "مباشرة"]],
     ];
     rows.forEach(([t0, lab, pc, ar], i) => {
       const a = eo(P(t, t0 - 0.1, 0.4)), y = 400 + i * 118; if (a <= 0) return;
@@ -354,7 +354,7 @@ SCENES.compare = (t, L, E) => {
 const ic2col = (ic, d) => (ic === "check" ? C.green : ic === "cross" ? C.red : d);
 
 // ---------------------------------------------------------------- 6. FLOW
-const NODES = [[1500, 270, "يستقبل", "eye", C.teal], [960, 270, "يفكّر", "brain", C.amber], [420, 270, "ينفّذ", "muscle", C.violet]];
+const NODES = [[1500, 270, "يستقبل", "eye", C.teal], [960, 270, "يفكر", "brain", C.amber], [420, 270, "ينفذ", "muscle", C.violet]];
 function nodes(t, L, act) {
   const show = eo(P(t, L(1) + 0.3, 0.6));
   if (show <= 0) return;
@@ -389,33 +389,33 @@ SCENES.flow = (t, L, E) => {
     const pull = t > L(4) + 1.6 ? eio(P(t, L(4) + 1.6, 0.4)) : 0, reach = eo(P(t, L(3) + 0.3, 1.0));
     I.cup(1660, 620, 1.7, { a: ha }); I.hand(lerp(1250, 1480, reach) + pull * -140, 640 - pull * 20, 1.8, { a: ha });
     if (t > L(4) - 0.1) {
-      [[1500, "إيدك بتحسّ", C.teal], [960, "دماغك بيقرّر", C.amber], [420, "عضلاتك بتسحب", C.violet]].forEach(([x, s, c], i) => { if (i) { const ic = i === 1 ? I.brain : I.muscle; ic(x, 620, 1.2, { a: ha * pop(t, L(4) + i * 0.8, 0.4), col: c }); } T(s, x, 740, { size: 36, weight: 900, color: c, a: ha * eo(P(t, L(4) + i * 0.8, 0.4)) }); });
+      [[1500, "يدك تشعر", C.teal], [960, "دماغك يقرر", C.amber], [420, "عضلاتك تسحب", C.violet]].forEach(([x, s, c], i) => { if (i) { const ic = i === 1 ? I.brain : I.muscle; ic(x, 620, 1.2, { a: ha * pop(t, L(4) + i * 0.8, 0.4), col: c }); } T(s, x, 740, { size: 36, weight: 900, color: c, a: ha * eo(P(t, L(4) + i * 0.8, 0.4)) }); });
       const nerve = [[1440, 600], [960, 560], [420, 600]]; pathPartial(nerve, P(t, L(4), 2.2), "rgba(255,255,255,0.3)", 3, ha); pulses(nerve, t, C.amber, 2, 0.8, 6, ha * P(t, L(4), 0.3));
     }
   }
   // sensors / brain / outputs icons
   const ga = (t0) => eo(P(t, t0, 0.4)) * (1 - P(t, L(10) - 0.3, 0.3));
-  if (t > L(6) - 0.1) [["ldr", 1380, 590, "ضو"], ["thermo", 1620, 590, "حرارة"], ["pir", 1380, 760, "حركة"], ["button", 1620, 760, "زر"]].forEach(([ic, x, y, s], i) => { const a = ga(L(6) + i * 0.55); I[ic](x, y - 22, 1.15 * pop(t, L(6) + i * 0.55, 0.4), { a, v: 0.4 + 0.3 * Math.sin(t * 2), pressed: blink(t, 0.5) }); T(s, x + 0, y + 56, { size: 30, weight: 800, color: C.mut, a }); });
-  if (t > L(7) - 0.1) { const a = ga(L(7)); uno(960, 630, 0.42 * pop(t, L(7), 0.45), { a, led: blink(t, 0.5), hl: { chip: 1 }, hc: C.amber }); T("المتحكّم", 960, 790, { size: 30, weight: 900, color: C.amber, a }); }
-  if (t > L(9) - 0.1) [["bulb", 300, 590, "لمبات"], ["speaker", 540, 590, "سماعات"], ["motor", 300, 760, "محرّكات"], ["screen", 540, 760, "شاشات"]].forEach(([ic, x, y, s], i) => { const a = ga(L(9) + i * 0.5); I[ic](x, y - 22, 1.15 * pop(t, L(9) + i * 0.5, 0.4), { a, on: blink(t + i, 0.6) }); T(s, x, y + 56, { size: 30, weight: 800, color: C.mut, a }); });
+  if (t > L(6) - 0.1) [["ldr", 1380, 590, "ضوء"], ["thermo", 1620, 590, "حرارة"], ["pir", 1380, 760, "حركة"], ["button", 1620, 760, "زر"]].forEach(([ic, x, y, s], i) => { const a = ga(L(6) + i * 0.55); I[ic](x, y - 22, 1.15 * pop(t, L(6) + i * 0.55, 0.4), { a, v: 0.4 + 0.3 * Math.sin(t * 2), pressed: blink(t, 0.5) }); T(s, x + 0, y + 56, { size: 30, weight: 800, color: C.mut, a }); });
+  if (t > L(7) - 0.1) { const a = ga(L(7)); uno(960, 630, 0.42 * pop(t, L(7), 0.45), { a, led: blink(t, 0.5), hl: { chip: 1 }, hc: C.amber }); T("المتحكم", 960, 790, { size: 30, weight: 900, color: C.amber, a }); }
+  if (t > L(9) - 0.1) [["bulb", 300, 590, "مصابيح"], ["speaker", 540, 590, "سماعات"], ["motor", 300, 760, "محركات"], ["screen", 540, 760, "شاشات"]].forEach(([ic, x, y, s], i) => { const a = ga(L(9) + i * 0.5); I[ic](x, y - 22, 1.15 * pop(t, L(9) + i * 0.5, 0.4), { a, on: blink(t + i, 0.6) }); T(s, x, y + 56, { size: 30, weight: 800, color: C.mut, a }); });
   // L10-L14: smart night light
   if (t > L(10) - 0.2) {
     const a = eo(P(t, L(10), 0.5));
-    chip("مثال: ضو ليلي ذكي", 960, 505, { size: 32, col: C.amber, a: a * pop(t, L(10), 0.5) * (1 - P(t, L(14) - 0.2, 0.3)) });
+    chip("مثال: ضوء ليلي ذكي", 960, 505, { size: 32, col: C.amber, a: a * pop(t, L(10), 0.5) * (1 - P(t, L(14) - 0.2, 0.3)) });
     let night = 0;
     if (t > L(11)) night = eo(P(t, L(11), 1.0));
     if (t > L(13) + 1.8) night = 1 - eo(P(t, L(13) + 1.8, 0.9));
     if (t > L(14)) night = 0.5 + 0.5 * Math.sin((t - L(14)) * 4);
     const lamp = t > L(13) - 0.1 ? clamp((night - 0.5) * 3) : 0;
     windowSky(1660, 680, 0.75, night, a);
-    I.ldr(1390, 680, 1.2, { a }); T("حساس ضو", 1390, 790, { size: 24, weight: 800, color: C.teal, a });
+    I.ldr(1390, 680, 1.2, { a }); T("حساس ضوء", 1390, 790, { size: 24, weight: 800, color: C.teal, a });
     uno(960, 690, 0.4, { a, led: lamp > 0.5 ? 1 : 0 });
-    I.bulb(520, 660, 1.6, { a, on: lamp }); T("لمبة", 520, 790, { size: 24, weight: 800, color: C.amber, a });
+    I.bulb(520, 660, 1.6, { a, on: lamp }); T("مصباح", 520, 790, { size: 24, weight: 800, color: C.amber, a });
     const w1 = [[1330, 680], [1110, 690]], w2 = [[810, 690], [590, 680]];
     poly(w1, "rgba(46,230,197,0.5)", 4, a); poly(w2, "rgba(164,124,255,0.5)", 4, a);
     if (t > L(11) + 0.5) pulses(w1, t, C.teal, 2, 1.2, 5, a); if (t > L(12) + 1.0) pulses(w2, t, C.violet, 2, 1.2, 5, a);
-    if (t > L(11) + 0.4) { const ra = win(t, L(11) + 0.4, L(13) + 1.8, 0.3) + (t > L(14) ? 1 : 0); chip(night > 0.5 ? "عتمة ✓" : "ضو", 1390, 575, { size: 24, col: night > 0.5 ? C.blue : C.amber, a: a * clamp(ra) }); }
-    if (t > L(12) - 0.1 && t < L(14)) { const ba = win(t, L(12), L(13) + 1.2, 0.3); card(760, 520, 400, 70, { a: ba, col: C.amber, r: 16 }); T("if (عتمة) ← ضوّي", 960, 556, { size: 30, weight: 800, color: C.amber, a: ba }); }
+    if (t > L(11) + 0.4) { const ra = win(t, L(11) + 0.4, L(13) + 1.8, 0.3) + (t > L(14) ? 1 : 0); chip(night > 0.5 ? "ظلام ✓" : "ضوء", 1390, 575, { size: 24, col: night > 0.5 ? C.blue : C.amber, a: a * clamp(ra) }); }
+    if (t > L(12) - 0.1 && t < L(14)) { const ba = win(t, L(12), L(13) + 1.2, 0.3); card(760, 520, 400, 70, { a: ba, col: C.amber, r: 16 }); T("if (ظلام) ← أشعل", 960, 556, { size: 30, weight: 800, color: C.amber, a: ba }); }
   }
   if (t > L(14) - 0.1) { // the loop
     const a = eo(P(t, L(14), 0.5)); const r = t * 3;
@@ -444,7 +444,7 @@ SCENES.puzzle = (t, L, E, S, ls) => {
   }
   // three question cards -> answers (flip)
   if (t > L(2) - 0.1) {
-    const Q = [["الحواس؟", "حساس حركة", "يستقبل", C.teal, L(4)], ["الدماغ؟", "متحكّم", "يفكّر", C.amber, L(5)], ["العضلات؟", "محرّك", "ينفّذ", C.violet, L(6)]];
+    const Q = [["الحواس؟", "حساس حركة", "يستقبل", C.teal, L(4)], ["الدماغ؟", "متحكم", "يفكر", C.amber, L(5)], ["العضلات؟", "محرك", "ينفذ", C.violet, L(6)]];
     Q.forEach(([q, ans, role, col, ta], i) => {
       const a = eo(P(t, L(2) + i * 0.6, 0.4)); if (a <= 0) return; const y = 270 + i * 190;
       const f = P(t, ta - 0.1, 0.5), sx = Math.abs(Math.cos(f * Math.PI)), back2 = f > 0.5;
@@ -461,19 +461,19 @@ SCENES.puzzle = (t, L, E, S, ls) => {
     circle(cx, cy, 120, "rgba(8,14,26,0.95)", a);
     const frac = t < cnt.t0 ? 1 : 1 - (t - cnt.t0) / cnt.n;
     ring(cx, cy, 120, "rgba(120,140,180,0.3)", 12, a); glow(C.amber, 20, () => ring(cx, cy, 120, C.amber, 12, a, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * clamp(frac)));
-    if (t < cnt.t0) T("فكّر…", cx, cy, { size: 46, weight: 900, color: C.text, a });
+    if (t < cnt.t0) T("فكر…", cx, cy, { size: 46, weight: 900, color: C.text, a });
     else { const n = cnt.n - Math.floor(t - cnt.t0); const s = 1 + 0.25 * (1 - eo(((t - cnt.t0) % 1) / 0.3)); T(String(Math.max(1, n)), cx, cy + 6, { size: 120 * s, weight: 900, fam: "mono", color: C.amber, a, g: 24 }); }
   }
   // win
   if (t > L(7) - 0.1) {
     const a = eo(P(t, L(7), 0.3));
     for (let i = 0; i < 70; i++) { const w = P(t, L(7), 2.4); const an = rnd(i) * Math.PI * 2, sp = 300 + rnd(i + 3) * 500; const x = 1040 + Math.cos(an) * sp * eo(w), y = 470 + Math.sin(an) * sp * eo(w) + w * w * 260; withT(x, y, 1, w * 10 * (rnd(i + 5) - 0.5), () => fillRR(-7, -4, 14, 8, 2, [C.teal, C.amber, C.violet, C.pink, C.green][i % 5], (1 - w) * a)); }
-    A(a * 0.55); ctx.fillStyle = "#03060c"; ctx.fillRect(0, 0, W, H); const b = pop(t, L(7), 0.6); withT(960, 470, b, 0, () => { card(-260, -110, 520, 220, { a, col: C.amber, g: 40 }); T("مبروك! 🎉", 0, -30, { size: 64, weight: 900, color: C.amber, a }); T("بتفكّر متل مهندس", 0, 50, { size: 38, weight: 800, color: C.text, a }); });
+    A(a * 0.55); ctx.fillStyle = "#03060c"; ctx.fillRect(0, 0, W, H); const b = pop(t, L(7), 0.6); withT(960, 470, b, 0, () => { card(-260, -110, 520, 220, { a, col: C.amber, g: 40 }); T("مبروك! 🎉", 0, -30, { size: 64, weight: 900, color: C.amber, a }); T("تفكر مثل مهندس", 0, 50, { size: 38, weight: 800, color: C.text, a }); });
   }
 };
 
 // ---------------------------------------------------------------- 8. EXAMPLES
-const STEPS = [["ضو بيرمش", "bulb"], ["إشارة مرور", "traffic"], ["سقاية ذكية", "plant"], ["بيت ذكي", "house"], ["سيارة روبوت", "car"], ["ذراع روبوت", "arm"], ["طابعة 3D", "printer"], ["علوم وفن وموسيقى", "art"]];
+const STEPS = [["ضوء يومض", "bulb"], ["إشارة مرور", "traffic"], ["ري ذكي", "plant"], ["بيت ذكي", "house"], ["سيارة روبوت", "car"], ["ذراع روبوت", "arm"], ["طابعة 3D", "printer"], ["علوم وفن وموسيقى", "art"]];
 SCENES.examples = (t, L, E) => {
   const k = curK(t, L, 10);
   STEPS.forEach(([lab, ic], i) => {
@@ -495,7 +495,7 @@ SCENES.examples = (t, L, E) => {
   });
   // climber
   if (k >= 1 && k <= 8) { const i = k - 1, prev = Math.max(0, i - 1); const h = eo(P(t, L(k) - 0.1, 0.4)); const x = lerp(1640 - prev * 180, 1640 - i * 180, k === 1 ? 1 : h), y = lerp(800 - prev * 62, 800 - i * 62, k === 1 ? 1 : h) - Math.sin(h * Math.PI) * 50; circle(x + 60, y - 18, 12, C.amber, 1); halo(x + 60, y - 18, 40, hexA(C.amber, 0.7), 1); }
-  if (k === 0) TW("من البسيط… للمذهل", 960, 300, L(0) + 0.6, { size: 60, weight: 900, color: C.text, a: 1 - P(t, L(1) - 0.3, 0.3) });
+  if (k === 0) TW("من البسيط… إلى المذهل", 960, 300, L(0) + 0.6, { size: 60, weight: 900, color: C.text, a: 1 - P(t, L(1) - 0.3, 0.3) });
   if (t > L(9) - 0.1) {
     const a = eo(P(t, L(9), 0.5));
     for (let i = 0; i < 40; i++) { const w = (t * 0.3 + rnd(i)) % 1; I.star(380 + (rnd(i + 2) - 0.5) * 700, 230 - w * 200 + rnd(i + 4) * 120, 0.15 + rnd(i + 6) * 0.25, { a: a * (1 - w) }); }
@@ -515,7 +515,7 @@ SCENES.why = (t, L, E) => {
     if (i === 0) {
       I.coin(x - 70, 330, 1.2 * pop(t, th, 0.45), { a: on }); uno(x + 70, 340, 0.2, { a: on, led: blink(t, 0.6) });
       T("نسخ متوافقة بسعر قليل", x, 580, { size: 28, weight: 700, color: C.text, a: on * P(t, th + 1.0, 0.4) });
-      chip("جرّب وغلط بلا خوف", x, 670, { size: 26, col: C.amber, a: on * pop(t, th + 2.2, 0.4) });
+      chip("جرب وأخطئ بلا خوف", x, 670, { size: 26, col: C.amber, a: on * pop(t, th + 2.2, 0.4) });
     }
     if (i === 1) {
       const ra = eo(P(t, L(3), 0.4));
@@ -523,7 +523,7 @@ SCENES.why = (t, L, E) => {
       else {
         I.recipe(x, 330, 1.1, { a: ra }); I.pot(x - 120, 360, 0.6, { a: ra });
         for (let j = 0; j < 3; j++) { const w = eo(P(t, L(3) + 0.8 + j * 0.3, 0.6)); I.recipe(x + 30 + j * 40 * w, 330 - 30 * w + j * 4, 0.4, { a: ra * w * 0.8 }); I.person(x + 150, 260 + j * 70, 0.38 * w, { a: ra * w, col: [C.amber, C.violet, C.blue][j] }); }
-        T("وصفة منشورة للكل", x, 580, { size: 28, weight: 700, color: C.text, a: ra * P(t, L(3) + 0.5, 0.4) });
+        T("وصفة منشورة للجميع", x, 580, { size: 28, weight: 700, color: C.text, a: ra * P(t, L(3) + 0.5, 0.4) });
       }
       if (t > L(4) - 0.1) chip("Open Source", x, 670, { size: 30, col: C.teal, a: pop(t, L(4), 0.45) });
     }
@@ -533,7 +533,7 @@ SCENES.why = (t, L, E) => {
       if (t > L(6) + 0.6) { const qa = win(t, L(6) + 0.6, L(7) + 2, 0.3); card(x - 180, 250, 80, 56, { a: qa, col: C.amber, r: 18 }); T("؟", x - 140, 280, { size: 36, weight: 900, color: C.amber, a: qa }); }
       if (t > L(6) + 1.6) { const qa = win(t, L(6) + 1.6, L(7) + 2, 0.3); card(x + 100, 250, 80, 56, { a: qa, col: C.green, r: 18 }); T("!", x + 140, 280, { size: 36, weight: 900, color: C.green, a: qa }); const pts = [[x - 130, 330], [x, 290], [x + 130, 330]]; pulses(pts, t, C.green, 2, 0.8, 4, qa); }
       if (t > L(7) - 0.1) { const ga = eo(P(t, L(7), 0.4)); I.globe(x, 590, 1.0, { a: ga }); for (let j = 0; j < 10; j++) { const an = j * 0.63 + t * 0.5; circle(x + Math.cos(an) * (70 + 20 * rnd(j)), 590 + Math.sin(an) * 40, 4, C.violet, ga * (0.4 + 0.6 * rnd(j + 1))); } chip("آلاف الدروس المجانية", x, 690, { size: 26, col: C.violet, a: pop(t, L(7) + 1.0, 0.4) }); }
-      else T("حارة كبيرة… كلها جيران", x, 590, { size: 28, weight: 700, color: C.text, a: on * P(t, L(6) + 0.3, 0.4) });
+      else T("حي كبير… كله جيران", x, 590, { size: 28, weight: 700, color: C.text, a: on * P(t, L(6) + 0.3, 0.4) });
     }
   });
   if (t < L(1)) T("3 أسباب", 960, 140, { size: 44, weight: 900, color: C.amber, a: win(t, L(0), L(1), 0.3) });
@@ -541,7 +541,7 @@ SCENES.why = (t, L, E) => {
 
 // ---------------------------------------------------------------- 10. BOARDS
 SCENES.boards = (t, L, E) => {
-  const s = 0.55, items = [[1440, "Uno", "الأشهر · رح نشتغل عليها", C.teal, L(1)], [960, "Nano", "أصغر بكتير", C.amber, L(2)], [480, "Mega", "أكبر · أرجل أكتر", C.violet, L(3)]];
+  const s = 0.55, items = [[1440, "Uno", "الأشهر · سنعمل عليها", C.teal, L(1)], [960, "Nano", "أصغر بكثير", C.amber, L(2)], [480, "Mega", "أكبر · أرجل أكثر", C.violet, L(3)]];
   items.forEach(([x, name, sub, col, th], i) => {
     const a0 = eo(P(t, L(0) + i * 0.15, 0.4)); const on = eo(P(t, th - 0.1, 0.45)); const y = 420;
     if (on <= 0) { const w = [UNO_W, 450, 1016][i] * s, h = [UNO_H, 180, 533][i] * s; A(a0); rr(x - w / 2, y - h / 2, w, h, 14); ctx.setLineDash([12, 10]); ctx.strokeStyle = "rgba(120,140,180,0.5)"; ctx.lineWidth = 3; ctx.stroke(); ctx.setLineDash([]); T("؟", x, y, { size: 70, weight: 900, color: C.dim, a: a0 }); return; }
@@ -553,11 +553,11 @@ SCENES.boards = (t, L, E) => {
     T(sub, x, 710, { size: 30, weight: 800, color: C.text, a: on * P(t, th + 0.6, 0.4) });
     if (i === 0) I.star(x + 230, 270, 0.5 * pop(t, th + 0.6, 0.4), { a: on });
   });
-  T("الأحجام تقريبية بنفس المقياس", 960, 160, { size: 24, weight: 700, color: C.mut, a: eo(P(t, L(3) + 0.8, 0.4)) });
+  T("الأحجام تقريبية بالمقياس نفسه", 960, 160, { size: 24, weight: 700, color: C.mut, a: eo(P(t, L(3) + 0.8, 0.4)) });
   if (t > L(4) - 0.1) {
     const a = eo(P(t, L(4), 0.4)), g = eo(P(t, L(4), 0.8)); const y = 790;
     seg(480, y - 30, 480, y, C.teal, 4, a); seg(1440, y - 30, 1440, y, C.teal, 4, a); seg(960 - 480 * g, y, 960 + 480 * g, y, C.teal, 4, a);
-    chip("نفس الفكرة: يستقبل ← يفكّر ← ينفّذ", 960, y, { size: 30, col: C.teal, a: pop(t, L(4) + 0.4, 0.45) });
+    chip("الفكرة نفسها: يستقبل ← يفكر ← ينفذ", 960, y, { size: 30, col: C.teal, a: pop(t, L(4) + 0.4, 0.45) });
   }
 };
 
@@ -581,7 +581,7 @@ SCENES.map = (t, L, E) => {
   glow(C.teal, 20, () => pathPartial(MAPPTS, LIT, C.teal, 8, 1));
   if (LIT > 0) { const [x, y] = along(MAPPTS, LIT); halo(x, y, 60, hexA(C.amber, 0.8), 1); circle(x, y, 14, C.amber, 1); }
   if (k === 6) pulses(MAPPTS, t, "#bffff3", 5, 0.25, 6, 1);
-  const info = [["أول برنامج + أول ضو", "bulb", C.amber], ["أضواء وأصوات", "speaker", C.blue], ["أزرار وحساسات", "pir", C.teal], ["محرّكات وشاشات", "motor", C.violet], ["مشروع نهائي", "flag", C.amber]];
+  const info = [["أول برنامج + أول ضوء", "bulb", C.amber], ["أضواء وأصوات", "speaker", C.blue], ["أزرار وحساسات", "pir", C.teal], ["محركات وشاشات", "motor", C.violet], ["مشروع نهائي", "flag", C.amber]];
   ST.forEach(([x, y], i) => {
     const a0 = P(t, L(0) + 0.4 + i * 0.35, 0.3); if (a0 <= 0) return; const on = eo(P(t, L(i + 1) - 0.1, 0.4)); const [lab, ic, col] = info[i];
     circle(x, y, 58, "rgba(10,18,34,0.96)", a0); glow(on ? col : "#000", on ? 26 : 0, () => ring(x, y, 58, on ? col : "#2a3a58", 6, a0));
@@ -618,7 +618,7 @@ SCENES.teaser = (t, L, E) => {
         if (u > 0.6) I.cross(x, y - 80, 0.6, { a: ba });
       });
     }
-    if (t > L(2) - 0.1 && t < L(3) + 0.3) TW("بأي لغة بيفهم؟", 960, 160, L(2), { size: 70, weight: 900, colors: { "لغة": C.amber }, a: win(t, L(2) - 0.1, L(3) + 0.3, 0.3), g: 20 });
+    if (t > L(2) - 0.1 && t < L(3) + 0.3) TW("بأي لغة يفهم؟", 960, 160, L(2), { size: 70, weight: 900, colors: { "لغة": C.amber }, a: win(t, L(2) - 0.1, L(3) + 0.3, 0.3), g: 20 });
     // laptop -> editor + cable
     if (t > L(3) - 0.2) {
       const la = eo(P(t, L(3), 0.5)), ed = eio(P(t, L(4) - 0.2, 0.6));
@@ -636,13 +636,13 @@ SCENES.teaser = (t, L, E) => {
         });
       }
     }
-    if (t > L(5) - 0.1) chip("أول ضو 💡", bx, by + 250, { size: 32, col: C.amber, a: pop(t, L(5) + 0.3, 0.45) * (1 - endA) });
+    if (t > L(5) - 0.1) chip("أول ضوء 💡", bx, by + 250, { size: 32, col: C.amber, a: pop(t, L(5) + 0.3, 0.45) * (1 - endA) });
   }
   // end card
   if (endA > 0) {
     halo(960, 420, 600, "rgba(46,230,197,0.18)", endA);
-    T("الحلقة الجاية", 960, 230, { size: 40, weight: 800, color: C.amber, a: endA });
-    withT(960, 370, 0.9 + 0.1 * back(P(t, L(6), 0.6)), 0, () => TW("أول كود… وأول ضو", 0, 0, L(6) + 0.1, { size: 104, weight: 900, color: C.text, g: 30, gc: "rgba(46,230,197,0.7)", colors: { "ضو": C.amber } }));
+    T("الحلقة القادمة", 960, 230, { size: 40, weight: 800, color: C.amber, a: endA });
+    withT(960, 370, 0.9 + 0.1 * back(P(t, L(6), 0.6)), 0, () => TW("أول كود… وأول ضوء", 0, 0, L(6) + 0.1, { size: 104, weight: 900, color: C.text, g: 30, gc: "rgba(46,230,197,0.7)", colors: { "ضوء": C.amber } }));
     uno(960, 590, 0.28, { a: endA, led: blink(t, 0.5), hl: { led: blink(t, 0.5) }, hc: C.amber });
     brand(860, 760, endA * P(t, L(6) + 1.2, 0.5), 1.2); T("مسار", 1000, 756, { size: 54, weight: 900, color: C.text, a: endA * P(t, L(6) + 1.2, 0.5) });
   }

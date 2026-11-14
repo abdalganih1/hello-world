@@ -39,7 +39,9 @@ def key_of(i):
     return os.path.join(cache, f"{h}.mp3")
 
 
+SRC = os.environ.get("VOICE_SRC", "owner")   # "fusha": George via vibi.pro (skill george-voice), picked by tools/vibi_voice.py
 def tts(i):
+    if SRC != "owner": return os.path.join(ROOT, json.load(open(os.path.join(ROOT, f"script/takes_{SRC}.json"), encoding="utf8"))[str(i)]["pick"]["file"])
     path = key_of(i)
     if os.path.exists(path) or not (KEY and VOICE):
         return path
@@ -65,7 +67,7 @@ def tts(i):
     raise SystemExit(f"TTS failed for line {i + 1}")
 
 
-TEMPO = 1.05  # extra pace after generation (pitch preserved)
+TEMPO = float(os.environ.get("TEMPO", 1.05))  # extra pace after generation (pitch preserved)
 
 
 def decode(path, tempo=1.0):

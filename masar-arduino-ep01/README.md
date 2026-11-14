@@ -1,8 +1,9 @@
 # ما هو الأردوينو؟ · الحلقة 01 · أردوينو من الصفر · منصة مسار
 
-فيديو تعليمي أفقي (1920×1080، 30fps، MP4)، مدته حوالي 7:06، ومبني بالكامل بالكود:
+فيديو تعليمي أفقي (1920×1080، 30fps، MP4)، مدته حوالي 8:15، ومبني بالكامل بالكود:
 - **الصورة:** أنيميشن Canvas2D، بيتصيّر إطار إطار بـ Chromium headless.
-- **الصوت:** تعليق صوتي بـ ElevenLabs، وموسيقى ومؤثرات أصلية مولّدة بـ numpy.
+- **الصوت:** تعليق صوتي بصوت **جورج** (ElevenLabs عن طريق vibi.pro، مهارة `george-voice`) بفصحى مبسطة، وموسيقى ومؤثرات أصلية مولّدة بـ numpy.
+- **الترجمة ونصوص الشاشة:** فصحى مبسطة بدون تشكيل، ومطابقة للصوت.
 
 | الملف | شو هو |
 |---|---|
@@ -15,8 +16,9 @@
 ## البنية
 
 ```
-script/script.json     السكربت: {scene, text, tts?, sfx?, count?}
-                       text = الترجمة على الشاشة · tts = نطق بديل للصوت · sfx = مؤثر مع الجملة · count = عدّ تنازلي
+script/script.json     السكربت: {scene, text, fusha, sfx?, count?, text_dialect}
+                       text = الترجمة على الشاشة · fusha = اللي بيقوله جورج (مشكّل) · sfx = مؤثر مع الجملة · count = عدّ تنازلي
+tools/vibi_voice.py    صوت جورج لكل جملة (vibi.pro، eleven_v4) + فحص Whisper ← audio/george + script/takes_fusha.json
 tools/build_audio.py   صوت ElevenLabs (v3) لكل جملة (مع cache بـ audio/cache) ← build/voice.wav + timeline.json + SRT
 tools/music.py         موسيقى pad هادئة + مؤثرات + ducking تحت الكلام + تطبيع -14 LUFS ← build/soundtrack.wav
 tools/check_voice.py   فحص الصوت جملة جملة بـ Whisper (كلمات زايدة/ناقصة)
@@ -43,14 +45,17 @@ LINES=1 node render.mjs           # لقطة لكل جملة بـ build/stills �
 node render.mjs                   # الفيديو الكامل (حوالي 6 دقايق على 4 أنوية)
 ```
 
-**النطق والسرعة:**
-- **الموديل:** `eleven_v3` مع النص العادي بدون تشكيل ولا كتابة صوتية. هاد اللي اختاره صاحب المشروع بعد مقارنة 5 تسجيلات.
-- **كلمة انلفظت غلط؟** عندك حلّين بـ `script/script.json`، وبعدهم بتشغّل `build_audio.py` (بس هالجملة بيتولّدلها صوت جديد):
-  - غيّر `take` للجملة (مثلاً `"take": 2`) لتطلب تسجيل تاني لنفس النص، لأن v3 بيعطي قراءة مختلفة كل مرة.
-  - أو ضيف `tts` واكتب فيه الجملة متل ما بتنلفظ. الترجمة على الشاشة بتضل من `text`.
-- **فحص آلي:** `python3 tools/check_voice.py` بيكشف الجمل اللي فيها كلمات زايدة أو ناقصة أو سرعة غريبة.
-  ما بيحكم على اللهجة، بس أذنك بتحكم.
-- **السرعة:** `TEMPO` بـ `tools/build_audio.py` (تسريع بعد التوليد بدون ما تتغيّر الطبقة).
+**الصوت (مهارة `george-voice`):**
+```bash
+export VIBI_API_KEY=...                                    # ما بينكتب بأي ملف
+THREADS=5 python3 tools/vibi_voice.py --field fusha --takes 1   # بس الجمل الجديدة بتنطلب (cache بـ audio/george)
+TEMPO=1.1 VOICE_SRC=fusha python3 tools/build_audio.py     # ← build/voice.wav + timeline.json + SRT
+python3 tools/music.py && python3 tools/export_docs.py && node render.mjs
+```
+- **كلمة انلفظت غلط؟** ضيف صيغة تانية للجملة بـ `fusha` (قائمة)، وشغّل `vibi_voice.py --lines N`. السكربت بيختار الصيغة الأوضح بـ Whisper.
+  جورج بيعطي نفس الصوت لنفس النص، فغيّر الكتابة، مو رقم المحاولة.
+- **بعد ما تختار الصيغة:** حدّث `text` لتطابق الصوت (نفس الجملة بدون تشكيل).
+- **السرعة:** `TEMPO` (1.1 حالياً).
 
 **تعديل جملة:** عدّل `script/script.json`، وبعدين شغّل الأوامر الأربعة. إذا تغيّر عدد الجمل بمشهد،
 لازم تعدّل أرقام `L(k)` بنفس المشهد بـ `js/scenes.js`.

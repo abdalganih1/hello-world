@@ -26,7 +26,7 @@ CH = [[57, 60, 64, 69], [53, 57, 60, 65], [48, 55, 60, 64], [55, 59, 62, 67]]
 BAR = 4.8
 music = np.zeros((N, 2), np.float32)
 def env_seg(n, a, r):
-    e = np.ones(n, np.float32); a, r = int(a * SR), int(r * SR)
+    e = np.ones(n, np.float32); a, r = max(1, min(n // 2, int(a * SR))), max(1, min(n // 2, int(r * SR)))  # the last bar can be shorter than the fades
     e[:a] = np.sin(np.linspace(0, np.pi / 2, a)) ** 2; e[-r:] *= np.cos(np.linspace(0, np.pi / 2, r)) ** 2; return e
 k = 0; t0 = 0.0
 while t0 < TOT:

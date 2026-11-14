@@ -152,8 +152,8 @@ function background(t) {
 }
 
 // ---------- chrome: brand, chapter, progress
-const CHAPTER = { hook: "", title: "الأردوينو", what: "شو هو الأردوينو؟", anatomy: "شو في جوّا اللوحة؟", compare: "الأردوينو والكمبيوتر",
-  flow: "يستقبل ← يفكّر ← ينفّذ", puzzle: "لغز صغير", examples: "شو فيك تبني؟", why: "ليش الأردوينو؟", boards: "Uno · Nano · Mega", map: "خريطة الدورة", teaser: "الحلقة الجاية" };
+const CHAPTER = { hook: "", title: "الأردوينو", what: "ما هو الأردوينو؟", anatomy: "ماذا داخل اللوحة؟", compare: "الأردوينو والكمبيوتر",
+  flow: "يستقبل ← يفكر ← ينفذ", puzzle: "لغز صغير", examples: "ماذا تستطيع أن تبني؟", why: "لماذا الأردوينو؟", boards: "Uno · Nano · Mega", map: "خريطة الدورة", teaser: "الحلقة القادمة" };
 function brand(x, y, a, s = 1) { // "مسار" mark: a winding path with three stops
   withT(x, y, s, 0, () => {
     const pts = [[-34, 14], [-14, 14], [-6, -2], [10, -2], [18, -14], [34, -14]];
