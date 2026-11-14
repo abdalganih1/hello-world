@@ -157,6 +157,7 @@ SCENES.speed = (t) => {
 
 // ------------------------------------------------ teaser: a shuffled list -> "how do we sort it?" -> locked, blurred "Sorting" -> next reel
 SCENES.teaser = (t) => {
+  const XO = 1 - eio(P(t, -0.2 + AT(15, "تابع") - 0.25, 0.35));
   const s0 = SCN.teaser.t0; if (t < s0 - 0.1) return; const a = P(t, s0, 0.3), o1 = 1 - P(t, L0(15) - 0.2, 0.3), vals = [47, 3, 60, 15, 8, 34, 21];
   if (o1 > 0) vals.forEach((v, i) => { const wob = Math.sin(t * 7 + i * 1.7) * 14, k = pop(t, s0 + 0.1 + i * 0.05, 0.4); withT(135 + 135 * i, 900 + wob, k, k, Math.sin(t * 5 + i) * 0.12, () => { fillRR(-55, -55, 110, 110, 20, "#fff", a * o1 * clamp(k * 2), 14); strokeRR(-55, -55, 110, 110, 20, hexA(C.red, 0.4), 3, a * o1 * clamp(k * 2)); T(String(v), 0, 5, { size: 56, color: C.navy, fam: "mono", a: a * o1 * clamp(k * 2) }); }); });
   if (t > L0(15) - 0.3) { const e = eo(P(t, L0(15) - 0.25, 0.5)); KR("wink", 540, 1720 + (1 - e) * 600, 700, { bob: 0.6 });
@@ -165,13 +166,14 @@ SCENES.teaser = (t) => {
       for (let k = 0; k < 2; k++) { const u = ((t - L0(15)) * 1.3 + k / 2) % 1; ring(540, 680, 130 + u * 110, hexA(C.teal, 0.5), 6 * (1 - u), (1 - u) * clamp(q)); }
       withT(540, 680, q * Math.max(0.02, sx), q, wob, () => { circle(0, 0, 130, C.navy, clamp(q * 2), 30); T("؟", 0, 12, { size: 180, color: "#fff", a: clamp(q * 2) }); }); }
     else { const k = back(P(t, rv + 0.03, 0.4), 1.4), w = lerp(260, 600, eo(P(t, rv + 0.03, 0.35)));
-      withT(540, 680, Math.max(0.02, sx) * k, k, 0, () => { fillRR(-w / 2, -95, w, 190, 40, C.navy, 1, 36);
+      withT(540, 680 - 140 * (1 - XO), Math.max(0.02, sx) * k * XO, k * XO, 0, () => { fillRR(-w / 2, -95, w, 190, 40, C.navy, 1, 36);
         ctx.save(); rr(-w / 2, -95, w, 190, 40); ctx.clip(); ctx.filter = "blur(11px)"; T("Sorting", 0, 6, { size: 90, color: "#ffffff", fam: "mono" }); ctx.filter = "none";
         const sh = ((t - rv) * 0.7) % 1.4; if (sh < 1) { A(0.35); const gx = lerp(-w / 2 - 120, w / 2 + 120, sh); const g = ctx.createLinearGradient(gx - 90, 0, gx + 90, 0); g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(0.5, "rgba(120,240,230,0.9)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(gx - 90, -95, 180, 190); }
         ctx.restore(); T("🔒", w / 2 - 50, -60, { size: 40 }); });
       const r = imp(t, rv + 0.1, 0.7); ring(540, 680, 160 + 260 * (1 - r), hexA(C.teal, 0.6), 10 * r + 1, r); sparkle(540, 680, rv + 0.1, { n: 34, r: 420 });
-      const p = pop(t, rv + 0.35, 0.5); withT(540, 880, p, p, 0, () => T("في الريل القادم 👀", 0, 0, { size: 84, color: C.teal, a: clamp(p * 2) })); const fo = pop(t, AT(15, "تابع") - 0.05, 0.5); withT(540, 995, fo, fo, 0, () => T("تابع تكنو إنجاز", 0, 0, { size: 62, color: C.navy, a: clamp(fo * 2) })); }
+      const p = pop(t, rv + 0.35, 0.5); withT(540, 880 - 160 * (1 - XO), p * XO, p * XO, 0, () => T("في الريل القادم 👀", 0, 0, { size: 84, color: C.teal, a: clamp(p * 2) * XO })); }
   }
+  followOutro(t, 15);
 };
 SCENES.order = ["hook", "secret", "cards", "rule", "speed", "world", "teaser", "khwarizmo"];
 
@@ -185,7 +187,48 @@ window.collectSfx = () => {
   ev(AT(7, "البحث") + 0.2, "pop"); ev(AT(8, "القائمة"), "pop"); ev(AT(8, "القائمة") + 0.5, "pop");
   for (let s2 = 0; s2 < 5; s2++) ev(AT(9, "نرمي", "ومنرمي") + s2 * 0.32, "tick", s2);
   ev(AT(10, "نصف", "بيصيروا"), "rise"); ev(AT(12, "Big", "O(log") - 0.1, "pop"); ev(L1(13) - 0.1, "found", 9);
-  ev(L0(15) + 0.05, "pop"); ev(AT(15, "Reel", "بالريل") - 0.12, "swish"); ev(AT(15, "Reel", "بالريل") + 0.1, "found", 9); ev(AT(15, "Reel", "بالريل") + 0.35, "pop"); ev(AT(15, "تابع") - 0.05, "pop", 1);
+  ev(L0(15) + 0.05, "pop"); ev(AT(15, "Reel", "بالريل") - 0.12, "swish"); ev(AT(15, "Reel", "بالريل") + 0.1, "found", 9); ev(AT(15, "Reel", "بالريل") + 0.35, "pop"); { const tf = AT(15, "تابع") - 0.2, tt = Math.max(tf + 0.85, AT(15, "إنجاز") + 0.05); ev(tf, "card"); ev(tt - 0.04, "pop", 2); ev(tt + 0.04, "found", 9); ev(tt + 0.2, "rise", 3); }
   TL.scenes.slice(1).forEach((s) => ev(s.t0, "swish", 9));
   return { total: TL.total, scenes: TL.scenes, events: e.sort((a, b) => a.t - b.t) };
 };
+
+// ---------- outro: «تابع تكنو إنجاز» as an Instagram-style profile card that gets followed on the beat
+// card springs in on «تابع», a finger taps the button on «إنجاز», the button morphs to «تمت المتابعة ✓», hearts rise.
+function followOutro(t, L) {
+  const tf = AT(L, "تابع") - 0.2, tt = Math.max(tf + 0.85, AT(L, "إنجاز") + 0.05); if (t < tf) return;
+  const CX = 540, CY0 = 520, CW = 760, CH = 480, AY = 625, AR = 84, BY = 912, BW = 470, BH = 100;
+  const ci = back(P(t, tf, 0.6), 1.5), ca = clamp(P(t, tf, 0.25) * 1.6);
+  ctx.save(); ctx.translate(CX, CY0 + CH / 2 + (1 - ci) * 90); ctx.scale(lerp(0.72, 1, ci), lerp(0.72, 1, ci)); ctx.translate(-CX, -(CY0 + CH / 2));
+  // the card: white glass, soft shadow, thin teal top line
+  fillRR(CX - CW / 2, CY0, CW, CH, 52, "#ffffff", ca * 0.97, 44); strokeRR(CX - CW / 2, CY0, CW, CH, 52, hexA(C.teal, 0.25), 3, ca);
+  // avatar: خوارزمو close-up in a circle, wrapped in a spinning teal->navy gradient ring (glows on the follow)
+  const ai = pop(t, tf + 0.12, 0.5), fl = imp(t, tt + 0.02, 0.9);
+  if (ai > 0) { ctx.save(); ctx.translate(CX, AY); ctx.scale(ai, ai);
+    const g = ctx.createConicGradient(t * 2.4, 0, 0); g.addColorStop(0, C.teal); g.addColorStop(0.35, "#7fe8e1"); g.addColorStop(0.65, C.navy); g.addColorStop(1, C.teal);
+    A(clamp(ai * 2)); ctx.beginPath(); ctx.arc(0, 0, AR + 14, 0, 6.2832); ctx.strokeStyle = g; ctx.lineWidth = 10 + 6 * fl; ctx.shadowColor = C.teal; ctx.shadowBlur = 30 * fl; ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.arc(0, 0, AR + 5, 0, 6.2832); ctx.fillStyle = "#fff"; ctx.fill();
+    ctx.save(); ctx.beginPath(); ctx.arc(0, 0, AR, 0, 6.2832); ctx.clip(); const im = IMG.closeup;
+    if (im) { const s = (AR * 2.9) / 721; ctx.drawImage(im, -335 * s, -405 * s, 721 * s, 778 * s); } ctx.restore(); ctx.restore(); }
+  // name revealed right-to-left, then the verified badge pops
+  const nr = eio(P(t, tf + 0.3, 0.45)); if (nr > 0) { ctx.save(); A(1); ctx.font = font(66, 900); const nw = ctx.measureText("تكنو إنجاز").width;
+    ctx.beginPath(); ctx.rect(CX + 22 + nw / 2 + 24 - (nw + 48) * nr, AY + 70, (nw + 48) * nr, 140); ctx.clip(); T("تكنو إنجاز", CX + 22, AY + 142, { size: 66, color: C.navy }); ctx.restore();
+    const bp = pop(t, tf + 0.62, 0.45); withT(CX + 22 - nw / 2 - 34, AY + 140, bp, bp, 0, () => { circle(0, 0, 21, C.teal, clamp(bp * 2)); T("✓", 0, 1, { size: 26, color: "#fff", a: clamp(bp * 2) }); }); }
+  T("@techno_enjaz", CX, AY + 206, { size: 34, weight: 700, color: C.mut, fam: "mono", a: ca * clamp(P(t, tf + 0.5, 0.3)) });
+  // the button: teal pill «تابع +» with a shimmer -> pressed -> white pill «تمت المتابعة ✓»
+  const bi = pop(t, tf + 0.55, 0.5), m = eio(P(t, tt, 0.28)), pr = 1 - 0.09 * Math.sin(Math.PI * P(t, tt - 0.07, 0.3)) + 0.05 * imp(t, tt + 0.2, 0.4);
+  if (bi > 0) withT(CX, BY, bi * pr, bi * pr, 0, () => {
+    const a0 = clamp(bi * 2); fillRR(-BW / 2, -BH / 2, BW, BH, BH / 2, C.teal, a0 * (1 - m), 24);
+    if (m < 1) { ctx.save(); rr(-BW / 2, -BH / 2, BW, BH, BH / 2); ctx.clip(); const sh = ((t - tf) * 0.9) % 1.3; if (sh < 1) { A(0.45 * (1 - m)); const gx = lerp(-BW / 2 - 100, BW / 2 + 100, sh), gr = ctx.createLinearGradient(gx - 70, 0, gx + 70, 0); gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(0.5, "rgba(255,255,255,0.95)"); gr.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = gr; ctx.fillRect(gx - 70, -BH / 2, 140, BH); } ctx.restore(); }
+    if (m > 0) { fillRR(-BW / 2, -BH / 2, BW, BH, BH / 2, "#ffffff", a0 * m); strokeRR(-BW / 2, -BH / 2, BW, BH, BH / 2, C.teal, 4, a0 * m); }
+    const rp = P(t, tt, 0.55); if (rp > 0 && rp < 1) { ctx.save(); rr(-BW / 2, -BH / 2, BW, BH, BH / 2); ctx.clip(); circle(-40, 8, 40 + rp * 320, hexA(C.teal, 0.35), 1 - rp); ctx.restore(); }
+    T("تابع +", 0, 3, { size: 50, color: "#fff", a: a0 * (1 - m) }); T("تمت المتابعة ✓", 0, 3, { size: 46, color: C.teal, a: a0 * m }); });
+  ctx.restore();
+  // the finger: a soft touch dot glides in and presses the button on «إنجاز»
+  const fi = eio(P(t, tt - 0.55, 0.47)), fo = 1 - P(t, tt + 0.12, 0.3);
+  if (fi > 0 && fo > 0) { const fx = lerp(800, CX - 40, fi), fy = lerp(1130, BY + 8, fi), ps = 1 - 0.25 * Math.sin(Math.PI * P(t, tt - 0.07, 0.25));
+    circle(fx, fy, 40 * ps, hexA(C.navy, 0.32), fi * fo, 16); ring(fx, fy, 40 * ps, "#ffffff", 7, fi * fo); circle(fx, fy, 12 * ps, "#ffffff", 0.9 * fi * fo); }
+  // the payoff: burst, ring, rising hearts
+  if (t >= tt) { sparkle(CX, BY, tt, { n: 40, r: 470 }); const r = imp(t, tt, 0.7); ring(CX, BY, 60 + 380 * (1 - r), hexA(C.teal, 0.55), 8 * r + 1, r);
+    for (let i = 0; i < 10; i++) { const d0 = tt + i * 0.05, u = (t - d0) / 1.4; if (u <= 0 || u >= 1) continue; const sd = i % 2 ? 1 : -1, x = CX + sd * (BW / 2 - 30 + eo(u) * (110 + 70 * rnd(i * 7 + 2))) + Math.sin(u * 6 + i) * 18, y = BY - 380 * eo(u) * (0.6 + 0.4 * rnd(i * 3 + 1));
+      withT(x, y, 0.6 + 0.6 * pop(t, d0, 0.3), 0.6 + 0.6 * pop(t, d0, 0.3), Math.sin(u * 5 + i) * 0.25, () => T(i % 3 === 1 ? "🤍" : "💙", 0, 0, { size: 46, a: 1 - u * u })); } }
+}
