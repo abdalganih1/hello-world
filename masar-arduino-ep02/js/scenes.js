@@ -126,7 +126,13 @@ SCENES.rules = (t, L, E) => {
       const W1 = good.x0 + lineW("digital", 84), W2 = bad.x0 + lineW("digital", 84), ww = lineW("W", 84);
       ring(W1 + ww / 2, 336, 56, C.green, 5, a * P(t, L(4) + 0.6, 0.3)); ring(W2 + ww / 2, 536, 56, C.red, 5, a * P(t, L(4) + 2.0, 0.3));
       I.check(good.x0 + good.w + 90, 340, 1, { a }); I.cross(bad.x0 + bad.w + 90, 540, 1, { a: a * P(t, L(4) + 1.8, 0.3) });
-      if (t > L(5) - 0.2) { const p = pop(t, L(5), 0.45); I.person(400, 700, 1.1, { a: clamp(p) }); chip("اسم مكتوب خطأً… لا أحد يرد", 960, 780, { size: 28, col: C.red, a: clamp(p) }); } } }
+      // why: the language's designers named it exactly so — the compiler only knows the name as they registered it
+      if (t > L(5) - 0.2 && t < L(6)) { const p = pop(t, L(5) + 0.2, 0.45), q = clamp(p) * (1 - P(t, L(6) - 0.25, 0.2)), dw = lineW("digital", 84);
+        seg(good.x0 + dw - 6, 286, good.x0 + dw - 6, 392, hexA(C.amber, 0.8), 3, q); chip("digital + Write", good.x0 + dw, 250, { size: 26, col: C.amber, a: q });
+        withT(960, 720, clamp(p), 0, () => { card(-430, -70, 860, 140, { col: C.teal, r: 26, a: q }); T("📖 قاموس المترجم", 250, -30, { size: 30, weight: 900, color: C.teal, a: q });
+          [["pinMode", -250], ["digitalWrite", 30], ["delay", 290]].forEach(([w, x], i) => { const hot = i === 1; codeLine(w, x - lineW(w, 36) / 2, 26, { size: 36, a: q * (hot ? 1 : 0.55) }); if (hot) { const ww = lineW(w, 36) + 28; strokeRR(x - ww / 2, -2, ww, 52, 14, C.teal, 3, q * (0.55 + 0.45 * Math.sin(t * 5))); } });
+          T("كما سمّاها مصمّمو اللغة", -240, -30, { size: 24, weight: 800, color: C.mut, a: q }); }); }
+      if (t > L(6) - 0.2) { const p = pop(t, L(6), 0.45); I.person(400, 700, 1.1, { a: clamp(p) }); chip("اسم مكتوب خطأً… لا أحد يرد", 960, 780, { size: 28, col: C.red, a: clamp(p) }); } } }
 };
 
 // ---------------------------------------------------------------- 6. STRUCTURE: setup (once) + loop (forever)
