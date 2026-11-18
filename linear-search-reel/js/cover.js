@@ -14,28 +14,13 @@ function drawCard(x, y, s, o = {}) {
 }
 function mark(x, y, yes) { circle(x, y, 26, yes ? C.navy : C.red, 1, 8); if (yes) poly([[-11 + x, y], [-3 + x, 9 + y], [12 + x, -9 + y]], "#fff", 6, 1); else { seg(x - 9, y - 9, x + 9, y + 9, "#fff", 6, 1); seg(x + 9, y - 9, x - 9, y + 9, "#fff", 6, 1); } }
 window.drawCover = () => {
-  const t = 1.6; NOW = t; ctx.setTransform(1, 0, 0, 1, 0, 0); background(t, { focus: [690, 990, 420, 1] });
-  // series badge, moved down into the crop-safe zone
-  ctx.save(); ctx.translate(0, 205); seriesBadge(1.5); ctx.restore();
-  // hook line + title
-  T("لا تقل أنك مبرمج… قبل أن تعرفها 😬", 540, 468, { size: 50, color: C.navy });
-  ctx.save(); ctx.font = font(150, 900); const wT = ctx.measureText("البحث ").width, wH = ctx.measureText("الخطي").width; ctx.restore();
-  const full = wT + wH, xR = 540 + full / 2, hx = xR - wT - wH;  // RTL: "البحث" on the right, "الخطي" on the left
-  fillRR(hx - 12, 618, wH + 24, 42, 16, hexA(C.teal, 0.22));
-  T("البحث", xR - wT / 2 + 10, 600, { size: 150, color: C.navy }); T("الخطي", hx + wH / 2, 600, { size: 150, color: C.teal });
-  T("Linear Search", 540, 745, { size: 78, color: C.navy, fam: "mono" });
-  // the search: 4 wrong cards, the 5 found, 2 never opened
-  const vals = [7, 3, 9, 1, 5, 8, 2], cx = (i) => 108 + 144 * i, Y = 1000;
-  halo(cx(4), Y - 16, 260, "rgba(31,181,181,0.30)", 1);
-  for (let i = 0; i < 7; i++) drawCard(cx(i), i === 4 ? Y - 16 : Y, 1, { up: i <= 4, val: vals[i], state: i < 4 ? "no" : i === 4 ? "found" : "" });
-  for (let i = 0; i < 4; i++) mark(cx(i) + 46, Y - 92, false); mark(cx(4) + 46, Y - 108, true);
-  
-  for (let i = 0; i < 26; i++) { const an = rnd(i + 3) * 6.2832, r = 150 + rnd(i * 5 + 1) * 120, sy = Y - 16 + Math.sin(an) * r * 0.9; if (Math.abs(sy - Y) < 135 || sy < 800) continue; withT(cx(4) + Math.cos(an) * r * 0.8, sy, 1, 1, an, () => fillRR(-7, -3, 14, 6, 3, [C.teal, C.teal2, C.navy, C.gold][i % 4], 0.85)); }
-  // the scan path under the cards: 1 → 5 steps
-  const ay = Y + 140; arrow(cx(0) - 30, ay, cx(4) + 10, ay, C.teal, 7, 1, 24);
-  for (let i = 0; i <= 4; i++) { circle(cx(i), ay, 22, i === 4 ? C.teal : "#ffffff", 1, 6); ring(cx(i), ay, 22, C.teal, 3, 1); T(String(i + 1), cx(i), ay + 3, { size: 26, fam: "mono", color: i === 4 ? "#fff" : C.teal }); }
-  // خوارزمو (thumbs-up) + the complexity chip
-  KR("hero", 290, 1640, 470, { bob: 0 });
-  withT(770, 1390, 1, 1, -0.04, () => { fillRR(-190, -70, 380, 140, 40, C.navy, 1, 30); T("O(n)", 0, 6, { size: 86, color: "#ffffff", fam: "mono" }); });
-  T("أبسط خوارزمية بحث", 770, 1510, { size: 44, color: C.navy });
+  // simple and loud: the series badge, one big title, خوارزمو big — nothing else
+  const t = 1.6; NOW = t; ctx.setTransform(1, 0, 0, 1, 0, 0); background(t, { focus: [540, 1250, 520, 1] });
+  ctx.save(); ctx.translate(0, 220); seriesBadge(1.5); ctx.restore();
+  ctx.save(); ctx.font = font(158, 900); const wT = ctx.measureText("البحث ").width, wH = ctx.measureText("الخطي").width; ctx.restore();
+  const xR = 540 + (wT + wH) / 2, hx = xR - wT - wH;
+  fillRR(hx - 14, 600, wH + 28, 48, 18, hexA(C.teal, 0.22));
+  T("البحث", xR - wT / 2 + 12, 560, { size: 158, color: C.navy }); T("الخطي", hx + wH / 2, 560, { size: 158, color: C.teal });
+  T("Linear Search", 540, 715, { size: 64, color: C.mut, fam: "mono" });
+  KR("angry", 540, 1625, 860, { bob: 0 });
 };
