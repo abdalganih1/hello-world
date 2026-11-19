@@ -6,6 +6,7 @@
   "assets": { "directory": ".", "binding": "ASSETS", "run_worker_first": true },
   "vars": {
     // الأساسي: Z.ai مباشرة بالسر ZAI_API_KEY
+    "ZAI_BASE_URL": "https://api.z.ai/api/coding/paas/v4",
     "ZAI_MODEL": "glm-5.3-flash",
     // احتياط: OpenRouter: الموديل الأساسي، وموديلات احتياط مفصولة بفاصلة
     "AI_MODEL": "z-ai/glm-5.3-flash",
