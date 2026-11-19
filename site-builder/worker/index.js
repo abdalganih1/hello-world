@@ -2,7 +2,7 @@
    - بيخدم ملفات المنصة (static assets)
    - POST /api/edit  : بياخد طلب الزبون بالكلمات + محتوى الموقع، وبيرجّع بس الأقسام اللي تغيّرت
    - POST /api/write : نفس الشي، بس لكتابة نصوص الموقع أول مرة من فكرة الزبون
-   الموديل: عبر OpenRouter (AI_MODEL + AI_FALLBACK_MODELS + السر OPENROUTER_API_KEY). */
+   الموديل: Z.ai مباشرة (السر ZAI_API_KEY)، واحتياط OpenRouter أو المزود القديم. بدون Workers AI. */
 
 const EDITABLE = ["hero", "marquee", "about", "services", "menu", "process", "gallery", "team", "testimonials", "pricing", "products", "craft", "showcase", "faq", "cta", "contact"];
 const PALETTES = ["luxe", "calm", "bold", "olive", "sea", "rose", "sand", "night", "ruby"];
@@ -60,7 +60,7 @@ const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 // جسر مؤقت: إذا سر OPENROUTER_API_KEY لسا مو مضاف، منكمّل على مزودك القديم (AI_KEY). ما في Workers AI أبداً.
 async function callLegacy(env, messages) {
   const base = (env.LEGACY_BASE_URL || "").replace(/\/$/, "");
-  if (!base || !env.AI_KEY) throw new Error("OPENROUTER_API_KEY not set");
+  if (!base || !env.AI_KEY) throw new Error("legacy provider not configured");
   const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 45000);
   try {
     const r = await fetch(base + "/chat/completions", {
@@ -72,8 +72,7 @@ async function callLegacy(env, messages) {
     return (await r.json()).choices?.[0]?.message?.content;
   } finally { clearTimeout(timer); }
 }
-async function callAI(env, messages) {
-  if (!env.OPENROUTER_API_KEY) return callLegacy(env, messages);
+async function callOpenRouter(env, messages) {
   const models = [env.AI_MODEL || "z-ai/glm-5.3-flash", ...String(env.AI_FALLBACK_MODELS || "").split(",").map((m) => m.trim()).filter(Boolean)].slice(0, 3);
   const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 45000);
   try {
@@ -88,6 +87,39 @@ async function callAI(env, messages) {
     if (d.error) throw new Error("openrouter: " + String(d.error.message || "").slice(0, 200));
     return d.choices?.[0]?.message?.content;
   } finally { clearTimeout(timer); }
+}
+
+// Z.ai مباشرة (متوافق مع OpenAI): GLM بدون وسيط
+async function callZai(env, messages) {
+  const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 45000);
+  try {
+    const r = await fetch((env.ZAI_BASE_URL || "https://api.z.ai/api/paas/v4").replace(/\/$/, "") + "/chat/completions", {
+      method: "POST", signal: ctrl.signal,
+      headers: { "content-type": "application/json", authorization: "Bearer " + env.ZAI_API_KEY },
+      body: JSON.stringify({ model: env.ZAI_MODEL || "glm-5.3-flash", messages, temperature: 0.4, max_tokens: 6000, thinking: { type: "disabled" } }),
+    });
+    if (!r.ok) throw new Error("zai " + r.status + ": " + (await r.text()).slice(0, 200));
+    return (await r.json()).choices?.[0]?.message?.content;
+  } finally { clearTimeout(timer); }
+}
+
+// الترتيب: Z.ai (إذا ZAI_API_KEY موجود) ← OpenRouter (إذا OPENROUTER_API_KEY موجود) ← مزودك القديم. ما في Workers AI أبداً.
+function aiChain(env) {
+  const c = [];
+  if (env.ZAI_API_KEY) c.push(["zai", callZai]);
+  if (env.OPENROUTER_API_KEY) c.push(["openrouter", callOpenRouter]);
+  if (env.AI_KEY && env.LEGACY_BASE_URL) c.push(["legacy", callLegacy]);
+  return c;
+}
+async function callAI(env, messages) {
+  const chain = aiChain(env);
+  if (!chain.length) throw new Error("no AI provider key set");
+  let last;
+  for (const [name, fn] of chain) {
+    try { const t = await fn(env, messages); if (t) return t; last = new Error(name + ": empty"); }
+    catch (e) { last = e; console.warn(name + " failed:", e.message); }
+  }
+  throw last;
 }
 
 // حد يومي لكل زائر (إذا في KV مربوط باسم LIMITS)
@@ -122,7 +154,7 @@ async function handleAI(req, env, kind) {
 
   const results = await Promise.all(groups.map(async (c, gi) => {
     const messages = [{ role: "system", content: SYSTEM }, { role: "user", content: askFor(c) + (gi ? "\n(هاد جزء من الموقع، رجّع بس هالأقسام.)" : "") }];
-    try { const t = await callAI(env, messages); return { out: extractJSON(t), via: "openrouter" }; }
+    try { const t = await callAI(env, messages); return { out: extractJSON(t), via: "ai" }; }
     catch (e1) { console.warn("ai failed:", e1.message); return { err: e1.message }; }
   }));
   const ok = results.filter((r) => r.out);
@@ -143,7 +175,7 @@ async function handlePlan(req, env) {
   if (idea.length < 3 || !list.length) return json({ error: "missing" }, 400);
   if (await overLimit(env, req, "plan")) return json({ error: "limit" }, 429);
   const messages = [{ role: "system", content: PLAN_SYSTEM }, { role: "user", content: "القوالب:\n" + list.map((t) => `${t.id}: ${t.label} (${t.keywords.join("، ")})`).join("\n") + "\n\nوصف الزبون: " + idea }];
-  let out; const via = "openrouter";
+  let out; const via = "ai";
   try { out = extractJSON(await callAI(env, messages)); }
   catch (e1) { console.warn("plan ai failed:", e1.message); return json({ error: "ai unavailable" }, 502); }
   const ids = new Set(list.map((t) => t.id));
@@ -315,7 +347,7 @@ export default {
     if (req.method === "POST" && url.pathname === "/api/submit") return handleSubmit(req, env, ctx);
     if (url.pathname === "/api/slug") return handleSlug(url, env);
     if (req.method === "POST" && url.pathname === "/api/plan") return handlePlan(req, env);
-    if (url.pathname === "/api/health") return json({ ok: true, domain: env.SITE_DOMAIN, storage: !!env.SITES, model: env.AI_MODEL || "z-ai/glm-5.3-flash", provider: env.OPENROUTER_API_KEY ? "openrouter" : (env.AI_KEY ? "legacy" : "none"), key: !!env.OPENROUTER_API_KEY, fallback: env.AI_FALLBACK_MODELS || "" });
+    if (url.pathname === "/api/health") return json({ ok: true, domain: env.SITE_DOMAIN, storage: !!env.SITES, providers: aiChain(env).map((p) => p[0]), model: env.ZAI_API_KEY ? (env.ZAI_MODEL || "glm-5.3-flash") : (env.AI_MODEL || "z-ai/glm-5.3-flash") });
     if (req.method === "POST" && url.pathname === "/api/edit") return handleAI(req, env, "edit");
     if (req.method === "POST" && url.pathname === "/api/write") return handleAI(req, env, "write");
     if (url.pathname.startsWith("/api/")) return json({ error: "not found" }, 404);
