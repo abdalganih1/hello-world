@@ -61,7 +61,8 @@ function battery(x, y, s, label, col, a = 1) {
   withT(x, y, s, 0, () => { card(-60, -110, 120, 220, { a, col, r: 18, fill: "rgba(10,18,34,0.96)" }); fillRR(-24, -128, 48, 18, 5, col, a);
     T("+", 0, -70, { size: 46, weight: 900, color: col, a }); T("−", 0, 70, { size: 46, weight: 900, color: C.mut, a }); T(label, 0, 0, { size: 34, weight: 900, fam: "mono", color: C.text, a }); });
 }
-const BANDS = { 1000: ["#7a4a1c", "#111", "#d23", "#c9a227"], 220: ["#d23", "#d23", "#7a4a1c", "#c9a227"] };
+const BC = { brown: "#8b4513", black: "#141414", red: "#e0262b", gold: "#d4af37" };
+const BANDS = { 1000: [BC.brown, BC.black, BC.red, BC.gold], 220: [BC.red, BC.red, BC.brown, BC.gold] }; // colour code: 1st digit, 2nd digit, multiplier | tolerance
 function resistor(x, y, s, a = 1, val = 1000, rot = 0) {
   withT(x, y, s, rot, () => { seg(-110, 0, -50, 0, "#b9c2cf", 6, a); seg(50, 0, 110, 0, "#b9c2cf", 6, a);
     fillRR(-56, -22, 112, 44, 20, "#d9c08f", a); BANDS[val].forEach((c, i) => fillRR(-38 + i * 20 + (i === 3 ? 12 : 0), -22, 9, 44, 2, c, a)); });
@@ -72,10 +73,12 @@ function ledPart(x, y, s, on = 0, a = 1, col = C.red, burnt = 0) {
     A(a); ctx.beginPath(); ctx.arc(0, -16, 32, Math.PI, 0); ctx.lineTo(32, 30); ctx.lineTo(-32, 30); ctx.closePath(); ctx.fillStyle = burnt ? "#3a3a3a" : on > 0 ? col : hexA(col, 0.55); ctx.fill(); fillRR(-38, 26, 76, 10, 4, burnt ? "#2a2a2a" : hexA(col, 0.8), a);
     if (on > 0) circle(-10, -26, 8, "rgba(255,255,255,0.8)", a * on); });
 }
+const ledLegs = (x, y, s) => ({ an: [x - 14 * s, y + 90 * s], ca: [x + 14 * s, y + 76 * s] }); // anode = long leg (+), cathode = short leg (−)
+function legTags(x, y, s, a) { const g = ledLegs(x, y, s); T("+", g.an[0] - 26, g.an[1] - 30, { size: 30, weight: 900, color: C.amber, a }); T("−", g.ca[0] + 26, g.ca[1] - 30, { size: 30, weight: 900, color: C.mut, a }); }
 function spark(x, y, t0, a = 1) { const w = P(NOW, t0, 1.2); if (w <= 0 || w >= 1) return; for (let i = 0; i < 26; i++) { const an = rnd(i) * Math.PI * 2, sp = 60 + rnd(i + 3) * 220; seg(x + Math.cos(an) * sp * eo(w) * 0.5, y + Math.sin(an) * sp * eo(w) * 0.5, x + Math.cos(an) * sp * eo(w), y + Math.sin(an) * sp * eo(w), i % 2 ? C.amber : "#fff", 3, a * (1 - w)); } halo(x, y, 260 * (1 - w) + 60, "rgba(255,190,60,0.7)", a * (1 - w)); }
 function smoke(x, y, t0, a = 1) { if (NOW < t0) return; for (let i = 0; i < 6; i++) { const u = ((NOW - t0) * 0.5 + i / 6) % 1; circle(x + Math.sin(u * 6 + i) * 20, y - u * 200, 16 + u * 30, "rgba(120,130,150,0.35)", a * (1 - u)); } }
 // a rectangular circuit loop: battery (left), resistor (top), LED (right); returns the loop path (clockwise from +)
-function loopPath(cx, cy, w, h) { const x0 = cx - w / 2, x1 = cx + w / 2, y0 = cy - h / 2, y1 = cy + h / 2; return [[x0, cy - 70], [x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, cy + 70]]; }
+function loopPath() { return null; }
 function breadboard(x, y, w, h, a) { card(x, y, w, h, { a, col: "#c9d3df", r: 14, fill: "rgba(225,230,238,0.95)", g: 0 });
   seg(x + 20, y + 22, x + w - 20, y + 22, C.red, 3, a); seg(x + 20, y + h - 22, x + w - 20, y + h - 22, C.blue, 3, a);
   for (let c = 0; c < Math.floor((w - 60) / 24); c++) for (let r = 0; r < 10; r++) { const yy = y + 56 + r * 24 + (r >= 5 ? 22 : 0); if (yy > y + h - 50) continue; fillRR(x + 30 + c * 24, yy, 9, 9, 2, "#6b7685", a); }
@@ -84,10 +87,12 @@ function breadboard(x, y, w, h, a) { card(x, y, w, h, { a, col: "#c9d3df", r: 14
 // ---------------------------------------------------------------- 1. HOOK: why does a tiny light burn?
 SCENES.hook = (t, L, E) => {
   const a = eo(P(t, 0.3, 0.7)), boom = L(0) + 2.2, burnt = t > boom;
-  if (t < L(1) - 0.1) { battery(760, 460, 1, "5V", C.amber, a); const pts = [[760, 340], [760, 260], [1160, 260], [1160, 400]], pts2 = [[1160, 520], [1160, 640], [760, 640], [760, 580]];
-    pipe(pts, 6, a, "#3a4a66"); pipe(pts2, 6, a, "#3a4a66"); if (!burnt) { const u = P(t, L(0) + 0.8, 1.2); flow(pts, t, C.amber, 6, 1.6 + u * 3, 6, a * u); flow(pts2, t, C.amber, 6, 1.6 + u * 3, 6, a * u); }
-    ledPart(1160, 440, 1.3, burnt ? 0 : P(t, L(0) + 1.0, 0.6) * (1 + 0.3 * Math.sin(t * 40)), a, C.red, burnt); spark(1160, 420, boom, a); smoke(1160, 380, boom, a);
-    if (burnt) T("💥", 1330, 330, { size: 90 * pop(t, boom, 0.4), a }); return; }
+  if (t < L(1) - 0.1) { battery(760, 460, 1, "5V", C.amber, a); const lx = 1180, ly = 420, ls = 1.3, g = ledLegs(lx, ly, ls);
+    const p1 = [[760, 340], [760, 240], [1060, 240], [1060, 640], [g.an[0], 640], g.an], p2 = [g.ca, [1320, g.ca[1]], [1320, 720], [760, 720], [760, 580]];
+    poly(p1, "#3a4a66", 8, a); poly(p2, "#3a4a66", 8, a); if (!burnt) { const u = P(t, L(0) + 0.8, 1.2); flow(p1, t, C.amber, 6, 1.6 + u * 3, 6, a * u); flow(p2, t, C.amber, 6, 1.6 + u * 3, 6, a * u); }
+    ledPart(lx, ly, ls, burnt ? 0 : P(t, L(0) + 1.0, 0.6) * (1 + 0.3 * Math.sin(t * 40)), a, C.red, burnt); legTags(lx, ly, ls, a); spark(lx, ly - 20, boom, a); smoke(lx, ly - 60, boom, a);
+    chip("بلا مقاوم!", 1060, 170, { size: 30, col: C.red, a: pop(t, L(0) + 0.6, 0.4) });
+    if (burnt) T("💥", 1350, 310, { size: 90 * pop(t, boom, 0.4), a }); return; }
   [["V", "الجهد", C.amber], ["I", "التيار", C.blue], ["R", "المقاومة", C.teal]].forEach(([s, n, c], i) => { const p = pop(t, L(1) + 1.2 + i * 0.7, 0.45); withT(1260 - i * 300, 450, clamp(p), 0, () => { card(-120, -130, 240, 260, { col: c, r: 30 }); T(s, 0, -24, { size: 110, weight: 900, fam: "mono", color: c, g: 24 }); T(n, 0, 80, { size: 36, weight: 900, color: C.text }); }); });
 };
 
@@ -150,34 +155,37 @@ SCENES.ohm = (t, L, E) => {
   TW("قانون أوم", 960, 160, L(0) + 0.4, { size: 80, weight: 900, colors: { "أوم": C.teal }, g: 20, a: 1 - P(t, L(1) - 0.2, 0.3) });
   if (t < L(1) - 0.2) return;
   const fa = eo(P(t, L(1) - 0.1, 0.5)); withT(960, 190, 1, 0, () => { T("V = I × R", 0, 0, { size: 96, weight: 800, fam: "mono", color: C.text, a: fa, g: 20 }); });
-  if (t < L(4) - 0.15) { const k2 = t > L(2) - 0.15, k3 = t > L(3) - 0.15;
-    const V = k3 ? 5 : k2 ? lerp(2, 9, (Math.sin((t - L(2)) * 1.6) + 1) / 2) : 5, R = k3 ? lerp(200, 900, (Math.sin((t - L(3)) * 1.6) + 1) / 2) : 500, I = V / R * 1000;
-    const a = eo(P(t, L(1) + 0.8, 0.5)); bar(760, "V", V, 10, C.amber, a, V.toFixed(1) + "V"); bar(960, "R", R, 1000, C.teal, a, Math.round(R) + "Ω"); bar(1160, "I", I, 40, C.blue, a, I.toFixed(1) + "mA");
+  if (t < L(4) - 0.15) { const k2 = t > L(2) - 0.15, k3 = t > L(3) - 0.15, step = (t0) => Math.min(2, Math.floor(Math.max(0, t - t0) / 1.3));
+    const V = k3 ? 5 : k2 ? [3, 5, 9][step(L(2) + 0.3)] : 5, R = k3 ? [250, 500, 1000][step(L(3) + 0.3)] : 1000, I = V / R * 1000;
+    const a = eo(P(t, L(1) + 0.8, 0.5)); bar(760, "V", V, 10, C.amber, a, V + " V"); bar(960, "R", R, 1000, C.teal, a, R + " Ω"); bar(1160, "I", I, 25, C.blue, a, I + " mA");
+    T(V + " V ÷ " + R + " Ω = " + I + " mA", 960, 880 - 30, { size: 40, weight: 800, fam: "mono", color: C.text, a: a * (k2 ? 1 : 0) });
     if (k2 && !k3) chip("V ↑ ← I ↑", 1500, 500, { size: 34, col: C.amber, a: pop(t, L(2) + 0.5, 0.4) }); if (k3) chip("R ↑ ← I ↓", 1500, 500, { size: 34, col: C.teal, a: pop(t, L(3) + 0.5, 0.4) }); return; }
   if (t < L(5) - 0.15) { const a = eo(P(t, L(4) - 0.1, 0.4)); T("I = V ÷ R", 960, 380, { size: 70, weight: 800, fam: "mono", color: C.blue, a });
     T("5V ÷ 1000Ω", 960, 500, { size: 70, weight: 800, fam: "mono", color: C.text, a: a * P(t, L(4) + 1.6, 0.4) }); T("= 5 mA", 960, 620, { size: 90, weight: 900, fam: "mono", color: C.green, a: a * P(t, L(4) + 3.4, 0.4), g: 24 }); return; }
   // no resistor at all -> huge current -> burnt
-  const a = eo(P(t, L(5) - 0.1, 0.4)), boom = L(5) + 3.6; T("5V ÷ 0Ω", 760, 450, { size: 70, weight: 800, fam: "mono", color: C.text, a }); T("= تيار كبير جدًا!", 760, 570, { size: 60, weight: 900, color: C.red, a: a * P(t, L(5) + 2.0, 0.4), g: 20 });
+  const a = eo(P(t, L(5) - 0.1, 0.4)), boom = L(5) + 3.6; T("بلا مقاوم: R صغيرة جدًا", 760, 400, { size: 52, weight: 900, color: C.text, a }); T("← I كبير جدًا", 760, 490, { size: 56, weight: 900, color: C.red, a: a * P(t, L(5) + 1.4, 0.4), g: 20 });
+  chip("الضوء يتحمل حوالي 20 mA فقط", 760, 610, { size: 32, col: C.amber, a: pop(t, L(5) + 2.4, 0.45) });
   ledPart(1350, 470, 1.6, t > boom ? 0 : P(t, L(5) + 1.0, 0.6) * (1 + 0.4 * Math.sin(t * 50)), a, C.red, t > boom); spark(1350, 440, boom, a); smoke(1350, 400, boom, a);
 };
 
 // ---------------------------------------------------------------- 8–9. THE CIRCUIT, CLOSED
 function circuitScene(t, a, o = {}) {
-  const { hot = "", flowOn = 1, broken = 0 } = o, cx = 960, cy = 470, w = 900, h = 440, path = loopPath(cx, cy, w, h);
-  const wcol = hot === "wire" ? C.teal : "#3a4a66"; poly(path, wcol, hot === "wire" ? 10 : 8, a);
-  if (broken > 0) { const gx = cx + 100, gy = cy + h / 2; fillRR(gx - 50 * broken, gy - 14, 100 * broken, 28, 4, "#060a13", a); I.cross(gx, gy + 60, 0.6, { a: a * broken }); }
-  battery(cx - w / 2, cy, 1, "5V", hot === "src" ? C.amber : hexA(C.amber, 0.7), a); resistor(cx, cy - h / 2, 1.3, a);
-  const on = broken > 0.5 ? 0 : flowOn; ledPart(cx + w / 2, cy - 30, 1.2, on, a, C.red);
-  if (hot === "load") ring(cx + w / 2, cy - 40, 90, C.red, 4, a * (0.6 + 0.4 * Math.sin(NOW * 5)));
-  if (hot === "src") ring(cx - w / 2, cy, 140, C.amber, 4, a * (0.6 + 0.4 * Math.sin(NOW * 5)));
-  if (on > 0) flow(path, t, C.amber, 16, 0.22, 6, a * on);
-  return { cx, cy, w, h };
+  const { hot = "", flowOn = 1, broken = 0 } = o, bx = 520, by = 470, lx = 1330, ly = 400, ls = 1.2, g = ledLegs(lx, ly, ls);
+  const p1 = [[bx, 360], [bx, 250], [1200, 250], [1200, 640], [g.an[0], 640], g.an], p2 = [g.ca, [1460, g.ca[1]], [1460, 720], [bx, 720], [bx, 580]];
+  const wcol = hot === "wire" ? C.teal : "#3a4a66", lw = hot === "wire" ? 10 : 8; poly(p1, wcol, lw, a); poly(p2, wcol, lw, a);
+  if (broken > 0) { const gx = 1000, gy = 720; fillRR(gx - 50 * broken, gy - 14, 100 * broken, 28, 4, "#060a13", a); I.cross(gx, gy + 60, 0.6, { a: a * broken }); }
+  battery(bx, by, 1, "5V", hot === "src" ? C.amber : hexA(C.amber, 0.7), a); resistor(860, 250, 1.3, a, 220); T("220 Ω", 860, 196, { size: 28, weight: 800, fam: "mono", color: C.teal, a });
+  const on = broken > 0.5 ? 0 : flowOn; ledPart(lx, ly, ls, on, a, C.red); legTags(lx, ly, ls, a);
+  if (hot === "load") ring(lx, ly + 10, 110, C.red, 4, a * (0.6 + 0.4 * Math.sin(NOW * 5)));
+  if (hot === "src") ring(bx, by, 140, C.amber, 4, a * (0.6 + 0.4 * Math.sin(NOW * 5)));
+  if (on > 0) { flow(p1, t, C.amber, 12, 0.3, 6, a * on); flow(p2, t, C.amber, 9, 0.3, 6, a * on); }
+  return { cx: 960, cy: 485, w: 940, h: 470, bx, by, lx, ly };
 }
 SCENES.circuit = (t, L, E) => {
   const a = eo(P(t, L(0) - 0.1, 0.5)), hot = t > L(4) - 0.15 ? "" : t > L(3) - 0.15 ? "wire" : t > L(2) - 0.15 ? "load" : t > L(1) - 0.15 ? "src" : "", fl = P(t, L(4) + 0.2, 0.6) + (t > L(1) ? 0.6 : 0);
   const c = circuitScene(t, a, { hot, flowOn: clamp(fl) }); const lab = (s, x, y, col, t0) => chip(s, x, y, { size: 32, col, a: pop(t, t0, 0.45) });
-  if (t > L(1) - 0.1) lab("1 · المصدر", c.cx - c.w / 2, c.cy + 180, C.amber, L(1) + 0.3); if (t > L(2) - 0.1) lab("2 · الحمل", c.cx + c.w / 2, c.cy + 120, C.red, L(2) + 0.3); if (t > L(3) - 0.1) lab("3 · الأسلاك", c.cx, c.cy + c.h / 2 + 50, C.teal, L(3) + 0.3);
-  if (t > L(4) - 0.1) { T("+", c.cx - c.w / 2 - 110, c.cy - 70, { size: 60, weight: 900, color: C.amber, a: P(t, L(4) + 0.6, 0.4) }); chip("− · GND الأرضي", c.cx - c.w / 2 - 70, c.cy + 260, { size: 28, col: C.mut, a: pop(t, L(4) + 3.4, 0.45) }); }
+  if (t > L(1) - 0.1) lab("1 · المصدر", c.bx - 230, c.by, C.amber, L(1) + 0.3); if (t > L(2) - 0.1) lab("2 · الحمل", c.lx + 230, c.ly, C.red, L(2) + 0.3); if (t > L(3) - 0.1) lab("3 · الأسلاك", 960, 780, C.teal, L(3) + 0.3);
+  if (t > L(4) - 0.1) { T("+", c.bx - 80, 340, { size: 60, weight: 900, color: C.amber, a: P(t, L(4) + 0.6, 0.4) }); chip("− · GND الأرضي", c.bx - 230, 650, { size: 28, col: C.mut, a: pop(t, L(4) + 3.4, 0.45) }); }
 };
 SCENES.closed = (t, L, E) => {
   const a = eo(P(t, L(0) - 0.1, 0.5));
