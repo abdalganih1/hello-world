@@ -1,6 +1,7 @@
 /* صمّم · منطق واجهة العميل
    الفكرة ← بطاقات الأسئلة ← التوليد ← المعاينة.
-   chooseTemplate() هون تقليد بسيط بالكلمات المفتاحية؛ بالنسخة الحقيقية بيستبدلها طلب لـ Worker بيسأل الذكاء الاصطناعي. */
+   الذكاء الاصطناعي (/api/plan) بيفهم الفكرة من أول خطوة: نوع المشروع، أمثلة عن شغله، القالب، الأقسام، الاسم والرابط.
+   chooseTemplate() بالكلمات المفتاحية بس احتياط إذا الذكاء الاصطناعي ما رد. */
 (function () {
   const TPL = window.SAMMEM_TEMPLATES;
   const $ = (s, r = document) => r.querySelector(s);
@@ -141,16 +142,24 @@
     const t = TPL[st.t];
     const optional = [...new Set(t.sections.map((s) => s.type))].filter((k) => SECTION_NAMES[k]);
     return [
-      { key: "النوع", title: "شو نوع مشروعك؟", get hint() { return st.thinking ? "الذكاء الاصطناعي عم يقرا فكرتك ويختار الأنسب…" : (st.aiWhy ? "اخترنالك: " + esc(st.aiWhy.replace(/[.،]\s*$/, "")) + ". غيّرو إذا بدك." : "اخترنالك الأقرب حسب فكرتك. غيّرو إذا بدك."); }, valid: () => !!st.t,
+      { key: "النوع", title: "شو نوع مشروعك؟", get hint() { return st.thinking ? "الذكاء الاصطناعي عم يقرا فكرتك ويفهم شو بدك…" : (st.aiWhy ? "فهمنا فكرتك: " + esc(st.aiWhy.replace(/[.،]\s*$/, "")) + ". غيّرو إذا بدك." : "اخترنالك الأقرب حسب فكرتك. غيّرو إذا بدك."); }, valid: () => !!st.t && !st.thinking,
         html: () => {
+          if (st.thinking) return `<div class="opts"><button class="opt" aria-busy="true" disabled><span class="tagai">عم نفهم فكرتك…</span><b>${esc(st.idea)}</b><small>الذكاء الاصطناعي عم يختار نوع موقعك وأقسامه</small></button></div>`;
           // الاقتراح والمختار أولاً، وبعدين الباقي؛ منعرض 6 وبزر «اعرض المزيد» الباقي
+          const ops = st.aiOptions || [];
+          const opCards = ops.map((o, i) => `<button class="opt" data-o="${i}" aria-pressed="${st.oi === i}"><span class="tagai">${i ? "أو يمكن قصدك" : "فهمنا فكرتك"}</span><b>${esc(o.label)}</b><small>${esc(o.examples.slice(0, 5).join("، "))}</small></button>`).join("");
+          if (ops.length) {
+            const others = Object.values(TPL);
+            return `<div class="opts">${opCards}</div>${st.moreT ? `<p class="fine">أو اختار تصميم جاهز:</p><div class="opts">${others.map((x) => `<button class="opt" data-t="${x.id}" aria-pressed="${st.oi < 0 && x.id === st.t}"><b>${esc(x.label)}</b><small>${esc(x.keywords.slice(0, 5).join("، "))}</small></button>`).join("")}</div>` : `<button class="more" data-more>ولا شي منهن؟ <span>اختار من التصاميم الجاهزة</span></button>`}`;
+          }
           const all = Object.values(TPL), first = [st.ai, st.t].filter((v, i, a) => a.indexOf(v) === i);
           const list = [...first.map((id) => TPL[id]), ...all.filter((x) => !first.includes(x.id))];
           const shown = st.moreT ? list : list.slice(0, 6), rest = list.length - shown.length;
-          return `<div class="opts">${shown.map((x) => `<button class="opt" data-t="${x.id}" aria-pressed="${x.id === st.t}">${x.id === st.ai ? `<span class="tagai">${st.thinking ? "عم نفهم فكرتك…" : "اقتراح الذكاء الاصطناعي"}</span>` : ""}<b>${esc(x.label)}</b><small>${esc(x.keywords.slice(0, 5).join("، "))}</small></button>`).join("")}</div>
+          return `<div class="opts">${shown.map((x) => `<button class="opt" data-t="${x.id}" aria-pressed="${x.id === st.t}">${x.id === st.ai ? `<span class="tagai">${st.thinking ? "عم نفهم فكرتك…" : "اقتراح الذكاء الاصطناعي"}</span>` : ""}${x.id === st.ai && st.aiLabel ? `<b>${esc(st.aiLabel)}</b><small>${esc((st.aiExamples.length ? st.aiExamples : x.keywords).slice(0, 5).join("، "))}${st.aiLabel !== x.label ? ` · بتصميم «${esc(x.label)}»` : ""}</small>` : `<b>${esc(x.label)}</b><small>${esc(x.keywords.slice(0, 5).join("، "))}</small>`}</button>`).join("")}</div>
             ${rest ? `<button class="more" data-more>اعرض المزيد <span>(${rest} أنواع)</span></button>` : ""}`;
         },
-        bind: (el) => { el.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => { st.picked = true; st.t = b.dataset.t; st.palette = TPL[st.t].defaultPalette; st.off = []; paint(); });
+        bind: (el) => { el.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => { st.picked = true; st.oi = -1; st.t = b.dataset.t; st.palette = TPL[st.t].defaultPalette; st.off = []; paint(); });
+          el.querySelectorAll("[data-o]").forEach((b) => b.onclick = () => { st.picked = true; pickOption(+b.dataset.o); paint(); });
           const m = $("[data-more]", el); if (m) m.onclick = () => { st.moreT = true; paint(); animIn(); }; } },
       { key: "الاسم", title: "شو اسم مشروعك؟", hint: "هالاسم رح يطلع باللوغو وبعنوان الموقع.", valid: () => st.name.trim().length > 1,
         html: () => `<div class="fld"><label for="w-name">اسم المشروع</label><input id="w-name" value="${esc(st.name)}" placeholder="${esc(TPL[st.t].brand.name)}" autocomplete="organization"></div>
@@ -197,7 +206,7 @@
 
   function startWizard(idea, forceT) {
     st.idea = idea.trim(); st.ai = chooseTemplate(st.idea); st.t = forceT || st.ai; st.palette = TPL[st.t].defaultPalette;
-    st.name = guessName(st.idea); st.slug = slugify(st.name) || TPL[st.t].id; st.off = []; st.step = 0; st.logo = ""; st.images = []; st.morePal = false; st.moreT = false; st.content = {}; st.tagline = ""; st.nameTouched = false; st.slugTouched = false; st.aiWhy = "";
+    st.name = guessName(st.idea); st.slug = slugify(st.name) || TPL[st.t].id; st.off = []; st.step = 0; st.logo = ""; st.images = []; st.morePal = false; st.moreT = false; st.content = {}; st.tagline = ""; st.nameTouched = false; st.slugTouched = false; st.aiWhy = ""; st.aiLabel = ""; st.aiExamples = []; st.aiSections = []; st.aiOptions = []; st.oi = -1;
     layer.hidden = false; document.body.classList.add("busy"); document.body.style.overflow = "hidden";
     st.picked = !!forceT; st.thinking = !forceT;
     paint(true);
@@ -205,7 +214,8 @@
   }
   // الذكاء الاصطناعي بيقرا الفكرة وبيختار القالب والاسم والرابط (الكلمات المفتاحية بس احتياط لحد ما يرد)
   async function askPlan(idea) {
-    const templates = Object.values(TPL).map((t) => ({ id: t.id, label: t.label, keywords: t.keywords }));
+    const kindOf = (types) => (types.includes("products") || types.includes("catalog") ? "متجر" : types.includes("menu") ? "منيو" : "خدمات");
+    const templates = Object.values(TPL).map((t) => { const types = [...new Set(t.sections.map((x) => x.type))]; return { id: t.id, label: t.label, kind: kindOf(types), sections: types, keywords: t.keywords }; });
     let d = null;
     try {
       const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 25000);
@@ -215,13 +225,24 @@
     if (st.idea !== idea) return; // الزبون بلّش فكرة تانية
     st.thinking = false;
     if (d && TPL[d.t]) {
-      st.ai = d.t; st.aiWhy = d.why || "";
-      if (!st.picked) { st.t = d.t; st.palette = TPL[d.t].defaultPalette; }
+      st.ai = d.t; st.aiWhy = d.why || ""; st.aiSections = d.sections || [];
+      st.aiOptions = (d.options || []).filter((o) => TPL[o.t]);
+      if (!st.aiOptions.length && d.label) st.aiOptions = [{ label: d.label, examples: d.examples || [], t: d.t }];
+      if (!st.picked) pickOption(st.aiOptions.length ? 0 : -1);
       if (d.name && !st.nameTouched) { st.name = d.name; }
       if (d.slug && !st.slugTouched) st.slug = d.slug; else if (!st.slugTouched) st.slug = slugify(st.name) || TPL[st.t].id;
       if (d.tagline && !st.tagline) st.tagline = d.tagline;
     }
     if (!layer.hidden && st.step === 0) paint();
+  }
+
+  // اختيار فهم من فهمات الذكاء الاصطناعي: بيحدد القالب، ونوع المشروع وأمثلته اللي بتنبعت للكتابة، والأقسام
+  function pickOption(i) {
+    const o = st.aiOptions[i];
+    st.oi = o ? i : -1; st.aiLabel = o ? o.label : ""; st.aiExamples = o ? o.examples : [];
+    st.t = o ? o.t : st.ai; st.palette = TPL[st.t].defaultPalette; st.off = [];
+    const opt = [...new Set(TPL[st.t].sections.map((x) => x.type))].filter((k) => SECTION_NAMES[k]);
+    if (st.aiSections.length && st.t === st.ai) st.off = opt.filter((k) => !st.aiSections.includes(k));
   }
 
   function shell(inner) {
@@ -286,7 +307,8 @@
     const lines = ["عم نفهم فكرتك ونختار القالب", "عم نكتب النصوص بالعربي", "عم نركّب الأقسام والحركة", "عم نجهّز المعاينة"];
     layer.innerHTML = shell(`<div class="gen"><div class="box"><div class="orbit"><i></i><i></i><i></i></div><h2>عم نصمّم «${esc(st.name)}»</h2><ul>${lines.map((l) => `<li>${l}</li>`).join("")}</ul></div></div>`);
     const li = layer.querySelectorAll(".gen li"); let i = 0, done = false;
-    const job = askAI("write", st.idea + (st.tagline ? " — " + st.tagline : "")).then((d) => { if (d.ok) applyAI(d); st.wrote = d.ok; done = true; });
+    const about = st.idea + (st.aiLabel ? `\nنوع المشروع: ${st.aiLabel}` : "") + (st.aiExamples.length ? `\nشو بيبيع أو بيقدم: ${st.aiExamples.join("، ")} (خلي المنتجات والخدمات من هالنوع بالضبط)` : "") + (st.tagline ? "\n" + st.tagline : "");
+    const job = askAI("write", about).then((d) => { if (d.ok) applyAI(d); st.wrote = d.ok; done = true; });
     const tick = () => {
       if (i === 2 && !done) { setTimeout(tick, 400); return; } // منستنى الكتابة عند خطوة النصوص
       if (i) li[i - 1].className = "ok";
@@ -395,8 +417,12 @@
     const grow = () => { ta.style.height = "auto"; ta.style.height = Math.min(160, ta.scrollHeight) + "px"; };
     ta.addEventListener("input", grow);
     ta.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
-    form.addEventListener("submit", (e) => { e.preventDefault(); if (ta.value.trim().length < 4) { ta.focus(); return; } startWizard(ta.value); });
-    document.querySelectorAll("[data-ex]").forEach((b) => b.onclick = () => { ta.value = b.dataset.ex; grow(); ta.focus(); });
+    const hint = $("#askHint");
+    form.addEventListener("submit", (e) => { e.preventDefault(); if (ta.value.trim().length < 4) { hint.hidden = false; form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake"); ta.focus(); return; } startWizard(ta.value); });
+    ta.addEventListener("input", () => { if (ta.value.trim().length >= 4) hint.hidden = true; });
+    // على الكمبيوتر المؤشر بيكون جاهز بالمربع؛ عالموبايل لا، كرمال ما يطلع الكيبورد فجأة
+    if (matchMedia("(pointer: fine)").matches) ta.focus({ preventScroll: true });
+    document.querySelectorAll("[data-ex]").forEach((b) => b.onclick = () => { ta.value = b.dataset.ex; grow(); hint.hidden = true; ta.focus(); });
     addEventListener("keydown", (e) => { if (e.key === "Escape" && !layer.hidden) close(); });
     if (window.gsap && !reduce) {
       gsap.from(".phero .pw > *", { y: 40, opacity: 0, duration: 1.1, stagger: 0.08, ease: "expo.out" });
