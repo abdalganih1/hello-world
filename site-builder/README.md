@@ -47,12 +47,12 @@
 
 ```bash
 cd site-builder
-npx wrangler secret put OPENROUTER_API_KEY   # مفتاح OpenRouter
+npx wrangler secret put ZAI_API_KEY   # مفتاح Z.ai (glm-5.3-flash)
 npx wrangler secret put ADMIN_KEY   # مفتاح لوحة المراجعة
 npx wrangler deploy
 curl https://build.md2.dev/api/health
 ```
 
 - الإعدادات بـ `wrangler.jsonc`: `AI_MODEL` و`AI_FALLBACK_MODELS` (موديلات OpenRouter) و`AI_REASONING` (أقل تفكير لـ GLM فبيصير أسرع)، `SITE_DOMAIN`، `TRIAL_DAYS`، `CONTACT_URL`.
-- كل طلبات الذكاء الاصطناعي بتمر عبر OpenRouter. إذا الموديل الأساسي وقف، OpenRouter بيجرب موديلات الاحتياط تلقائياً.
+- الذكاء الاصطناعي: Z.ai مباشرة (`glm-5.3-flash`). إذا وقف، الاحتياط OpenRouter (إذا في `OPENROUTER_API_KEY`) ثم المزود القديم. ما في Workers AI.
 - الحد اليومي لكل زائر بـ KV (`LIMITS`): 5 كتابات و20 تعديل.
