@@ -327,7 +327,7 @@ SCENES.compare = (t, L, E) => {
     const a = eo(P(t, L(3) - 0.3, 0.5)) * (1 - tab); const gate = t > L(4) ? 0.5 - 0.5 * Math.cos((t - L(4)) * 2.4) : 0;
     guard(Lf[0] - 90, Lf[1] + 40, sc, a, gate);
     if (t > L(4) - 0.1) { I.target(Lf[0] - 120, Lf[1] - 240, 1.1 * pop(t, L(4), 0.4), { a }); for (let i = 0; i < 2; i++) { const w = (t * 0.8 + i / 2) % 1; ring(Lf[0] - 120, Lf[1] - 240, 40 + w * 90, C.teal, 3, a * (1 - w)); } chip("مهمة واحدة", Lf[0] + 120, Lf[1] - 240, { size: 30, col: C.teal, a: a * pop(t, L(4) + 0.4, 0.4) }); }
-    chip("حارس بوابة = الأردوينو", Lf[0], 760, { size: 30, col: C.teal, a: a * win(t, L(3) + 0.4, L(5), 0.3) });
+    chip("حارس البوابة = الأردوينو", Lf[0], 760, { size: 30, col: C.teal, a: a * win(t, L(3) + 0.4, L(5), 0.3) });
   }
   // VS
   const va = ca * (1 - tab);
