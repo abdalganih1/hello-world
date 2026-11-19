@@ -224,7 +224,7 @@ SCENES.teaser = (t, L, E) => {
   const endA = eo(P(t, L(3) - 0.1, 0.6)), a = eo(P(t, L(0) - 0.3, 0.6)) * (1 - endA);
   if (a > 0) {
     halo(960, 420, 600, "rgba(46,230,197,0.14)", a);
-    if (t < L(1)) TW("الآن تفهم لغته ✓", 960, 400, L(0) + 0.2, { size: 92, weight: 900, colors: { "لغته": C.teal }, g: 24, a });
+    if (t < L(1)) TW("الآن أنت تفهم لغته ✓", 960, 400, L(0) + 0.2, { size: 92, weight: 900, colors: { "لغته": C.teal }, g: 24, a });
     else { const bx = 1400, by = 450, bs = 0.55, led = t > L(2) + 3.2 ? blink(t, 0.5) : 0;
       const la = eo(P(t, L(1), 0.5)); I.laptop(560, 450, 1.5, { a: la * a, code: 0 });
       const port = unoPt(bx, by, bs, -60, 154), pts = []; for (let i = 0; i <= 24; i++) { const u = i / 24; pts.push([lerp(760, port[0], u), lerp(520, port[1], u) + Math.sin(u * Math.PI) * 70]); }
