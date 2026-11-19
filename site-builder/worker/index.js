@@ -164,23 +164,31 @@ async function handleAI(req, env, kind) {
 }
 
 /* ---------- فهم الفكرة: الذكاء الاصطناعي بيختار القالب والاسم والرابط ---------- */
-const PLAN_SYSTEM = `إنت مساعد بمنصة مواقع. بيوصلك وصف الزبون لمشروعه وقائمة قوالب. اختار القالب الأنسب لنوع النشاط الفعلي.
-رجّع JSON فقط: {"t":"معرّف القالب","name":"اسم المشروع إذا ذكره الزبون وإلا اقترح اسم عربي قصير","slug":"رابط بأحرف إنكليزية صغيرة وأرقام و - (3-24 حرف)، ترجمة صوتية للاسم","tagline":"جملة قصيرة بالعامية الشامية بتوصف المشروع","fit":"high|low","why":"سبب قصير بالعربي بدون معرّفات القوالب"}
-- إذا ما في قالب مخصص لنوع النشاط، اختار agency للشركات والخدمات العامة، و fit=low.
-- لا تختار قالب أكل لمشروع مو أكل، ولا متجر لمشروع خدمات.`;
+const PLAN_SYSTEM = `إنت مساعد بمنصة مواقع. بيوصلك وصف الزبون لمشروعه وقائمة قوالب (كل قالب مع نوعه وأقسامه). افهم شو المشروع بالضبط، ورجّع JSON فقط بدون شرح:
+{"options":[{"label":"نوع المشروع بكلماتك، دقيق ومحدد","examples":["4 لـ 6 أمثلة حقيقية عن اللي بيبيعه أو بيقدمه، كلمة أو كلمتين"],"t":"معرّف القالب الأنسب لهالفهم"}],"t":"معرّف القالب لأول خيار","sections":["الأقسام اللي بتناسب هالمشروع من أقسام القالب المختار"],"name":"اسم المشروع إذا ذكره الزبون وإلا اقترح اسم عربي قصير","slug":"رابط بأحرف إنكليزية صغيرة وأرقام و - (3-24 حرف)، ترجمة صوتية للاسم","tagline":"جملة قصيرة بالعامية الشامية بتوصف المشروع","fit":"high|low","why":"سبب قصير بالعربي بدون معرّفات القوالب"}
+- اختار القالب حسب طبيعة الشغل: المحل اللي بيبيع منتجات بياخد قالب نوعه "متجر"، والأكل قالب "منيو"، والخدمات قالب "خدمات". لا تختار قالب خدمات لمتجر، ولا قالب أكل لمشروع مو أكل.
+- إذا ما في قالب لنفس النشاط، اختار الأقرب بالنوع والشكل (مثلاً متجر أجهزة كهربائية أقرب لمتجر لابتوبات أو أدوات منزلية من شركة خدمات)، و fit=low.
+- options إجبارية دايماً. فيها من 2 لـ 3 فهمات مختلفة للفكرة إذا الكلام بيحتمل أكتر من معنى، والأرجح أولاً. مثال: "متجر أدوات كهربائية" ممكن يعني أجهزة كهربائية منزلية (غسالات، برادات، مكيفات، أفران) أو مستلزمات تمديدات كهربائية (كوابل، قواطع، إنارة). إذا الفكرة واضحة، خيار واحد بيكفي.
+- الأمثلة لازم تطابق كلام الزبون، وما تخلط بين الفهمات.`;
 async function handlePlan(req, env) {
   let b; try { b = await req.json(); } catch { return json({ error: "bad json" }, 400); }
   const idea = String(b.idea || "").trim().slice(0, 600);
-  const list = Array.isArray(b.templates) ? b.templates.slice(0, 40).map((t) => ({ id: String(t.id).slice(0, 30), label: String(t.label || "").slice(0, 60), keywords: (t.keywords || []).slice(0, 8).map(String) })) : [];
+  const list = Array.isArray(b.templates) ? b.templates.slice(0, 40).map((t) => ({ id: String(t.id).slice(0, 30), label: String(t.label || "").slice(0, 60), kind: String(t.kind || "").slice(0, 20), sections: (t.sections || []).slice(0, 16).map(String).filter((x) => EDITABLE.includes(x)), keywords: (t.keywords || []).slice(0, 8).map(String) })) : [];
   if (idea.length < 3 || !list.length) return json({ error: "missing" }, 400);
   if (await overLimit(env, req, "plan")) return json({ error: "limit" }, 429);
-  const messages = [{ role: "system", content: PLAN_SYSTEM }, { role: "user", content: "القوالب:\n" + list.map((t) => `${t.id}: ${t.label} (${t.keywords.join("، ")})`).join("\n") + "\n\nوصف الزبون: " + idea }];
+  const messages = [{ role: "system", content: PLAN_SYSTEM }, { role: "user", content: "القوالب:\n" + list.map((t) => `${t.id}: ${t.label} [نوعه: ${t.kind || "-"}] (أقسامه: ${t.sections.join("، ")}) (${t.keywords.join("، ")})`).join("\n") + "\n\nوصف الزبون: " + idea }];
   let out; const via = "ai";
   try { out = extractJSON(await callAI(env, messages)); }
   catch (e1) { console.warn("plan ai failed:", e1.message); return json({ error: "ai unavailable" }, 502); }
   const ids = new Set(list.map((t) => t.id));
+  const t = ids.has(out.t) ? out.t : "agency";
+  const tSecs = new Set((list.find((x) => x.id === t) || {}).sections || []);
   const slug = String(out.slug || "").toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 24);
-  return json({ t: ids.has(out.t) ? out.t : "agency", name: String(out.name || "").slice(0, 40), slug: slug.length >= 3 ? slug : "", tagline: String(out.tagline || "").slice(0, 120), fit: out.fit === "low" ? "low" : "high", why: String(out.why || "").slice(0, 160), via });
+  const strs = (a, n, len) => (Array.isArray(a) ? a : []).filter((x) => typeof x === "string" && x.trim()).slice(0, n).map((x) => x.trim().slice(0, len));
+  const options = (Array.isArray(out.options) ? out.options : []).slice(0, 3).filter((o) => o && typeof o.label === "string" && o.label.trim())
+    .map((o) => ({ label: o.label.trim().slice(0, 60), examples: strs(o.examples, 6, 30), t: ids.has(o.t) ? o.t : t }));
+  return json({ t, options, label: options[0] ? options[0].label : "", examples: options[0] ? options[0].examples : [], sections: strs(out.sections, 16, 20).filter((x) => tSecs.has(x)),
+    name: String(out.name || "").slice(0, 40), slug: slug.length >= 3 ? slug : "", tagline: String(out.tagline || "").slice(0, 120), fit: out.fit === "low" ? "low" : "high", why: String(out.why || "").slice(0, 160), via });
 }
 
 /* ---------- المواقع المنشورة: <slug>.SITE_DOMAIN من R2 ---------- */
