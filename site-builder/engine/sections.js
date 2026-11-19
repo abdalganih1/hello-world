@@ -143,7 +143,9 @@
   };
 
   S.products = (d, site) => {
-    const cats = [...new Set((d.items || []).map((it) => it.cat).filter(Boolean))];
+    // ترتيب الأصناف من لوحة الإدارة (d.cats) إذا موجود، وإلا من ترتيب المنتجات
+    const used = new Set((d.items || []).map((it) => it.cat).filter(Boolean));
+    const cats = Array.isArray(d.cats) ? [...d.cats.filter((c) => used.has(c)), ...[...used].filter((c) => !d.cats.includes(c))] : [...used];
     return `
   <section class="sec s-products" id="${esc(d.id || "products")}">
     <div class="wrap">
