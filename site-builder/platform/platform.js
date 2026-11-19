@@ -325,7 +325,7 @@
           <div class="sub-in"><input id="pv-slug" value="${esc(st.slug)}" maxlength="30" autocomplete="off" spellcheck="false"><span>.${esc(DOMAIN)}</span></div>
           <label class="fine" for="w-contact">رقم واتساب للتواصل معك</label>
           <input id="w-contact" dir="ltr" inputmode="tel" value="${esc(st.contact || st.whatsapp || st.phone)}" placeholder="+963 9xx xxx xxx">
-          <p class="fine" id="pub-msg" role="status"></p>
+          <div class="fine" id="pub-msg" role="status"></div>
         </div>
         <div class="acts"><button class="pbtn accent" data-send>انشر موقعي هلق</button></div>
         <p class="note">${st.wrote ? "النصوص كتبها الذكاء الاصطناعي حسب فكرتك. راجعها قبل الإرسال." : "ما قدرنا نوصل للذكاء الاصطناعي هالمرة، فالنصوص الحالية من القالب. فيك تعدّلها بالكلمات من المربع فوق."}</p>
@@ -370,7 +370,13 @@
         btn.textContent = "افتح موقعك";
         $("#stt").textContent = "منشور · تجريبي " + (d.days || 3) + " أيام";
         const end = new Date(d.liveUntil), when = end.toLocaleDateString("ar-SY-u-nu-latn", { weekday: "long", day: "numeric", month: "long" }) + " " + end.toLocaleTimeString("ar-SY-u-nu-latn", { hour: "numeric", minute: "2-digit" });
-        pmsg.innerHTML = `موقعك صار شغّال على <a href="${esc(d.url)}" target="_blank" rel="noopener" dir="ltr">${esc(d.url.replace("https://", ""))}</a><br>بيتوقف ${esc(when)} · باقي <b data-left></b><br>تواصل معنا قبلها لتعتمده.`;
+        pmsg.innerHTML = `موقعك صار شغّال على <a href="${esc(d.url)}" target="_blank" rel="noopener" dir="ltr">${esc(d.url.replace("https://", ""))}</a><br>بيتوقف ${esc(when)} · باقي <b data-left></b><br>تواصل معنا قبلها لتعتمده.` + (d.admin ? `
+          <div class="w-admin"><b>لوحة إدارة موقعك</b><span>منها بتضيف أصنافك ومنتجاتك وأسعارك وبتعدّل معلوماتك.</span>
+            <div class="w-admin-row"><span>الرابط</span><a href="${esc(d.admin.url)}" target="_blank" rel="noopener" dir="ltr">${esc(d.admin.url.replace("https://", ""))}</a></div>
+            <div class="w-admin-row"><span>كلمة السر</span><code dir="ltr">${esc(d.admin.password)}</code><button type="button" class="w-copy" data-copy="${esc(d.admin.password)}">انسخ</button></div>
+            <small>كلمة السر جاهزة وثابتة. احتفظ فيها (صوّر الشاشة)، ما بتتغير.</small>
+            <a class="w-admin-go" href="${esc(d.admin.url)}" target="_blank" rel="noopener">افتح لوحة الإدارة</a></div>` : "");
+        pmsg.querySelectorAll("[data-copy]").forEach((b) => (b.onclick = async () => { try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "انتسخت ✓"; } catch { const r = document.createRange(); r.selectNodeContents(b.previousElementSibling); getSelection().removeAllRanges(); getSelection().addRange(r); } }));
         const left = pmsg.querySelector("[data-left]"), pad = (n) => String(n).padStart(2, "0");
         (function tick() { if (!left.isConnected) return; let s = Math.max(0, Math.floor((d.liveUntil - Date.now()) / 1000)); const dd = Math.floor(s / 86400); s %= 86400; left.textContent = (dd ? dd + "ي " : "") + pad(Math.floor(s / 3600)) + ":" + pad(Math.floor(s % 3600 / 60)) + ":" + pad(s % 60); setTimeout(tick, 1000); })();
       } catch { btn.disabled = false; btn.textContent = "انشر موقعي هلق"; pmsg.textContent = "انقطع الاتصال، جرّب مرة تانية."; }

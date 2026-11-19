@@ -43,6 +43,9 @@
     const set = o.sq ? `${b}-sq.webp 240w, ${b}-480.webp 480w` : ws.map((w) => `${b}-${w}.webp ${w}w`).join(", ");
     return `<span class="ph pic-w" style="--lq:url(${m.lqip})"${o.parallax === false ? "" : ' data-parallax="-0.08"'}><img class="pic" src="${src}" srcset="${set}" sizes="${o.sizes || "(max-width: 760px) 100vw, 50vw"}" width="${o.sq ? 240 : m.w}" height="${o.sq ? 240 : m.h}" loading="lazy" decoding="async" alt="${esc(o.alt || "")}" data-zoom="${b}-${ws[ws.length - 1]}.webp" onload="this.classList.add('in')"></span>`;
   };
+  // صورة رفعها الزبون من لوحة الإدارة (رابط كامل) بدل صور المكتبة
+  const isUp = (v) => typeof v === "string" && /^(https?:\/\/|data:image\/|\/m\/)/.test(v);
+  const upImg = (src, alt) => `<span class="ph has-up"><img class="up" src="${esc(src)}" alt="${esc(alt || "")}" loading="lazy" decoding="async"></span>`;
   const ph = (label, x = 30, y = 30) => `<div class="ph" style="--px:${x}%;--py:${y}%" data-parallax="-0.12"></div>${label ? `<span class="ph-label">${esc(label)}</span>` : ""}`;
   const head = (d, center) => `
     <div class="sec-head${center ? " center" : ""}" data-reveal>
@@ -127,9 +130,9 @@
       </div>
       ${cats.map((c, i) => `
         <div class="menu-list" role="tabpanel" aria-labelledby="tab-${i}" data-panel="${i}" ${i ? "hidden" : ""}>
-          ${c.items.map((it, j) => `
+          ${(c.items || []).map((it, j) => `
             <div class="dish" data-reveal>
-              <div class="thumb">${it.img ? pic(it.img, { sq: true, alt: it.name, sizes: "120px", parallax: false }) : `<div class="ph" style="--px:${30 + j * 9}%;--py:${60 - j * 7}%"></div>`}</div>
+              <div class="thumb">${isUp(it.img) ? upImg(it.img, it.name) : it.img ? pic(it.img, { sq: true, alt: it.name, sizes: "120px", parallax: false }) : `<div class="ph" style="--px:${30 + j * 9}%;--py:${60 - j * 7}%"></div>`}</div>
               <div><h4>${esc(it.name)}${it.tag ? `<span class="tag">${esc(it.tag)}</span>` : ""}</h4><p>${esc(it.desc)}</p></div>
               <span class="price">${esc(it.price)}${site.brand.whatsapp ? `<a class="dish-order" ${waAttrs(waLink(site, orderMsg(site, it, d.orderLabel || "اطلب")))} aria-label="${esc(d.orderLabel || "اطلب")} ${esc(it.name)} ع واتساب">${icon("wa")}${esc(d.orderLabel || "اطلب")}</a>` : ""}</span>
             </div>`).join("")}
@@ -149,7 +152,7 @@
       <div class="prods" data-stagger>
         ${(d.items || []).map((it, i) => `
           <article class="prod" data-c="${esc(it.cat || "")}" data-tilt>
-            <div class="pimg">${ph("", 25 + (i * 23) % 60, 30 + (i * 17) % 40)}${it.tag ? `<span class="ptag">${esc(it.tag)}</span>` : ""}</div>
+            <div class="pimg">${isUp(it.img) ? upImg(it.img, it.name) : ph("", 25 + (i * 23) % 60, 30 + (i * 17) % 40)}${it.tag ? `<span class="ptag">${esc(it.tag)}</span>` : ""}</div>
             <div class="pbody">
               <h3>${esc(it.name)}</h3>
               ${it.desc ? `<p>${esc(it.desc)}</p>` : ""}

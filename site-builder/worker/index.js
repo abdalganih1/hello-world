@@ -5,6 +5,8 @@
    الموديل: Z.ai مباشرة (السر ZAI_API_KEY)، واحتياط OpenRouter أو المزود القديم. بدون Workers AI. */
 
 const EDITABLE = ["hero", "marquee", "about", "services", "menu", "process", "gallery", "team", "testimonials", "pricing", "products", "craft", "showcase", "faq", "cta", "contact"];
+// الأقسام اللي بتنحفظ بمحتوى الموقع (الذكاء الاصطناعي ما بيعدّل catalog، بس لوحة الإدارة)
+const CONTENT_TYPES = () => [...EDITABLE, "catalog"];
 const PALETTES = ["luxe", "calm", "bold", "olive", "sea", "rose", "sand", "night", "ruby"];
 const ICONS = ["leaf", "fire", "truck", "party", "tooth", "spark", "shield", "heart", "child", "calendar", "code", "pen", "chart", "cart", "megaphone", "rocket"];
 
@@ -31,12 +33,13 @@ function extractJSON(text) {
 }
 
 // تنظيف: نقبل بس المفاتيح والأنواع المعروفة، ونقص النصوص الطويلة
-function clean(v, depth = 0) {
+// lim: أكبر عدد عناصر بكل قائمة (الذكاء الاصطناعي 12، لوحة الإدارة أكتر حتى يضيف منتجاته كلها)
+function clean(v, depth = 0, lim = 12) {
   if (depth > 5) return undefined;
   if (typeof v === "string") return v.slice(0, 600);
-  if (typeof v === "number" || typeof v === "boolean") return v;
-  if (Array.isArray(v)) return v.slice(0, 12).map((x) => clean(x, depth + 1)).filter((x) => x !== undefined);
-  if (v && typeof v === "object") { const o = {}; for (const [k, x] of Object.entries(v).slice(0, 30)) { const c = clean(x, depth + 1); if (c !== undefined) o[k] = c; } return o; }
+  if (typeof v === "number" || typeof v === "boolean") return Number.isFinite(v) || typeof v === "boolean" ? v : undefined;
+  if (Array.isArray(v)) return v.slice(0, lim).map((x) => clean(x, depth + 1, lim)).filter((x) => x !== undefined);
+  if (v && typeof v === "object") { const o = {}; for (const [k, x] of Object.entries(v).slice(0, 30)) { const c = clean(x, depth + 1, lim); if (c !== undefined) o[k] = c; } return o; }
   return undefined;
 }
 function validate(out, content) {
@@ -209,11 +212,20 @@ function contactLink(env, rec) {
 }
 const CONTACT = (env) => env.CONTACT_URL ? `<p><a href="${escH(env.CONTACT_URL)}">تواصل معنا</a></p>` : "";
 
-async function serveSite(req, env, slug) {
+async function adminShell(env, url) {
+  const r = await env.ASSETS.fetch(new Request(new URL("/site-admin/panel.html", url)));
+  return new Response(await r.text(), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex", "x-frame-options": "DENY", "referrer-policy": "same-origin" } });
+}
+
+async function serveSite(req, env, slug, ctx) {
   const url = new URL(req.url);
+  // لوحة إدارة الموقع (لكل موقع لوحته، بكلمة سر جاهزة)
+  if (url.pathname === "/admin" || url.pathname === "/admin/") return adminShell(env, url);
+  if (url.pathname.startsWith("/admin/api/")) return handleSiteAdmin(req, env, ctx, slug, url);
+  if (url.pathname.startsWith("/m/")) return serveMedia(env, slug, url.pathname.slice(3));
   // ملفات المحرك (engine/ templates/) بتنخدم من نفس الـ Worker
   if (url.pathname !== "/" && url.pathname !== "/index.html") {
-    if (/^\/(engine|templates|media)\//.test(url.pathname)) return env.ASSETS.fetch(req);
+    if (/^\/(engine|templates|media|site-admin)\//.test(url.pathname)) return env.ASSETS.fetch(req);
     return new Response("Not found", { status: 404 });
   }
   const rec = await getSite(env, slug);
@@ -231,10 +243,11 @@ function cleanCfg(c) {
   const out = {};
   ["t", "palette", "name", "tagline", "phone", "whatsapp", "email", "address", "hours"].forEach((k) => { if (typeof c[k] === "string") out[k] = c[k].slice(0, k === "tagline" ? 200 : 80); });
   if (Array.isArray(c.off)) out.off = c.off.filter((x) => typeof x === "string").slice(0, 20);
+  if (Array.isArray(c.blank)) out.blank = c.blank.filter((x) => ["phone", "whatsapp", "email", "address", "hours", "tagline"].includes(x));
   const img = (s) => typeof s === "string" && /^(data:image\/(png|jpeg|webp);base64,|https:\/\/)/.test(s);
   if (img(c.logo)) out.logo = c.logo;
   if (Array.isArray(c.images)) out.images = c.images.filter(img).slice(0, 6);
-  if (c.content && typeof c.content === "object") { out.content = {}; for (const [k, v] of Object.entries(c.content)) if (EDITABLE.includes(k)) out.content[k] = clean(v); }
+  if (c.content && typeof c.content === "object") { out.content = {}; const ok = CONTENT_TYPES(); for (const [k, v] of Object.entries(c.content)) if (ok.includes(k)) out.content[k] = clean(v, 0, 150); }
   return out;
 }
 
@@ -277,12 +290,20 @@ async function handleSubmit(req, env, ctx) {
   const old = await getSite(env, slug);
   if (old && old.status !== "rejected" && old.owner !== b.owner) return json({ error: "taken", reply: "هالعنوان محجوز، اختار غيره." }, 409);
   const owner = (old && old.owner === b.owner && b.owner) || crypto.randomUUID();
+  const same = !!(old && old.owner === owner && old.status !== "rejected");
   const days = parseInt(env.TRIAL_DAYS || "3", 10);
-  const rec = { slug, owner, status: "live", liveUntil: old?.liveUntil && old.status === "live" ? old.liveUntil : Date.now() + days * DAY, approvedAt: old?.approvedAt || Date.now(), moderation: { state: "checking" }, contact, idea: String(b.idea || "").slice(0, 800), cfg: cleanCfg(b.cfg), created: old?.created || Date.now(), updated: Date.now(), ip: req.headers.get("cf-connecting-ip") || "" };
+  const cfg = cleanCfg(b.cfg);
+  // اللي عدّله الزبون من لوحة الإدارة (منتجات، أصناف، أرقام...) ما بيرجع للقديم لما يعيد النشر من المنصة
+  if (same && Array.isArray(old.adminKeys)) keepAdminEdits(cfg, old);
+  const rec = { slug, owner, status: "live", liveUntil: same && old.liveUntil && old.status === "live" ? old.liveUntil : Date.now() + days * DAY, approvedAt: (same && old.approvedAt) || Date.now(), moderation: { state: "checking" }, contact, idea: String(b.idea || "").slice(0, 800), cfg, created: (same && old.created) || Date.now(), updated: Date.now(), ip: req.headers.get("cf-connecting-ip") || "",
+    // لوحة إدارة الموقع: كلمة سر جاهزة بتنولّد مرة وحدة، والزبون ما بيقدر يغيّرها
+    adminPass: (same && old.adminPass) || genPass(), adminKeys: (same && old.adminKeys) || [], adminUpdated: (same && old.adminUpdated) || 0, paid: !!(same && old.paid) };
+  if (!rec.paid) delete rec.paid;
   await putSite(env, rec);
   // المراجعة بالذكاء الاصطناعي بالخلفية: الموقع بينفتح فوراً، وإذا طلع مخالف بيتوقف
   if (ctx) ctx.waitUntil(moderate(env, slug).catch((e) => console.warn("moderation failed:", e.message)));
-  return json({ ok: true, slug, owner, url: `https://${slug}.${env.SITE_DOMAIN}`, liveUntil: rec.liveUntil, days });
+  const url = `https://${slug}.${env.SITE_DOMAIN}`;
+  return json({ ok: true, slug, owner, url, liveUntil: rec.liveUntil, days, admin: { url: url + "/admin", password: rec.adminPass } });
 }
 
 async function handleSlug(url, env) {
@@ -306,19 +327,22 @@ async function handleAdmin(req, env, url) {
       else if (act === "stop") Object.assign(rec, { liveUntil: Date.now() - 1, paid: false });
       else if (act === "paid") Object.assign(rec, { status: "live", paid: true, liveUntil: Date.now() + 366 * DAY });
       else if (act === "reject") rec.status = "rejected";
-      if (act === "delete") await env.SITES.delete(siteKey(slug)); else await putSite(env, rec);
+      else if (act === "newpass") rec.adminPass = genPass(); // بس من هون: الزبون ما بيقدر يغيّرها
+      if (act === "delete") { await env.SITES.delete(siteKey(slug)); const m = await env.SITES.list({ prefix: `media/${slug}/`, limit: 1000 }); if (m.objects.length) await env.SITES.delete(m.objects.map((o) => o.key)); } else await putSite(env, rec);
     }
     return Response.redirect(`${url.origin}/admin?key=${encodeURIComponent(key)}`, 303);
   }
   const list = []; let cursor;
   do { const r = await env.SITES.list({ prefix: "sites/", cursor }); for (const o of r.objects) { const x = await env.SITES.get(o.key); if (x) list.push(await x.json()); } cursor = r.truncated ? r.cursor : null; } while (cursor && list.length < 500);
+  // المواقع القديمة اللي انعملت قبل لوحة الإدارة: منولّدلها كلمة سر
+  await Promise.all(list.filter((r) => !r.adminPass && r.status !== "rejected").map((r) => { r.adminPass = genPass(); return putSite(env, r); }));
   const pri = (r) => (r.status === "flagged" ? -2 : r.status === "pending" ? -1 : 0); list.sort((a, b) => pri(a) - pri(b) || b.updated - a.updated);
   const mod = (r) => !r.moderation ? "" : r.moderation.state === "ok" ? "<br><small>✓ الذكاء الاصطناعي: مقبول</small>" : r.moderation.state === "flagged" ? `<br><small>⚠ الذكاء الاصطناعي: ${escH(r.moderation.reason)}</small>` : r.moderation.state === "checking" ? "<br><small>… عم يتراجع</small>" : "<br><small>؟ المراجعة ما اشتغلت</small>";
   const st = (r) => (r.status === "flagged" ? "⚠ موقوف تلقائياً" : r.paid && r.status === "live" ? "★ معتمد لـ " + new Date(r.liveUntil).toISOString().slice(0, 10) : r.status === "pending" ? "⏳ بانتظار المراجعة" : r.status === "rejected" ? "✗ مرفوض" : Date.now() > r.liveUntil ? "⌛ منتهي" : "● تجريبي لـ " + new Date(r.liveUntil).toISOString().slice(0, 16).replace("T", " ")) + mod(r);
   const btn = (r, act, label, cls = "") => `<form method="post" style="display:inline"><input type="hidden" name="slug" value="${escH(r.slug)}"><input type="hidden" name="act" value="${act}"><button class="${cls}">${label}</button></form>`;
-  const rows = list.map((r) => `<tr><td><a href="https://${escH(r.slug)}.${escH(env.SITE_DOMAIN)}" target="_blank">${escH(r.slug)}</a><br><small>${escH(r.cfg.name)}</small></td><td>${escH(r.contact)}</td><td><small>${escH(r.idea)}</small></td><td>${st(r)}</td><td>
+  const rows = list.map((r) => `<tr><td><a href="https://${escH(r.slug)}.${escH(env.SITE_DOMAIN)}" target="_blank">${escH(r.slug)}</a><br><small>${escH(r.cfg.name)}</small></td><td>${escH(r.contact)}${r.adminPass ? `<br><small><a href="https://${escH(r.slug)}.${escH(env.SITE_DOMAIN)}/admin" target="_blank">لوحة الزبون</a> · كلمة السر: <code dir="ltr">${escH(r.adminPass)}</code></small>${r.adminUpdated ? `<br><small>آخر تعديل من اللوحة: ${new Date(r.adminUpdated).toISOString().slice(0, 16).replace("T", " ")}</small>` : ""}` : ""}</td><td><small>${escH(r.idea)}</small></td><td>${st(r)}</td><td>
     <a href="/admin/preview?key=${encodeURIComponent(key)}&s=${encodeURIComponent(r.slug)}" target="_blank">معاينة</a>
-    ${r.status !== "live" ? btn(r, "approve", "وافق وشغّل 3 أيام", "ok") : ""} ${r.status === "live" ? btn(r, "paid", "اعتمد (سنة بلا شريط)", "ok") + btn(r, "extend", "+30 يوم") + btn(r, "stop", "أوقف") : ""} ${r.status !== "rejected" ? btn(r, "reject", "ارفض") : btn(r, "delete", "احذف")}</td></tr>`).join("");
+    ${r.status !== "live" ? btn(r, "approve", "وافق وشغّل 3 أيام", "ok") : ""} ${r.status === "live" ? btn(r, "paid", "اعتمد (سنة بلا شريط)", "ok") + btn(r, "extend", "+30 يوم") + btn(r, "stop", "أوقف") : ""} ${r.status !== "rejected" ? btn(r, "reject", "ارفض") : btn(r, "delete", "احذف")} ${r.adminPass && r.status !== "rejected" ? btn(r, "newpass", "كلمة سر جديدة") : ""}</td></tr>`).join("");
   return page("مراجعة المواقع", `<div class="c wide"><h1>مراجعة المواقع (${list.length})</h1><table><tr><th>العنوان</th><th>التواصل</th><th>الفكرة</th><th>الحالة</th><th></th></tr>${rows || '<tr><td colspan="5">ما في مواقع لسا.</td></tr>'}</table></div>`);
 }
 
@@ -330,6 +354,115 @@ async function adminPreview(req, env, url) {
   return new Response(html.replace("<main id=\"site\"></main>", `<main id="site"></main><script>window.SAMMEM_SITE=${JSON.stringify(rec.cfg).replace(/</g, "\\u003c")};</script>`), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex" } });
 }
 
+/* ---------- لوحة إدارة موقع الزبون: https://<slug>.SITE_DOMAIN/admin ----------
+   كل موقع إلو كلمة سر جاهزة (adminPass) بتنولّد وقت النشر وبتنعرض للزبون. ما في تغيير كلمة سر من اللوحة.
+   الزبون بيدير منها: المنتجات والأصناف (أو المنيو)، الخدمات، الأسعار، الأسئلة، معلومات التواصل، الشعار والصور، وإظهار الأقسام. */
+const PASS_ABC = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function genPass() {
+  let s = "";
+  while (s.length < 12) for (const x of crypto.getRandomValues(new Uint8Array(24))) if (x < 220 && s.length < 12) s += PASS_ABC[x % PASS_ABC.length];
+  return s.slice(0, 4) + "-" + s.slice(4, 8) + "-" + s.slice(8);
+}
+const INFO_KEYS = ["name", "tagline", "phone", "whatsapp", "email", "address", "hours", "logo", "images", "off", "blank"];
+function keepAdminEdits(cfg, old) {
+  for (const k of old.adminKeys) {
+    if (k.startsWith("content.")) { const t = k.slice(8); if (old.cfg.content && old.cfg.content[t] !== undefined) { cfg.content = cfg.content || {}; cfg.content[t] = old.cfg.content[t]; } }
+    else if (INFO_KEYS.includes(k)) { if (old.cfg[k] !== undefined) cfg[k] = old.cfg[k]; else delete cfg[k]; }
+  }
+}
+const enc = new TextEncoder();
+const b64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+async function hmac(env, msg) {
+  const k = await crypto.subtle.importKey("raw", enc.encode(env.SESSION_SECRET || env.ADMIN_KEY || "sammem-dev"), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return b64u(await crypto.subtle.sign("HMAC", k, enc.encode(msg)));
+}
+function eqSafe(a, b) {
+  const x = enc.encode(String(a)), y = enc.encode(String(b));
+  if (x.length !== y.length) return false;
+  return crypto.subtle.timingSafeEqual ? crypto.subtle.timingSafeEqual(x, y) : x.every((v, i) => v === y[i]);
+}
+const COOKIE = "sm_admin";
+const cookieOf = (req) => { const m = (req.headers.get("cookie") || "").match(/(?:^|;\s*)sm_admin=([^;]+)/); return m ? m[1] : ""; };
+async function sessionOk(req, env, rec) {
+  const [exp, sig] = cookieOf(req).split(".");
+  if (!exp || !sig || Number(exp) < Date.now()) return false;
+  return eqSafe(sig, await hmac(env, `${rec.slug}|${exp}|${rec.adminPass}`));
+}
+const MEDIA_TYPES = { "image/webp": "webp", "image/jpeg": "jpg", "image/png": "png" };
+
+async function handleSiteAdmin(req, env, ctx, slug, url) {
+  const p = url.pathname.slice("/admin/api/".length);
+  if (req.method === "POST" && req.headers.get("origin") && req.headers.get("origin") !== url.origin) return json({ error: "origin" }, 403);
+  const rec = await getSite(env, slug);
+  if (!rec || rec.status === "rejected") return json({ error: "no site", reply: "هالموقع مو موجود." }, 404);
+  if (!rec.adminPass) { rec.adminPass = genPass(); await putSite(env, rec); }
+
+  if (p === "login" && req.method === "POST") {
+    const ip = req.headers.get("cf-connecting-ip") || "anon", lk = `login:${slug}:${ip}:${Math.floor(Date.now() / 900000)}`;
+    const n = env.LIMITS ? parseInt((await env.LIMITS.get(lk)) || "0", 10) : 0;
+    if (n >= 8) return json({ error: "limit", reply: "محاولات كتير. استنى ربع ساعة وجرّب." }, 429);
+    let b; try { b = await req.json(); } catch { b = {}; }
+    const pass = String(b.password || "").trim();
+    // بنتجاهل الأحرف الكبيرة والصغيرة والشرطات والفراغات (كيبورد الموبايل بيكبّر أول حرف)
+    const norm = (x) => String(x).replace(/[\s-]/g, "").toLowerCase();
+    if (!eqSafe(norm(pass), norm(rec.adminPass))) {
+      if (env.LIMITS) await env.LIMITS.put(lk, String(n + 1), { expirationTtl: 1000 });
+      return json({ error: "wrong", reply: "كلمة السر غلط." }, 401);
+    }
+    const exp = Date.now() + 30 * DAY, val = `${exp}.${await hmac(env, `${slug}|${exp}|${rec.adminPass}`)}`;
+    return new Response(JSON.stringify({ ok: true }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "set-cookie": `${COOKIE}=${val}; Path=/; Max-Age=${30 * 86400}; HttpOnly; Secure; SameSite=Strict` } });
+  }
+  if (p === "logout") return new Response(JSON.stringify({ ok: true }), { headers: { "content-type": "application/json", "set-cookie": `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict` } });
+
+  if (!(await sessionOk(req, env, rec))) return json({ error: "auth", reply: "سجّل دخول من جديد." }, 401);
+  const days = parseInt(env.TRIAL_DAYS || "3", 10);
+
+  if (p === "site" && req.method === "GET") {
+    return json({ slug, url: url.origin, status: rec.status, liveUntil: rec.liveUntil, paid: !!rec.paid, days, cfg: rec.cfg, updated: rec.updated, contact: contactLink(env, rec) });
+  }
+  if (p === "save" && req.method === "POST") {
+    if (rec.status === "flagged") return json({ error: "flagged", reply: "الموقع موقوف للمراجعة، تواصل معنا." }, 423);
+    const raw = await req.text();
+    if (raw.length > 1_500_000) return json({ error: "too large", reply: "البيانات كبيرة كتير." }, 413);
+    let b; try { b = JSON.parse(raw); } catch { return json({ error: "bad json" }, 400); }
+    const inc = b.cfg && typeof b.cfg === "object" ? b.cfg : {};
+    if (b.updated && rec.updated && b.updated !== rec.updated) return json({ error: "stale", reply: "الموقع انعدّل من مكان تاني. حدّث الصفحة وجرّب.", updated: rec.updated }, 409);
+    const next = Object.assign({}, rec.cfg, { t: rec.cfg.t, palette: rec.cfg.palette });
+    const touched = new Set(rec.adminKeys || []);
+    for (const k of INFO_KEYS) if (k in inc) { next[k] = inc[k]; touched.add(k); }
+    if (inc.content && typeof inc.content === "object") {
+      next.content = Object.assign({}, rec.cfg.content || {});
+      for (const [t, v] of Object.entries(inc.content)) if (CONTENT_TYPES().includes(t)) { next.content[t] = v; touched.add("content." + t); }
+    }
+    rec.cfg = cleanCfg(next);
+    for (const k of ["logo", "images"]) if (k in inc && !inc[k]) delete rec.cfg[k];
+    Object.assign(rec, { adminKeys: [...touched], adminUpdated: Date.now(), updated: Date.now(), moderation: { state: "checking" } });
+    await putSite(env, rec);
+    if (ctx) ctx.waitUntil(moderate(env, slug).catch((e) => console.warn("moderation failed:", e.message)));
+    return json({ ok: true, updated: rec.updated, cfg: rec.cfg });
+  }
+  if (p === "upload" && req.method === "POST") {
+    const type = (req.headers.get("content-type") || "").split(";")[0].trim();
+    if (!MEDIA_TYPES[type]) return json({ error: "type", reply: "الصورة لازم تكون JPG أو PNG أو WEBP." }, 415);
+    const buf = await req.arrayBuffer();
+    if (buf.byteLength > 2_500_000) return json({ error: "too large", reply: "الصورة كبيرة كتير." }, 413);
+    if (buf.byteLength < 100) return json({ error: "empty" }, 400);
+    const dk = `upl:${slug}:${new Date().toISOString().slice(0, 10)}`;
+    if (env.LIMITS) { const n = parseInt((await env.LIMITS.get(dk)) || "0", 10); if (n >= 300) return json({ error: "limit", reply: "وصلت لحد رفع الصور اليوم." }, 429); await env.LIMITS.put(dk, String(n + 1), { expirationTtl: 90000 }); }
+    const name = Date.now().toString(36) + crypto.getRandomValues(new Uint32Array(1))[0].toString(36) + "." + MEDIA_TYPES[type];
+    await env.SITES.put(`media/${slug}/${name}`, buf, { httpMetadata: { contentType: type, cacheControl: "public, max-age=31536000, immutable" } });
+    return json({ ok: true, url: `${url.origin}/m/${name}` });
+  }
+  return json({ error: "not found" }, 404);
+}
+
+async function serveMedia(env, slug, file) {
+  if (!/^[a-z0-9]+\.(webp|jpg|png)$/.test(file)) return new Response("Not found", { status: 404 });
+  const o = await env.SITES.get(`media/${slug}/${file}`);
+  if (!o) return new Response("Not found", { status: 404 });
+  return new Response(o.body, { headers: { "content-type": o.httpMetadata?.contentType || "image/webp", "cache-control": "public, max-age=31536000, immutable", etag: o.httpEtag } });
+}
+
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
@@ -339,7 +472,7 @@ export default {
       if (sub === "www") return Response.redirect(`https://${dom}${url.pathname}${url.search}`, 301);
       if (!(env.PLATFORM_SUBS || "build").split(",").includes(sub)) {
         if (sub.includes(".")) return new Response("Not found", { status: 404 });
-        return serveSite(req, env, sub);
+        return serveSite(req, env, sub, ctx);
       }
     }
     if (url.pathname === "/admin") return handleAdmin(req, env, url);

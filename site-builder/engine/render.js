@@ -15,7 +15,9 @@
     if (cfg.tagline) site.brand.tagline = cfg.tagline;
     if (cfg.logo) site.brand.logo = cfg.logo;
     site.images = Array.isArray(cfg.images) ? cfg.images : [];
-    ["phone", "whatsapp", "email", "address", "hours"].forEach((k) => { if (cfg[k]) site.brand[k] = cfg[k]; });
+    // blank: حقول فضّاها صاحب الموقع من لوحة الإدارة، فما منرجّع بيانات القالب التجريبية مكانها
+    const blank = new Set(cfg.blank || []);
+    ["phone", "whatsapp", "email", "address", "hours"].forEach((k) => { if (cfg[k]) site.brand[k] = cfg[k]; else if (blank.has(k)) delete site.brand[k]; });
     // تعديلات الذكاء الاصطناعي: { type: data } بتنضاف فوق بيانات القالب (المعرّف id بيضل نفسه)
     if (cfg.content) site.sections.forEach((s) => { const d = cfg.content[s.type]; if (d) s.data = Object.assign({}, s.data, d, s.data && s.data.id ? { id: s.data.id } : {}); });
     const off = new Set(cfg.off || []);

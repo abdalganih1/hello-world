@@ -386,3 +386,7 @@ html, body { overflow-x: clip; }
 .credits summary { cursor: pointer; }
 .credits ul { margin: 8px 0 0; padding-inline-start: 18px; display: grid; gap: 4px; }
 .credits a { color: inherit; }
+/* صور رفعها الزبون من لوحة الإدارة */
+.ph.has-up { background: var(--surface); }
+.ph.has-up img.up { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.pimg .ph.has-up { inset: 0; }
