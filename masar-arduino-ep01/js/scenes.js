@@ -227,15 +227,15 @@ const ANAT = [null,
   { p: ["chip"], ic: "brain", ti: "متحكم صغير", te: "Microcontroller", su: "فيه يحفظ برنامجك وينفذ", c: C.amber },
   { p: ["usb"], ic: "plug", ti: "مدخل USB", te: "USB", su: "منه البرنامج… ومنه الكهرباء", c: C.blue },
   { p: ["power"], ic: "battery", ti: "مدخل الطاقة", te: "Power Jack", su: "بطارية أو شاحن", c: C.green },
-  { p: ["digital", "analog", "powerpins"], ic: "pins", ti: "أرجل اللوحة", te: "Pins", su: "صفوف ثقوب على الأطراف", c: C.teal },
+  { p: ["digital", "analog", "powerpins"], ic: "pins", ti: "أقطاب اللوحة", te: "Pins", su: "صفوف ثقوب على الأطراف", c: C.teal },
   { p: ["digital", "analog", "powerpins"], ic: "nerve", ti: "مثل الأعصاب", te: "Pins", su: "توصل اللوحة بالقطع الأخرى", c: C.teal },
   { p: ["digital"], ic: "switch", ti: "إما تشغيل… أو إطفاء", te: "Digital Pins", su: "مثل مفتاح الضوء", c: C.teal },
   { p: ["analog"], ic: "knob", ti: "كل الدرجات", te: "Analog Pins", su: "للصوت أو الضوء أو الحرارة", c: C.blue },
-  { p: ["powerpins"], ic: "bolt", ti: "أرجل الطاقة", te: "5V · 3.3V · GND", su: "كهرباء للقطع التي نوصلها", c: C.amber },
+  { p: ["powerpins"], ic: "bolt", ti: "أقطاب الطاقة", te: "5V · 3.3V · GND", su: "كهرباء للقطع التي نوصلها", c: C.amber },
   { p: ["reset"], ic: "refresh", ti: "زر إعادة التشغيل", te: "Reset", su: "يعيد البرنامج من بدايته", c: C.red },
   { p: ["led"], ic: "bulb", ti: "ضوء صغير", te: "LED  ·  L", su: "أول ما سنجعله يومض", c: C.amber },
 ];
-const TAGS = { chip: ["الدماغ", 700, 820], usb: ["USB", 200, 300], power: ["الطاقة", 200, 640], digital: ["Digital", 860, 150], analog: ["Analog", 1060, 790], powerpins: ["أرجل الطاقة", 440, 790], reset: ["Reset", 380, 150], led: ["L", 620, 150] };
+const TAGS = { chip: ["الدماغ", 700, 820], usb: ["USB", 200, 300], power: ["الطاقة", 200, 640], digital: ["Digital", 860, 150], analog: ["Analog", 1060, 790], powerpins: ["أقطاب الطاقة", 440, 790], reset: ["Reset", 380, 150], led: ["L", 620, 150] };
 SCENES.anatomy = (t, L, E) => {
   const z = eio(P(t, L(0) - 0.3, 1.3)); const bx = 720, by = 470, bs = lerp(0.42, 0.95, z);
   const k = curK(t, L, 13); const it = k >= 1 && k <= 11 ? ANAT[k] : null;
@@ -286,7 +286,7 @@ SCENES.anatomy = (t, L, E) => {
       seg(pc[0], pc[1], x, y, "rgba(46,230,197,0.6)", 2, a); circle(pc[0], pc[1], 6, C.teal, a);
       chip(s, x, y, { size: 26, col: C.teal, a });
     });
-    [["دماغ", C.amber], ["طاقة", C.green], ["أرجل", C.teal]].forEach(([s, c], i) => chip(s, 1500, 320 + i * 150, { size: 46, col: c, a: pop(t, L(12) + 0.8 + i * 0.6, 0.45) }));
+    [["دماغ", C.amber], ["طاقة", C.green], ["أقطاب", C.teal]].forEach(([s, c], i) => chip(s, 1500, 320 + i * 150, { size: 46, col: c, a: pop(t, L(12) + 0.8 + i * 0.6, 0.45) }));
   }
 };
 
@@ -541,7 +541,7 @@ SCENES.why = (t, L, E) => {
 
 // ---------------------------------------------------------------- 10. BOARDS
 SCENES.boards = (t, L, E) => {
-  const s = 0.55, items = [[1440, "Uno", "الأشهر · سنعمل عليها", C.teal, L(1)], [960, "Nano", "أصغر بكثير", C.amber, L(2)], [480, "Mega", "أكبر · أرجل أكثر", C.violet, L(3)]];
+  const s = 0.55, items = [[1440, "Uno", "الأشهر · سنعمل عليها", C.teal, L(1)], [960, "Nano", "أصغر بكثير", C.amber, L(2)], [480, "Mega", "أكبر · أقطاب أكثر", C.violet, L(3)]];
   items.forEach(([x, name, sub, col, th], i) => {
     const a0 = eo(P(t, L(0) + i * 0.15, 0.4)); const on = eo(P(t, th - 0.1, 0.45)); const y = 420;
     if (on <= 0) { const w = [UNO_W, 450, 1016][i] * s, h = [UNO_H, 180, 533][i] * s; A(a0); rr(x - w / 2, y - h / 2, w, h, 14); ctx.setLineDash([12, 10]); ctx.strokeStyle = "rgba(120,140,180,0.5)"; ctx.lineWidth = 3; ctx.stroke(); ctx.setLineDash([]); T("؟", x, y, { size: 70, weight: 900, color: C.dim, a: a0 }); return; }

@@ -998,85 +998,73 @@
   ]
  },
  "35": {
-  "text": "في setup: الدالة pinMode. أي: جهز الرجل رقم ثلاثة عشر لتكون مخرجا.",
+  "text": "في setup نكتب: pinMode. أي: جهز القطب رقم ثلاثة عشر ليكون مخرجا.",
   "pick": {
-   "file": "audio/george/8f7ef1ace9b6.mp3",
-   "say": "في setup نَكْتُب: pinMode. أَيْ: جَهِّز الرِّجْل رَقْم ثَلاثَة عَشَر لِتَكون مَخْرَجًا.",
+   "file": "audio/george/e8c5328e11be.mp3",
+   "say": "في setup نَكْتُب: pinMode. أَيْ: جَهِّز القُطْب رَقْم ثَلاثَة عَشَر لِيَكون مَخْرَجًا.",
    "hamza": false,
    "take": 1,
-   "syr": -0.276,
-   "SYR": 0.003,
-   "sim": 1.0,
-   "wr": 1.08,
+   "syr": -0.278,
+   "SYR": 0.002,
+   "sim": 0.89,
+   "wr": 1.0,
    "dur": 7.16,
-   "heard": " في Setup نكتب Pin Mode, أي جهز الرجل رقم ثلاثة عشر لتكون مخرجاً."
+   "heard": " في Setup نكتب Pin Mode، أي جهز القطب رقم 13 ليكون مخرجاً."
   },
   "all": [
    {
-    "file": "audio/george/8f7ef1ace9b6.mp3",
-    "say": "في setup نَكْتُب: pinMode. أَيْ: جَهِّز الرِّجْل رَقْم ثَلاثَة عَشَر لِتَكون مَخْرَجًا.",
+    "file": "audio/george/e8c5328e11be.mp3",
+    "say": "في setup نَكْتُب: pinMode. أَيْ: جَهِّز القُطْب رَقْم ثَلاثَة عَشَر لِيَكون مَخْرَجًا.",
     "hamza": false,
     "take": 1,
-    "syr": -0.276,
-    "SYR": 0.003,
-    "sim": 1.0,
-    "wr": 1.08,
-    "dur": 7.16,
-    "heard": " في Setup نكتب Pin Mode, أي جهز الرجل رقم ثلاثة عشر لتكون مخرجاً."
-   },
-   {
-    "file": "audio/george/8f8ef5771c87.mp3",
-    "say": "في setup نَجِد pinMode. أَيْ: جَهِّز الرِّجْل رَقْم ثَلاثَة عَشَر لِتَكون مَخْرَجًا.",
-    "hamza": false,
-    "take": 1,
-    "syr": -0.238,
-    "SYR": 0.005,
+    "syr": -0.278,
+    "SYR": 0.002,
     "sim": 0.89,
     "wr": 1.0,
-    "dur": 7.0,
-    "heard": " في Setup نجد Pin Mode، أي جهز الرجل رقم 13 لتكون مخرجاً."
+    "dur": 7.16,
+    "heard": " في Setup نكتب Pin Mode، أي جهز القطب رقم 13 ليكون مخرجاً."
    }
   ]
  },
  "36": {
-  "text": "ثم في loop: الدالة digitalWrite مع HIGH. أي: أعط الرجل كهرباء… فيضيء الضوء.",
+  "text": "ثم في loop نكتب: digitalWrite مع HIGH. أي: أعط القطب كهرباء… فيضيء الضوء.",
   "pick": {
-   "file": "audio/george/ab2f974fc03e.mp3",
-   "say": "ثُمَّ في loop نَكْتُب: digitalWrite مَع HIGH. أَيْ: أَعْطِ الرِّجْل كَهْرَباء… فَيُضيء الضَّوْء.",
+   "file": "audio/george/02664a524b16.mp3",
+   "say": "ثُمَّ في loop نَكْتُب: digitalWrite مَع HIGH. أَيْ: أَرْسِل الكَهْرَباء إِلى القُطْب… فَيُضيء الضَّوْء.",
    "hamza": false,
    "take": 1,
-   "syr": -0.465,
-   "SYR": 0.0,
-   "sim": 0.91,
-   "wr": 1.08,
-   "dur": 8.2,
-   "heard": " ثم في لوب نكتب  Digital Write مع Hi  أي أعطي الرجل كهرباء  فيضيء الضوء",
-   "override": "«Digital Write» heard clearly (the other take: «Digital Ride»)"
+   "syr": -0.373,
+   "SYR": 0.002,
+   "sim": 0.93,
+   "wr": 1.07,
+   "dur": 8.52,
+   "heard": " ثم في لوب نكتب  Digital Write مع Hi  أي أرسل الكهرباء إلى القطب فيضيء الضوء",
+   "override": "«أعط القطب» was heard «القطبة»"
   },
   "all": [
    {
-    "file": "audio/george/ab2f974fc03e.mp3",
-    "say": "ثُمَّ في loop نَكْتُب: digitalWrite مَع HIGH. أَيْ: أَعْطِ الرِّجْل كَهْرَباء… فَيُضيء الضَّوْء.",
+    "file": "audio/george/02664a524b16.mp3",
+    "say": "ثُمَّ في loop نَكْتُب: digitalWrite مَع HIGH. أَيْ: أَرْسِل الكَهْرَباء إِلى القُطْب… فَيُضيء الضَّوْء.",
     "hamza": false,
     "take": 1,
-    "syr": -0.465,
-    "SYR": 0.0,
-    "sim": 0.91,
-    "wr": 1.08,
-    "dur": 8.2,
-    "heard": " ثم في لوب نكتب  Digital Write مع Hi  أي أعطي الرجل كهرباء  فيضيء الضوء"
+    "syr": -0.373,
+    "SYR": 0.002,
+    "sim": 0.93,
+    "wr": 1.07,
+    "dur": 8.52,
+    "heard": " ثم في لوب نكتب  Digital Write مع Hi  أي أرسل الكهرباء إلى القطب فيضيء الضوء"
    },
    {
-    "file": "audio/george/8f5faf3c29bb.mp3",
-    "say": "ثُمَّ في loop نَجِد digitalWrite وَمَعَها HIGH. أَيْ: أَعْطِ الرِّجْل كَهْرَباء… فَيُضيء الضَّوْء.",
+    "file": "audio/george/5a0779410d83.mp3",
+    "say": "ثُمَّ في loop نَكْتُب: digitalWrite مَع HIGH. أَيْ: أَعْطِ القُطْب كَهْرَباء… فَيُضيء الضَّوْء.",
     "hamza": false,
     "take": 1,
-    "syr": -0.446,
-    "SYR": 0.001,
-    "sim": 0.95,
+    "syr": -0.43,
+    "SYR": 0.0,
+    "sim": 0.96,
     "wr": 1.08,
-    "dur": 8.52,
-    "heard": " ثم في Loop نجد Digital Ride ومعها Hi، أي أعطي الرجل كهرباء فيضيء الضوء."
+    "dur": 8.2,
+    "heard": " ثم في Loop نكتب Digital Write مع Hi، أي أعطي القطبة كهرباء فيضيء الضوء."
    }
   ]
  },

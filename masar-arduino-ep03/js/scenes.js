@@ -129,8 +129,8 @@ SCENES.commands = (t, L, E) => {
   if (k === 0) { TW("3 أوامر جديدة", 960, 330, L(0) + 0.6, { size: 100, weight: 900, colors: { "3": C.amber }, g: 22 }); ["pinMode", "digitalWrite", "delay"].forEach((s, i) => chip(s, 1260 - i * 300, 520, { size: 34, col: C.blue, a: pop(t, L(0) + 1.6 + i * 0.3, 0.4) })); return; }
   const a = 1;
   if (k === 1) { const c = bigCode("pinMode(13, OUTPUT);", 960, 250, 84, a), n13 = c.toks[2], out = c.toks[5];
-    if (t > L(2) - 0.1) { chip("رقم الرجل", n13.x + n13.w / 2, 360, { size: 28, col: C.amber, a: pop(t, L(2) + 0.5, 0.4) }); chip("الوضع", out.x + out.w / 2, 360, { size: 28, col: C.amber, a: pop(t, L(2) + 1.4, 0.4) }); chip("OUTPUT = مخرج ⚡", out.x + out.w / 2, 440, { size: 28, col: C.teal, a: pop(t, L(2) + 2.6, 0.4) }); }
-    if (t < L(2) - 0.1) TW("هل تعطي كهرباء… أم تستقبل؟", 960, 420, L(1) + 1.2, { size: 52, weight: 900, colors: { "تعطي": C.amber, "تستقبل؟": C.blue } });
+    if (t > L(2) - 0.1) { chip("رقم القطب", n13.x + n13.w / 2, 360, { size: 28, col: C.amber, a: pop(t, L(2) + 0.5, 0.4) }); chip("الوضع", out.x + out.w / 2, 360, { size: 28, col: C.amber, a: pop(t, L(2) + 1.4, 0.4) }); chip("OUTPUT = مخرج ⚡", out.x + out.w / 2, 440, { size: 28, col: C.teal, a: pop(t, L(2) + 2.6, 0.4) }); }
+    if (t < L(2) - 0.1) TW("هل يعطي كهرباء… أم يستقبل؟", 960, 420, L(1) + 1.2, { size: 52, weight: 900, colors: { "يعطي": C.amber, "يستقبل؟": C.blue } });
     if (t > L(3) - 0.15) { const bx = 960, by = 690, bs = 0.5, ua = eo(P(t, L(3), 0.5)), pin = unoPt(bx, by, bs, 286, 24), ld = unoPt(bx, by, bs, 300, 104);
       uno(bx, by, bs, { a: ua, hl: { digital: 0.6 }, hc: C.amber }); const u = P(t, L(3) + 1.6, 1.0); pathPartial([pin, [pin[0], pin[1] + 40], [ld[0], pin[1] + 40], ld], u, C.amber, 5, ua); if (u >= 1) boardLed(bx, by, bs, "L", 1, C.amber, ua);
       chip("13", pin[0], pin[1] - 40, { size: 28, col: C.amber, a: ua * pop(t, L(3) + 1.0, 0.4) }); T("L", ld[0] + 40, ld[1], { size: 36, weight: 900, fam: "mono", color: C.amber, a: ua * u }); } }
