@@ -411,8 +411,12 @@
     const grow = () => { ta.style.height = "auto"; ta.style.height = Math.min(160, ta.scrollHeight) + "px"; };
     ta.addEventListener("input", grow);
     ta.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
-    form.addEventListener("submit", (e) => { e.preventDefault(); if (ta.value.trim().length < 4) { ta.focus(); return; } startWizard(ta.value); });
-    document.querySelectorAll("[data-ex]").forEach((b) => b.onclick = () => { ta.value = b.dataset.ex; grow(); ta.focus(); });
+    const hint = $("#askHint");
+    form.addEventListener("submit", (e) => { e.preventDefault(); if (ta.value.trim().length < 4) { hint.hidden = false; form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake"); ta.focus(); return; } startWizard(ta.value); });
+    ta.addEventListener("input", () => { if (ta.value.trim().length >= 4) hint.hidden = true; });
+    // على الكمبيوتر المؤشر بيكون جاهز بالمربع؛ عالموبايل لا، كرمال ما يطلع الكيبورد فجأة
+    if (matchMedia("(pointer: fine)").matches) ta.focus({ preventScroll: true });
+    document.querySelectorAll("[data-ex]").forEach((b) => b.onclick = () => { ta.value = b.dataset.ex; grow(); hint.hidden = true; ta.focus(); });
     addEventListener("keydown", (e) => { if (e.key === "Escape" && !layer.hidden) close(); });
     if (window.gsap && !reduce) {
       gsap.from(".phero .pw > *", { y: 40, opacity: 0, duration: 1.1, stagger: 0.08, ease: "expo.out" });
