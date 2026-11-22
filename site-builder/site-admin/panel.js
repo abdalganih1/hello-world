@@ -122,7 +122,7 @@
 
   function tabs() {
     const t = [];
-    if (S.catType) { t.push(["items", S.catType === "menu" ? "المنيو" : "المنتجات", S.cat.items.length]); t.push(["cats", "الأصناف", S.cat.cats.length]); }
+    if (S.catType) { t.push(["items", S.catType === "menu" ? "المنيو" : "المنتجات", S.cat.items.length]); t.push(["cats", "الأصناف", S.cat.cats.length]); if (window.SAMMEM && window.SAMMEM.opts) t.push(["stock", "المخزون"]); }
     Object.keys(LIST).forEach((k) => has(k) && t.push([k, LIST[k].tab]));
     if (has("about")) t.push(["about", "من نحنا"]);
     t.push(["info", "معلومات المحل"], ["images", "الشعار والصور"], ["sections", "الأقسام"]);
@@ -164,6 +164,7 @@
     const v = S.tab;
     if (v === "items") return itemsView(p);
     if (v === "cats") return catsView(p);
+    if (v === "stock") return stockView(p);
     if (LIST[v]) return listView(p, v);
     if (v === "about") return aboutView(p);
     if (v === "info") return infoView(p);
@@ -192,7 +193,7 @@
       ${m.cats.length ? `<div class="chips">${[["*", "الكل"], ...m.cats.map((c) => [c.id, c.name])].map(([id, n]) => `<button data-f="${esc(id)}" aria-pressed="${S.filter === id}">${esc(n)} <small>${id === "*" ? m.items.length : m.items.filter((it) => it.cat === id).length}</small></button>`).join("")}</div>` : ""}
       ${list.length ? `<div class="items">${list.map(([it, i]) => { const src = thumb(it); return `<button class="item" data-i="${i}">
           <span class="th">${src ? `<img src="${esc(src)}" alt="" loading="lazy">` : svg("img")}</span>
-          <span class="tx"><b>${it.featured ? '<span class="star">★</span> ' : ""}${esc(it.name || "بلا اسم")}</b><small>${esc(catName(it.cat) || (it.desc || ""))}</small><span class="pr">${esc(priceTxt(it.price))}${it.old ? ` <s style="color:var(--muted);font-weight:400">${esc(it.old)}</s>` : ""}</span></span>
+          <span class="tx"><b>${it.featured ? '<span class="star">★</span> ' : ""}${esc(it.name || "بلا اسم")}</b><small>${esc(catName(it.cat) || (it.desc || ""))}</small>${optLine(it)}<span class="pr">${OP() && OP().summary(it).from ? "من " : ""}${esc(priceTxt(OP() ? OP().summary(it).price : it.price))}${it.old ? ` <s style="color:var(--muted);font-weight:400">${esc(it.old)}</s>` : ""}</span></span>
         </button>`; }).join("")}</div>` : `<div class="empty">${m.items.length ? "ما في نتائج." : "لسا ما في منتجات. اضغط «منتج جديد»."}</div>`}
       ${headFields(S.catType)}`;
     const qi = $("[data-q]", p); qi.oninput = () => { S.q = qi.value; const pos = qi.selectionStart; itemsView(p); const n = $("[data-q]", p); n.focus(); n.setSelectionRange(pos, pos); };
@@ -212,8 +213,7 @@
     const catOpts = (type === "menu" ? "" : '<option value="">بدون صنف</option>') + m.cats.map((c) => `<option value="${esc(c.id)}" ${c.id === it.cat ? "selected" : ""}>${esc(c.name)}</option>`).join("");
     box.innerHTML = `<form class="box" novalidate>
       <h2>${fresh ? "منتج جديد" : "تعديل المنتج"}</h2>
-      <div class="pimg"><label class="img-slot" data-pic>${thumb(it) ? `<img src="${esc(thumb(it))}" alt="">` : "اضغط لتضيف صورة"}<input class="hidden" type="file" accept="image/*"></label>
-        <div style="display:grid;gap:8px"><small class="hint">صورة مربعة وواضحة بتطلع أحلى. منصغّرها تلقائياً.</small>${thumb(it) ? '<button type="button" class="btn sm danger" data-rmpic>شيل الصورة</button>' : ""}</div></div>
+      <div class="gal" data-gal></div>
       <label class="f"><span>الاسم</span><input name="name" value="${esc(it.name)}" required></label>
       <label class="f"><span>الوصف</span><textarea name="desc" rows="3">${esc(it.desc)}</textarea></label>
       <div class="row2">
@@ -223,6 +223,7 @@
         ${m.cats.length || type !== "menu" ? `<label class="f"><span>الصنف</span><select name="cat">${catOpts}</select></label>` : ""}
       </div>
       ${type === "catalog" ? `<label class="check"><input type="checkbox" name="featured" ${it.featured ? "checked" : ""}> منتج مميّز (بيطلع بالمختارات)</label>` : ""}
+      <div class="opts" data-opts></div>
       <p class="err" style="color:var(--danger);margin:0;min-height:1em"></p>
       <div class="acts">
         <button class="btn pri grow" type="submit">تمام</button>
@@ -234,10 +235,8 @@
     box.addEventListener("click", (e) => { if (e.target === box) close(); });
     $("[data-cancel]", box).onclick = close;
     addEventListener("keydown", function k(e) { if (e.key === "Escape") { close(); removeEventListener("keydown", k); } });
-    const setPic = (url) => { it.img = url; delete it.thumb; delete it.imgs; const s = $("[data-pic]", box); s.innerHTML = (url ? `<img src="${esc(url)}" alt="">` : "اضغط لتضيف صورة") + '<input class="hidden" type="file" accept="image/*">'; bindPic(); };
-    const bindPic = () => { const inp = $("[data-pic] input", box); inp.onchange = async () => { const file = inp.files[0]; if (!file) return; const s = $("[data-pic]", box); s.classList.add("busy"); try { setPic(await upload(file, 1000)); } catch (e) { toast(e.message); } s.classList.remove("busy"); }; };
-    bindPic();
-    const rm = $("[data-rmpic]", box); if (rm) rm.onclick = () => { setPic(""); delete it.img; rm.remove(); };
+    gallery($("[data-gal]", box), it);
+    optsEditor($("[data-opts]", box), it, () => f.price.value.trim());
     f.onsubmit = (e) => {
       e.preventDefault();
       const name = f.name.value.trim();
@@ -249,6 +248,7 @@
       if (f.tag) it.tag = f.tag.value.trim();
       if (f.cat) it.cat = f.cat.value;
       if (f.featured) it.featured = f.featured.checked;
+      tidyOpts(it, type);
       if (fresh) m.items.unshift(it); else m.items[i] = it;
       toSection(); close(); panel(); counts();
     };
@@ -258,6 +258,168 @@
       $("[data-del]", box).onclick = () => { if (!confirm(`تحذف «${m.items[i].name}»؟`)) return; m.items.splice(i, 1); toSection(); close(); panel(); counts(); toast("انحذف"); };
     }
     setTimeout(() => f.name.focus({ preventScroll: true }), 50);
+  }
+
+  /* ---------- صور المنتج: أول صورة هي الرئيسية ---------- */
+  function gallery(el, it) {
+    const list = () => (Array.isArray(it.imgs) && it.imgs.length ? it.imgs.slice() : it.img || it.thumb ? [it.img || it.thumb] : []);
+    const set = (L) => { delete it.thumb; if (L.length) it.img = L[0]; else delete it.img; if (L.length > 1) it.imgs = L; else delete it.imgs; draw(); };
+    const src = (v) => thumb({ img: v });
+    function draw() {
+      const L = list();
+      el.innerHTML = `<div class="gal-h"><b>الصور</b><small class="hint">أول صورة هي اللي بتطلع بالبطاقة. لحد 8 صور.</small></div>
+        <div class="gal-row">${L.map((v, i) => `<div class="img-slot sq"><img src="${esc(src(v))}" alt="">${i ? `<button type="button" class="star" data-main="${i}" title="خليها الرئيسية" aria-label="خليها الرئيسية">★</button>` : '<span class="main">الرئيسية</span>'}<button type="button" class="x" data-rm="${i}" aria-label="احذف">×</button></div>`).join("")}
+        ${L.length < 8 ? `<label class="img-slot sq add">${L.length ? "+ صورة" : "اضغط لتضيف صورة"}<input class="hidden" type="file" accept="image/*" multiple></label>` : ""}</div>`;
+      $$("[data-rm]", el).forEach((b) => (b.onclick = () => { const L = list(); L.splice(+b.dataset.rm, 1); set(L); }));
+      $$("[data-main]", el).forEach((b) => (b.onclick = () => { const L = list(), [x] = L.splice(+b.dataset.main, 1); L.unshift(x); set(L); }));
+      const inp = $("input[type=file]", el);
+      if (inp) inp.onchange = async () => {
+        const slot = inp.closest(".img-slot"); slot.classList.add("busy");
+        const L = list();
+        for (const file of [...inp.files].slice(0, 8 - L.length)) { try { L.push(await upload(file, 1000)); } catch (e) { toast(e.message); } }
+        set(L);
+      };
+    }
+    draw();
+  }
+
+  /* ---------- الخيارات: ألوان، مقاسات، نمر، أحجام، أو أي شي ---------- */
+  const OPT_PRESETS = [
+    { id: "color", label: "ألوان", name: "اللون", kind: "color", sugg: ["أسود", "أبيض", "أحمر", "أزرق", "كحلي", "أخضر", "بيج", "رمادي", "زهري", "بني", "ذهبي", "فضي"] },
+    { id: "size", label: "مقاسات", name: "المقاس", kind: "size", sugg: ["XS", "S", "M", "L", "XL", "XXL", "3XL"] },
+    { id: "shoe", label: "نمر أحذية", name: "النمرة", kind: "size", sugg: ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45"] },
+    { id: "vol", label: "حجم", name: "الحجم", kind: "", sugg: ["صغير", "وسط", "كبير"] },
+    { id: "other", label: "خيار تاني", name: "", kind: "", sugg: [] },
+  ];
+  const suggFor = (o) => { const p = OPT_PRESETS.find((x) => x.name && x.name === o.name) || (o.kind === "color" ? OPT_PRESETS[0] : null); return p ? p.sugg : []; };
+  const normOpts = (it) => { it.options = (Array.isArray(it.options) ? it.options : []).map((o) => ({ name: o.name || "", kind: o.kind || (OP().isColorOpt(o) ? "color" : ""), values: (o.values || []).map((x) => (typeof x === "object" ? Object.assign({}, x) : { v: String(x) })) })); return it.options; };
+  const OP = () => window.SAMMEM.opts;
+
+  function optsEditor(el, it, basePrice) {
+    const opts = normOpts(it);
+    it.variants = Array.isArray(it.variants) ? it.variants : [];
+    const vGet = (k, make) => { let v = it.variants.find((x) => x.k === k); if (!v && make) { v = { k }; it.variants.push(v); } return v; };
+    const ready = () => opts.filter((o) => o.name.trim() && o.values.length);
+    const isCat = S.catType === "catalog";
+    const toNum = (x) => (isCat && /^[\d,.\s]+$/.test(x) && x ? Number(x.replace(/[,\s]/g, "")) : x);
+    function draw() {
+      const R = ready(), list = OP().combos(R, 150);
+      const total = R.reduce((n, o) => n * o.values.length, R.length ? 1 : 0);
+      el.innerHTML = `
+        <div class="opt-h"><b>خيارات المنتج</b><small class="hint">إذا المنتج إلو ألوان أو مقاسات أو أحجام، ضيفها هون. الزبون بيختار منها، والاختيار بيوصلك برسالة الواتساب.</small></div>
+        ${opts.map((o, i) => `<div class="opt" data-k="${i}">
+          <div class="opt-top"><input class="opt-name" data-name value="${esc(o.name)}" placeholder="اسم الخيار (مثلاً: اللون، المقاس، النوع)" aria-label="اسم الخيار">
+            <button type="button" class="btn sm ico danger" data-delopt aria-label="احذف الخيار">${svg("trash")}</button></div>
+          <div class="vals">${o.values.map((x, j) => `<span class="val">${o.kind === "color" ? `<label class="dot" style="background:${esc(x.hex || OP().hexOf(x.v) || "#ccc")}" title="غيّر اللون"><input type="color" data-hex="${j}" value="${esc(x.hex || OP().hexOf(x.v) || "#cccccc")}"></label>` : ""}${esc(x.v)}<button type="button" data-rmv="${j}" aria-label="شيل ${esc(x.v)}">×</button></span>`).join("")}
+            <input class="val-in" data-addv placeholder="${o.values.length ? "قيمة تانية…" : "اكتب قيمة واضغط Enter"}" enterkeyhint="done" aria-label="أضف قيمة"></div>
+          ${suggFor(o).filter((v) => !o.values.some((x) => x.v === v)).length ? `<div class="sugg">${suggFor(o).filter((v) => !o.values.some((x) => x.v === v)).map((v) => `<button type="button" data-sugg="${esc(v)}">+ ${esc(v)}</button>`).join("")}</div>` : ""}
+        </div>`).join("")}
+        ${opts.length < 3 ? `<div class="opt-add"><span>${opts.length ? "خيار كمان:" : "ضيف:"}</span>${OPT_PRESETS.filter((p) => !p.name || !opts.some((o) => o.name === p.name)).map((p) => `<button type="button" class="btn sm" data-preset="${p.id}">${svg("plus")}${esc(p.label)}</button>`).join("")}</div>` : ""}
+        ${R.length ? `<div class="vt">
+          <div class="vt-h"><b>السعر والكمية لكل ${R.length > 1 ? "تركيبة" : esc(R[0].name)}</b><small class="hint">السعر الفاضي = سعر المنتج${basePrice() ? ` (${esc(basePrice())})` : ""}. الكمية الفاضية = بلا عدّ. ${total > 150 ? "<b>أول 150 تركيبة بس.</b>" : ""}</small></div>
+          <div class="vt-bulk"><input data-bp placeholder="سعر للكل" inputmode="${isCat ? "numeric" : "text"}"><input data-bs placeholder="كمية للكل" inputmode="numeric"><button type="button" class="btn sm" data-bulk>طبّق عالكل</button></div>
+          <div class="vrows">${list.map((c) => { const k = OP().keyOf(c), v = vGet(k) || {}; const col = R.findIndex((o) => o.kind === "color"); const hex = col >= 0 ? (R[col].values.find((x) => x.v === c[col]) || {}) : null;
+            return `<div class="vr${v.off ? " off" : ""}${v.stock === 0 ? " zero" : ""}" data-v="${esc(k)}">
+              <span class="vn">${hex ? `<i style="background:${esc(hex.hex || OP().hexOf(hex.v) || "#ccc")}"></i>` : ""}${esc(c.join(" · "))}</span>
+              <label class="vimg" title="صورة لهالتركيبة">${v.img ? `<img src="${esc(thumb({ img: v.img }))}" alt="">` : svg("img")}<input class="hidden" type="file" accept="image/*"></label>
+              <input data-f="price" value="${esc(v.price ?? "")}" placeholder="${esc(basePrice() || "السعر")}" inputmode="${isCat ? "numeric" : "text"}" aria-label="السعر">
+              <input data-f="stock" value="${esc(v.stock ?? "")}" placeholder="∞" inputmode="numeric" aria-label="الكمية">
+              <label class="vt-on" title="متوفر"><input type="checkbox" data-f="on" ${v.off ? "" : "checked"}><span>${v.off ? "مخفي" : "متوفر"}</span></label>
+            </div>`; }).join("")}</div></div>` : `<label class="f stock-f"><span>الكمية المتوفرة (اختياري)</span><input data-simple-stock value="${esc(it.stock ?? "")}" inputmode="numeric" placeholder="فاضي = ما بدي عدّ · 0 = نفدت"></label>`}`;
+    }
+    const addVals = (o, raw) => { String(raw).split(/[,،\n]/).map((x) => x.replace(/\|/g, "/").trim()).filter(Boolean).forEach((v) => { if (!o.values.some((x) => x.v === v)) o.values.push(o.kind === "color" ? { v, hex: OP().hexOf(v) } : { v }); }); };
+    const keepFocus = (sel) => { const n = el.querySelector(sel); if (n) n.focus({ preventScroll: true }); };
+    el.addEventListener("click", (e) => {
+      const t = e.target, box = t.closest("[data-k]"), o = box && opts[+box.dataset.k];
+      const pre = t.closest("[data-preset]");
+      if (pre) { const p = OPT_PRESETS.find((x) => x.id === pre.dataset.preset); opts.push({ name: p.name, kind: p.kind, values: [] }); draw(); keepFocus(`[data-k="${opts.length - 1}"] ${p.name ? "[data-addv]" : "[data-name]"}`); return; }
+      if (t.closest("[data-delopt]")) { if (o.values.length && !confirm(`تشيل خيار «${o.name || "بلا اسم"}» بكل قيمه؟`)) return; opts.splice(+box.dataset.k, 1); draw(); return; }
+      const rv = t.closest("[data-rmv]"); if (rv) { o.values.splice(+rv.dataset.rmv, 1); draw(); keepFocus(`[data-k="${box.dataset.k}"] [data-addv]`); return; }
+      const sg = t.closest("[data-sugg]"); if (sg) { addVals(o, sg.dataset.sugg); draw(); return; }
+      if (t.closest("[data-bulk]")) {
+        const bp = $("[data-bp]", el).value.trim(), bs = $("[data-bs]", el).value.trim();
+        if (!bp && !bs) { toast("اكتب سعر أو كمية لتطبّقها عالكل."); return; }
+        OP().combos(ready(), 150).forEach((c) => { const v = vGet(OP().keyOf(c), true); if (bp) v.price = toNum(bp); if (bs !== "") v.stock = Math.max(0, parseInt(bs, 10) || 0); });
+        draw(); toast("انطبّق عالكل"); return;
+      }
+    });
+    el.addEventListener("keydown", (e) => {
+      const inp = e.target.closest("[data-addv]"); if (!inp || e.key !== "Enter") return;
+      e.preventDefault(); const k = inp.closest("[data-k]").dataset.k; if (!inp.value.trim()) return; addVals(opts[+k], inp.value); draw(); keepFocus(`[data-k="${k}"] [data-addv]`);
+    });
+    el.addEventListener("change", async (e) => {
+      const t = e.target;
+      const add = t.closest("[data-addv]"); if (add && add.value.trim()) { const k = add.closest("[data-k]").dataset.k; addVals(opts[+k], add.value); draw(); return; }
+      const hx = t.closest("[data-hex]"); if (hx) { const o = opts[+hx.closest("[data-k]").dataset.k]; o.values[+hx.dataset.hex].hex = hx.value; draw(); return; }
+      const nm = t.closest("[data-name]"); if (nm) { const o = opts[+nm.closest("[data-k]").dataset.k]; o.name = nm.value.trim(); if (OP().isColorOpt(o)) o.kind = "color"; draw(); return; }
+      const row = t.closest("[data-v]");
+      if (row && t.type === "file") {
+        const file = t.files[0]; if (!file) return; const lab = t.closest(".vimg"); lab.classList.add("busy");
+        try { vGet(row.dataset.v, true).img = await upload(file, 1000); } catch (er) { toast(er.message); }
+        draw(); return;
+      }
+      if (row && t.dataset.f === "on") { const v = vGet(row.dataset.v, true); if (t.checked) delete v.off; else v.off = true; row.classList.toggle("off", !t.checked); t.nextElementSibling.textContent = t.checked ? "متوفر" : "مخفي"; return; }
+    });
+    el.addEventListener("input", (e) => {
+      const t = e.target, row = t.closest("[data-v]");
+      if (row && (t.dataset.f === "price" || t.dataset.f === "stock")) {
+        const v = vGet(row.dataset.v, true), x = t.value.trim();
+        if (t.dataset.f === "price") { if (x) v.price = toNum(x); else delete v.price; }
+        else { if (x !== "" && /^\d+$/.test(x)) v.stock = +x; else delete v.stock; row.classList.toggle("zero", v.stock === 0); }
+        return;
+      }
+      if (t.matches("[data-simple-stock]")) { const x = t.value.trim(); if (x !== "" && /^\d+$/.test(x)) it.stock = +x; else delete it.stock; }
+      if (t.matches("[data-name]")) opts[+t.closest("[data-k]").dataset.k].name = t.value.trim();
+    });
+    draw();
+  }
+  // قبل الحفظ: منشيل الخيارات الفاضية والتركيبات اللي ما عاد إلها وجود
+  function tidyOpts(it) {
+    const opts = (it.options || []).map((o) => ({ name: String(o.name || "").trim(), kind: o.kind || undefined, values: (o.values || []).map((x) => { const y = { v: x.v }; if (o.kind === "color" && x.hex) y.hex = x.hex; return y; }).filter((x) => x.v) })).filter((o) => o.name && o.values.length);
+    opts.forEach((o) => { if (!o.kind) delete o.kind; });
+    if (!opts.length) { delete it.options; delete it.variants; return; }
+    it.options = opts; delete it.stock;
+    const keys = new Set(OP().combos(opts, 150).map(OP().keyOf));
+    it.variants = (it.variants || []).filter((v) => keys.has(v.k) && ["price", "stock", "img", "off"].some((f) => v[f] !== undefined && v[f] !== ""));
+    if (!it.variants.length) delete it.variants;
+  }
+  // سطر صغير تحت اسم المنتج باللوحة: الخيارات والكمية
+  function optLine(it) {
+    const O = OP(); if (!O) return "";
+    const sm = O.summary(it), opts = sm.opts;
+    const parts = opts.map((o) => `${o.values.length} ${o.name}`);
+    const st = sm.soldOut ? '<span class="st0">نفدت</span>' : sm.stock !== null && sm.stock !== undefined ? `<span class="${sm.stock <= 3 ? "st1" : "st2"}">باقي ${sm.stock}</span>` : "";
+    return parts.length || st ? `<span class="ol">${esc(parts.join(" · "))}${st}</span>` : "";
+  }
+
+  /* ---------- المخزون: كل الكميات بمكان واحد ---------- */
+  function stockView(p) {
+    const O = OP(), m = S.cat;
+    const rows = m.items.map((it, i) => ({ it, i, sm: O.summary(it) }));
+    const tracked = rows.filter((r) => r.sm.stock !== null && r.sm.stock !== undefined);
+    const out = rows.filter((r) => r.sm.soldOut).length, low = tracked.filter((r) => !r.sm.soldOut && r.sm.stock <= 3).length;
+    const F = S.sf || "*";
+    const show = rows.filter((r) => F === "*" || (F === "out" ? r.sm.soldOut : F === "low" ? !r.sm.soldOut && r.sm.stock !== null && r.sm.stock <= 3 : r.sm.stock === null));
+    const step = (key, val) => `<div class="stp" data-sk="${esc(key)}"><button type="button" data-d="-1" aria-label="أقل">−</button><input value="${esc(val ?? "")}" inputmode="numeric" placeholder="∞" aria-label="الكمية"><button type="button" data-d="1" aria-label="أكتر">+</button></div>`;
+    p.innerHTML = `<div class="card"><h2>المخزون</h2><p class="hint">عدّل الكميات بسرعة. لما توصل الكمية لـ 0 المنتج بيطلع «نفدت الكمية» بالموقع. الفاضي (∞) يعني ما بدك تعدّ. الطلبات عالواتساب ما بتنقّص الكمية لحالها، نقّصها لما تبيع.</p>
+      <div class="chips">${[["*", "الكل", rows.length], ["out", "نفدت", out], ["low", "قليلة", low], ["free", "بلا عدّ", rows.length - tracked.length]].map(([id, n, c]) => `<button data-sf="${id}" aria-pressed="${F === id}">${n} <small>${c}</small></button>`).join("")}</div></div>
+      <div class="stock">${show.map(({ it, i, sm }) => { const src = thumb(it), opts = sm.opts;
+        return `<div class="srow" data-i="${i}"><div class="sh"><span class="th">${src ? `<img src="${esc(src)}" alt="" loading="lazy">` : svg("img")}</span><b>${esc(it.name || "بلا اسم")}</b>${sm.soldOut ? '<span class="st0">نفدت</span>' : ""}${opts.length ? "" : step("", it.stock)}</div>
+          ${opts.length ? `<div class="svars">${O.combos(opts, 150).map((c) => { const k = O.keyOf(c), v = O.variantOf(it, c) || {}; return `<div class="svr${v.off ? " off" : ""}"><span>${esc(c.join(" · "))}${v.off ? " <small>(مخفي)</small>" : ""}</span>${step(k, v.stock)}</div>`; }).join("")}</div>` : ""}</div>`; }).join("") || '<div class="empty">ما في منتجات بهالفلتر.</div>'}</div>`;
+    $$("[data-sf]", p).forEach((b) => (b.onclick = () => { S.sf = b.dataset.sf; stockView(p); }));
+    const setStock = (row, key, val) => {
+      const it = m.items[+row.dataset.i];
+      if (!key) { if (val === null) delete it.stock; else it.stock = val; }
+      else { it.variants = it.variants || []; let v = it.variants.find((x) => x.k === key); if (!v) { v = { k: key }; it.variants.push(v); } if (val === null) delete v.stock; else v.stock = val; }
+      toSection();
+      const sm = O.summary(it), sh = $(".sh", row), badge = $(".st0", sh);
+      if (sm.soldOut && !badge) $("b", sh).insertAdjacentHTML("afterend", '<span class="st0">نفدت</span>'); else if (!sm.soldOut && badge) badge.remove();
+    };
+    $$(".stp", p).forEach((w) => {
+      const inp = $("input", w), row = w.closest("[data-i]"), key = w.dataset.sk;
+      inp.oninput = () => { const x = inp.value.trim(); setStock(row, key, /^\d+$/.test(x) ? +x : null); };
+      $$("[data-d]", w).forEach((b) => (b.onclick = () => { const n = Math.max(0, (parseInt(inp.value, 10) || 0) + +b.dataset.d); inp.value = n; setStock(row, key, n); }));
+    });
   }
 
   /* ---------- الأصناف ---------- */

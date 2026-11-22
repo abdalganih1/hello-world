@@ -20,7 +20,10 @@ const SYSTEM = `إنت محرر مواقع بمنصة "صمّم". بيوصلك �
 - الأيقونات المسموحة لـ icon: ${ICONS.join(", ")}.
 - اكتب بنفس لهجة ونبرة النص الأصلي، جمل قصيرة وواضحة، وبلا مبالغة.
 - إذا الطلب مو ممكن (متل إضافة نوع قسم مو موجود، أو محتوى مخالف أو احتيالي)، ما تغيّر شي واشرح بـ reply.
-- الأسعار: حافظ على العملة الموجودة، وإذا ما في أسعار لا تخترع.`;
+- الأسعار: حافظ على العملة الموجودة، وإذا ما في أسعار لا تخترع.
+- خيارات المنتجات (بقسم products و menu): كل منتج فيه يكون إلو "options" إذا طبيعته بتحتاج اختيار، بهالشكل: "options":[{"name":"اللون","kind":"color","values":["أسود","أبيض"]},{"name":"المقاس","kind":"size","values":["S","M","L"]}].
+  اختار الخيارات حسب نوع المحل: ألبسة = المقاس واللون، أحذية = النمرة واللون، ألبسة أطفال = العمر، سجاد وستائر وأثاث = القياس واللون، موبايلات ولابتوبات = السعة أو الذاكرة واللون، عطور = الحجم (مل)، أكل ومشروبات = الحجم أو الإضافات، هدايا وطباعة = اللون أو القياس.
+  من 1 لـ 3 خيارات، ومن 2 لـ 8 قيم لكل خيار، قيم واقعية وقصيرة. المنتج اللي ما إلو خيارات طبيعية (متل خدمة أو قطعة وحيدة) ما تحطله options. ما تكتب "variants" ولا "stock"، هدول صاحب المحل بيعبّيهن من لوحة التحكم.`;
 
 const json = (obj, status = 200) => new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
 
@@ -35,14 +38,30 @@ function extractJSON(text) {
 // تنظيف: نقبل بس المفاتيح والأنواع المعروفة، ونقص النصوص الطويلة
 // lim: أكبر عدد عناصر بكل قائمة (الذكاء الاصطناعي 12، لوحة الإدارة أكتر حتى يضيف منتجاته كلها)
 function clean(v, depth = 0, lim = 12) {
-  if (depth > 5) return undefined;
+  if (depth > 8) return undefined; // منتج ← خيارات ← قيم ← {v, hex} بدها عمق أكبر من 5
   if (typeof v === "string") return v.slice(0, 600);
   if (typeof v === "number" || typeof v === "boolean") return Number.isFinite(v) || typeof v === "boolean" ? v : undefined;
   if (Array.isArray(v)) return v.slice(0, lim).map((x) => clean(x, depth + 1, lim)).filter((x) => x !== undefined);
   if (v && typeof v === "object") { const o = {}; for (const [k, x] of Object.entries(v).slice(0, 30)) { const c = clean(x, depth + 1, lim); if (c !== undefined) o[k] = c; } return o; }
   return undefined;
 }
-function validate(out, content) {
+// خيارات منتج جاية من الذكاء الاصطناعي: منرتّبها، ومنشيل التركيبات اللي ما بتطابق الخيارات (وبالكتابة الأولى كلها، لأن أسعار القالب مو أسعار الزبون)
+function tidyItemOpts(it, write) {
+  if (!it || typeof it !== "object") return;
+  if (write) { delete it.variants; delete it.stock; }
+  if (!Array.isArray(it.options)) { delete it.options; delete it.variants; return; }
+  it.options = it.options.slice(0, 3).map((o) => ({ name: String((o && o.name) || "").trim().slice(0, 30), ...(o && ["color", "size"].includes(o.kind) ? { kind: o.kind } : {}),
+    values: (Array.isArray(o && o.values) ? o.values : []).slice(0, 12).map((x) => (typeof x === "object" && x ? x : { v: x })).map((x) => ({ v: String(x.v ?? "").replace(/\|/g, "/").trim().slice(0, 30), ...(typeof x.hex === "string" && /^#[0-9a-f]{3,8}$/i.test(x.hex) ? { hex: x.hex } : {}) })).filter((x) => x.v).map((x) => (x.hex ? x : x.v)) }))
+    .filter((o) => o.name && o.values.length);
+  if (!it.options.length) { delete it.options; delete it.variants; return; }
+  if (Array.isArray(it.variants)) {
+    let keys = [[]]; for (const o of it.options) keys = keys.flatMap((k) => o.values.map((x) => [...k, typeof x === "string" ? x : x.v]));
+    const ok = new Set(keys.map((k) => k.join("|")));
+    it.variants = it.variants.filter((v) => v && ok.has(v.k));
+    if (!it.variants.length) delete it.variants;
+  }
+}
+function validate(out, content, write = false) {
   const types = new Set((content.sections || []).map((s) => s.type));
   const res = { reply: typeof out.reply === "string" ? out.reply.slice(0, 300) : "تم." };
   if (PALETTES.includes(out.palette)) res.palette = out.palette;
@@ -52,6 +71,8 @@ function validate(out, content) {
     .map((s) => {
       const data = clean(s.data);
       if (s.type === "services" && Array.isArray(data.items)) data.items.forEach((it) => { if (!ICONS.includes(it.icon)) it.icon = "spark"; });
+      if (s.type === "products" && Array.isArray(data.items)) data.items.forEach((it) => tidyItemOpts(it, write));
+      if (s.type === "menu" && Array.isArray(data.categories)) data.categories.forEach((c) => (c.items || []).forEach((it) => tidyItemOpts(it, write)));
       return { type: s.type, data };
     });
   ["off", "on"].forEach((k) => { if (Array.isArray(out[k])) res[k] = out[k].filter((t) => EDITABLE.includes(t)); });
@@ -163,7 +184,7 @@ async function handleAI(req, env, kind) {
   const ok = results.filter((r) => r.out);
   if (!ok.length) return json({ error: "ai unavailable", detail: results[0].err, reply: "الذكاء الاصطناعي مو متاح هلق، جرّب بعد شوي." }, 502);
   const merged = Object.assign({}, ok[0].out, { sections: ok.flatMap((r) => (Array.isArray(r.out.sections) ? r.out.sections : [])) });
-  return json({ ...validate(merged, content), via: [...new Set(ok.map((r) => r.via))].join("+"), partial: ok.length < results.length });
+  return json({ ...validate(merged, content, kind === "write"), via: [...new Set(ok.map((r) => r.via))].join("+"), partial: ok.length < results.length });
 }
 
 /* ---------- فهم الفكرة: الذكاء الاصطناعي بيختار القالب والاسم والرابط ---------- */

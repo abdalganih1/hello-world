@@ -36,6 +36,7 @@
     const U = SM.pxUtil, K = SM.pxKit, { it, i } = findItem(site, d.pid), cur = U.catalogOf(site).currency;
     if (!it) return `<section class="px-pp px-pp-miss" id="product"><div class="wrap"><h1 class="h-lg">ما لقينا هالقطعة</h1><p class="lead">يمكن انشالت أو تغيّر رابطها.</p><a class="btn" href="${esc(homeHref())}#catalog">شوف كل المنتجات</a></div></section>`;
     const imgs = it.imgs && it.imgs.length ? it.imgs : U.imgOf(it) ? [U.imgOf(it)] : [];
+    const oo = SM.opts ? SM.opts.options(it) : [];
     const shape = K ? K.guess(it.name, it) : "arch", md = (K && K.SHAPES[shape]) || {}, gm = guessMat(it), mat = gm || md.mat || "clear", ink = md.ink || "gold", pearls = !!md.pearls || /لؤلؤ|لولو/.test(it.name + (it.desc || ""));
     // مثال مناسب لنوع القطعة (تخرج، مولود، عرس، هدية، شعار) بدل نفس الأسامي بكل مكان
     const ex = K ? K.exampleFor(it, md) : { kind: "wedding", labels: ["الاسم الأول", "الاسم التاني", "التاريخ أو عبارة"], n1: "محمد", n2: "سارة", line: "14 · 2 · 2027" };
@@ -79,6 +80,7 @@
           <div class="px-pp-grp"><label class="px-pp-chip"${md.rim === "pearl" ? "" : " hidden"}><input type="checkbox" name="pearls"${pearls ? " checked" : ""}><span>لؤلؤ</span></label>
             <label class="px-pp-chip">${svg(I.img)}<span data-file-label>صورتك</span><input type="file" name="photo" accept="image/*"></label></div>
         </div>` : ""}
+        ${oo.length ? `<div class="px-pp-opts">${oo.map((o, k) => `<div class="px-pp-og" role="radiogroup" aria-label="${esc(o.name)}"><small>${esc(o.name)}</small><div>${o.values.map((x) => `<button type="button" class="so-v" role="radio" aria-checked="${o.values.length === 1}" data-oo="${k}" data-ov="${esc(x.v)}">${o.kind === "color" ? `<i style="background:${esc(x.hex || "#ccc")}"></i>` : ""}<span>${esc(x.v)}</span></button>`).join("")}</div></div>`).join("")}<small class="so-stock" data-pp-stock></small></div>` : ""}
         <div class="px-pp-acts">
           <a class="btn px-pp-wa" href="${esc(U.waLink(site, U.orderText(site, it, cur)))}" target="_blank" rel="noopener">${SM.icon("wa")}<span>اطلب على واتساب</span></a>
           <button type="button" class="btn ghost px-pp-add" data-pp-add>${ic("bag")}<span>أضف للسلة</span></button>
@@ -107,6 +109,22 @@
     const inkName = () => { const o = (K && K.SHAPES[st.shape] && K.SHAPES[st.shape].inks) || (K && K.INKS) || {}; return (o[st.ink] || [""])[0]; };
     const labs = [...sec.querySelectorAll(".px-pp-fields span")].map((x) => x.firstChild.textContent.trim());
     let v = "photo", eng = null, touched = false, timer = 0;
+    // خيارات المنتج (لون، قياس…) من لوحة الإدارة
+    const O = SM.opts, oo = O ? O.options(it) : [], sel = oo.map((o) => (o.values.length === 1 ? o.values[0].v : ""));
+    const chosen = () => (oo.length && sel.every(Boolean) ? O.pick(it, sel) : null);
+    const asItem = () => { const p = chosen(); return p ? Object.assign({}, it, { name: `${it.name} (${sel.join(" / ")})`, price: p.price, img: p.img || it.img }) : it; };
+    const paintOpts = () => {
+      if (!oo.length) return;
+      const all = O.combos(oo), p = chosen();
+      sec.querySelectorAll("[data-oo]").forEach((b) => { const k = +b.dataset.oo, val = b.dataset.ov; b.setAttribute("aria-checked", sel[k] === val); b.classList.toggle("na", !all.some((c) => c[k] === val && c.every((x, j) => j === k || !sel[j] || sel[j] === x) && O.pick(it, c).on)); });
+      const pr = sec.querySelector(".px-pp-title .px-price"), sm = O.summary(it);
+      if (pr) pr.innerHTML = p ? U.money(p.price, cur) : (sm.from ? "<small>من </small>" : "") + U.money(sm.price, cur);
+      const stE = sec.querySelector("[data-pp-stock]");
+      if (stE) { stE.textContent = p ? (!p.on ? "مو متوفر هلق" : p.stock !== null && p.stock <= 5 ? `باقي ${p.stock} بس` : "متوفر") : ""; stE.className = "so-stock" + (p && !p.on ? " no" : p && p.stock !== null && p.stock <= 5 ? " low" : ""); }
+      if (p && p.img) { const t0 = sec.querySelector(".px-pp-track img"); if (t0) t0.src = p.img; }
+    };
+    sec.querySelectorAll("[data-oo]").forEach((b) => b.addEventListener("click", () => { const k = +b.dataset.oo; sel[k] = sel[k] === b.dataset.ov && oo[k].values.length > 1 ? "" : b.dataset.ov; paintOpts(); refresh(); }));
+    const needOpt = () => { const k = sel.findIndex((x) => !x); if (k < 0) return false; const g = sec.querySelectorAll(".px-pp-og")[k]; if (g) { g.classList.remove("shake"); void g.offsetWidth; g.classList.add("shake"); } return true; };
 
     // معرض الصور: سحب أفقي مع نقاط
     const track = sec.querySelector(".px-pp-track"), dots = sec.querySelectorAll(".px-pp-dots i");
@@ -120,7 +138,8 @@
 
     const msg = () => {
       const n = names(), line = f.line ? f.line.value.trim() : "";
-      let t = U.orderText(site, it, cur).replace(/\n\nالاسم والتاريخ اللي بدي ياهن: $/, "");
+      let t = U.orderText(site, chosen() ? Object.assign({}, it, { price: chosen().price }) : it, cur).replace(/\n\nالاسم والتاريخ اللي بدي ياهن: $/, "");
+      if (oo.length) t = t.replace(/(• [^\n]*)/, (m) => m + oo.map((o, k) => (sel[k] ? `\n${o.name}: ${sel[k]}` : "")).join(""));
       if (n.length || line) t += "\n" + [[0, f.n1], [1, f.n2], [2, f.line]].filter(([, i]) => i && i.value.trim()).map(([k, i]) => `\n✍️ ${labs[k]}: ${i.value.trim()}`).join("");
       if (touched && K) t += `\n🎨 ${K.SHAPES[st.shape].inks ? "الإضاءة" : "الحروف"}: ${inkName()}${K.SHAPES[st.shape].inks ? "" : " · الخامة: " + K.MATS[st.mat][0]}${st.pearls ? " · مع لؤلؤ" : ""}${st.shape !== sec.dataset.shape ? ` · الشكل: ${K.SHAPES[st.shape].label}` : ""}${st.photo ? "\n🖼️ مع صورة (رح ابعتها هون)" : ""}`;
       if (!n.length && !line) t += "\n\nالاسم والتاريخ اللي بدي ياهن: ";
@@ -181,10 +200,12 @@
       });
     }
 
+    wa.addEventListener("click", (e) => { if (needOpt()) e.preventDefault(); });
+    paintOpts();
     sec.querySelector("[data-pp-add]").addEventListener("click", () => {
-      if (!SM.pxCart) return;
+      if (!SM.pxCart || needOpt()) return;
       const n = names(), line = f.line ? f.line.value.trim() : "";
-      SM.pxCart.add(it, { names: n.join(" و ") + (line ? " · " + line : ""), color: touched && K ? inkName() : "", design: touched && K ? `${K.MATS[st.mat][0]}${st.pearls ? " · لؤلؤ" : ""}${st.photo ? " · مع صورة" : ""}` : "" });
+      SM.pxCart.add(asItem(), { names: n.join(" و ") + (line ? " · " + line : ""), color: touched && K ? inkName() : "", design: touched && K ? `${K.MATS[st.mat][0]}${st.pearls ? " · لؤلؤ" : ""}${st.photo ? " · مع صورة" : ""}` : "" });
     });
     sec.querySelector("[data-pp-cart]").addEventListener("click", () => SM.pxCart && SM.pxCart.open());
     sec.querySelector("[data-pp-share]").addEventListener("click", () => {

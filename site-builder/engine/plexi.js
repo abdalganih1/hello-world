@@ -32,21 +32,23 @@
     const items = d.items || [], cats = (d.categories || []).filter((c) => c.id === "all" || items.some((it) => it.cat === c.id));
     const label = Object.fromEntries(cats.map((c) => [c.id, c.label]));
     const page = d.pageSize || 12;
+    const O = SM.opts;
     const card = (it, i) => {
-      const src = thumbOf(it);
+      const src = thumbOf(it), sm = O ? O.summary(it) : { price: it.price };
       return `<article class="px-card${i >= page ? " px-off" : ""}" data-cat="${esc(it.cat || "")}" data-i="${i}" data-tilt>
         <button class="px-img" type="button" data-px-open="${i}" aria-label="تفاصيل ${esc(it.name)}">
           ${src ? `<img src="${esc(src)}" alt="${esc(it.name)}" loading="lazy" decoding="async">` : `<span class="px-ph" aria-hidden="true">${icon("spark")}</span>`}
           <i class="px-shine" aria-hidden="true"></i>
-          ${it.featured ? '<span class="px-badge">مميّز</span>' : ""}
+          ${sm.soldOut ? '<span class="px-badge">نفدت الكمية</span>' : it.featured ? '<span class="px-badge">مميّز</span>' : ""}
         </button>
         <div class="px-meta">
           ${label[it.cat] ? `<span class="px-tag">${esc(label[it.cat])}</span>` : ""}
           <h3><button type="button" class="px-name" data-px-open="${i}">${esc(it.name)}</button></h3>
           ${it.desc ? `<p>${esc(it.desc)}</p>` : ""}
+          ${O ? O.chipsHtml(it) : ""}
           <div class="px-row">
-            ${it.price ? `<b class="px-price">${money(it.price, d.currency)}</b>` : "<span></span>"}
-            <a class="px-order" href="${esc(waLink(site, orderText(site, it, d.currency)))}" target="_blank" rel="noopener">${icon("wa")}<span>اطلب</span></a>
+            ${sm.price ? `<b class="px-price">${sm.from ? "<small>من </small>" : ""}${money(sm.price, d.currency)}</b>` : "<span></span>"}
+            <a class="px-order" href="${esc(waLink(site, orderText(site, it, d.currency)))}" target="_blank" rel="noopener"${O && !sm.soldOut ? O.tag(it, { site, cur: d.currency }) : ""}>${icon("wa")}<span>${sm.soldOut ? "اسأل" : "اطلب"}</span></a>
           </div>
         </div>
       </article>`;
