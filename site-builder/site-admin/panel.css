@@ -158,3 +158,66 @@ input[type="file"].hidden { position: absolute; width: 1px; height: 1px; opacity
   .top .open-site span { display: none; }
   .items { grid-template-columns: 1fr; }
 }
+
+/* صور المنتج */
+.gal { display: grid; gap: 8px; }
+.gal-h { display: grid; gap: 2px; } .gal-h small { font-size: 13px; }
+.gal-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.img-slot.sq { aspect-ratio: 1; }
+.img-slot .main { position: absolute; bottom: 6px; inset-inline-end: 6px; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--accent); color: var(--on-accent); }
+.img-slot .star { position: absolute; bottom: 6px; inset-inline-end: 6px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(0, 0, 0, .55); color: #fff; cursor: pointer; font-size: 14px; }
+.img-slot .x { width: 28px; height: 28px; }
+
+/* الخيارات والتركيبات */
+.opts { display: grid; gap: 12px; padding: 14px; border-radius: 16px; background: var(--surface2); border: 1px solid var(--line); }
+.opt-h { display: grid; gap: 2px; } .opt-h small { font-size: 13px; }
+.opt { display: grid; gap: 10px; padding: 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+.opt-top { display: flex; gap: 8px; align-items: center; }
+.opt-name { flex: 1; min-width: 0; height: 42px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface2); font-weight: 700; outline: none; }
+.opt-name:focus, .val-in:focus, .vr input:focus, .vt-bulk input:focus, .stp input:focus { border-color: var(--accent); }
+.vals { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.val { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 4px 0 12px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 12%, var(--surface)); font-weight: 500; font-size: 14px; }
+.val button { width: 28px; height: 28px; border-radius: 50%; border: 0; background: transparent; cursor: pointer; font-size: 17px; color: var(--muted); }
+.val .dot { position: relative; width: 20px; height: 20px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .2); cursor: pointer; overflow: hidden; flex: none; }
+.val .dot input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; border: 0; padding: 0; }
+.val-in { flex: 1; min-width: 140px; height: 36px; padding: 0 12px; border-radius: 999px; border: 1px dashed var(--line); background: transparent; outline: none; }
+.sugg { display: flex; flex-wrap: wrap; gap: 6px; }
+.sugg button { height: 30px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-size: 13px; color: var(--muted); }
+.sugg button:hover { color: var(--ink); border-color: var(--accent); }
+.opt-add { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; } .opt-add > span { font-size: 13.5px; color: var(--muted); }
+.vt { display: grid; gap: 10px; } .vt-h { display: grid; gap: 2px; } .vt-h small { font-size: 13px; }
+.vt-bulk { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; }
+.vt-bulk input, .vr input:not([type]) { min-width: 0; height: 38px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); outline: none; font-variant-numeric: tabular-nums; }
+.vrows { display: grid; gap: 6px; max-height: 420px; overflow: auto; }
+.vr { display: grid; grid-template-columns: minmax(0, 1.4fr) 38px minmax(0, 1fr) 64px auto; gap: 6px; align-items: center; padding: 6px 8px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.vr.off { opacity: .55; } .vr.zero { border-color: color-mix(in srgb, var(--danger) 45%, var(--line)); }
+.vn { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vn i { width: 14px; height: 14px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .2); }
+.vimg { position: relative; width: 38px; height: 38px; border-radius: 10px; overflow: hidden; display: grid; place-items: center; background: var(--surface2); border: 1px dashed var(--line); cursor: pointer; color: var(--muted); }
+.vimg img { width: 100%; height: 100%; object-fit: cover; } .vimg svg { width: 18px; height: 18px; } .vimg.busy { opacity: .4; }
+.vt-on { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); cursor: pointer; }
+.vt-on input { width: 18px; height: 18px; accent-color: var(--ok); }
+@media (max-width: 480px) { .vr { grid-template-columns: 38px minmax(0, 1fr) 58px auto; } .vr .vn { grid-column: 1 / -1; } .vt-bulk { grid-template-columns: 1fr 1fr; } .vt-bulk .btn { grid-column: 1 / -1; } }
+.item .ol { display: flex; gap: 8px; align-items: center; font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; }
+.st0, .st1, .st2 { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+.st0 { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
+.st1 { background: color-mix(in srgb, var(--warn) 16%, transparent); color: var(--warn); }
+.st2 { background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ok); }
+
+/* المخزون */
+.stock { display: grid; gap: 10px; }
+.srow { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px; display: grid; gap: 8px; }
+.sh { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.sh .th { width: 44px; height: 44px; border-radius: 10px; overflow: hidden; flex: none; background: var(--surface2); display: grid; place-items: center; color: var(--muted); }
+.sh .th img { width: 100%; height: 100%; object-fit: cover; } .sh .th svg { width: 20px; height: 20px; opacity: .5; }
+.sh b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.svars { display: grid; gap: 4px; padding-inline-start: 54px; }
+.svr { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px; } .svr.off { opacity: .55; }
+.stp { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; flex: none; }
+.stp button { width: 36px; height: 36px; border: 0; background: none; cursor: pointer; font-size: 18px; }
+.stp input { width: 52px; height: 36px; text-align: center; border: 0; border-inline: 1px solid var(--line); background: var(--surface2); outline: none; font-variant-numeric: tabular-nums; }
+@media (max-width: 480px) { .svars { padding-inline-start: 0; } }
+.hidden, .vimg input[type="file"] { display: none; }
+.sheet .box > *, .opts > *, .opt > *, .vt > * { min-width: 0; }
+.vt-bulk input, .vr input:not([type]), .opt-name { width: 100%; }
+.val-in { min-width: 120px; width: 0; }

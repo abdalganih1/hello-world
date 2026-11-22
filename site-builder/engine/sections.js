@@ -7,6 +7,15 @@
   const waLink = (site, text) => { const n = waNum(site && site.brand && site.brand.whatsapp); return n ? `https://wa.me/${n}?text=${encodeURIComponent(text)}` : "#contact"; };
   const waAttrs = (href) => href.startsWith("https:") ? `href="${esc(href)}" target="_blank" rel="noopener"` : `href="${esc(href)}"`;
   const orderMsg = (site, it, verb = "اطلب") => `مرحبا ${site.brand.name}، بدي ${verb}:\n• ${it.name}${it.price ? " = " + it.price : ""}\n\nالكمية: `;
+  // خيارات المنتج (engine/options.js): ألوان ومقاسات وكميات. إذا الملف مو محمّل، المنتج بيطلع بسيط متل قبل
+  const OP = () => window.SAMMEM && window.SAMMEM.opts;
+  const OC = new WeakMap();
+  const O = (it) => { if (!OP()) return { price: it.price, soldOut: false, from: false }; if (!OC.has(it)) OC.set(it, OP().summary(it)); return OC.get(it); };
+  const options = (it) => (OP() ? OP().options(it) : []);
+  const chips = (it) => (OP() ? OP().chipsHtml(it) : "");
+  const askMsg = (site, it) => `مرحبا ${site.brand.name}، بدي اسأل إذا «${it.name}» رح يرجع يتوفر؟`;
+  const soImg = (s) => (isUp(s) ? s : (window.SAMMEM_MEDIA || {})[s] ? `media/${s}-sq.webp` : "");
+  const soTag = (it, site, ctx) => (OP() && !O(it).soldOut ? OP().tag(it, Object.assign({ site, imgUrl: soImg }, ctx)) : "");
 
   const I = {
     arrow: '<path d="M19 12H5M11 18l-6-6 6-6"/>',
@@ -133,8 +142,8 @@
           ${(c.items || []).map((it, j) => `
             <div class="dish" data-reveal>
               <div class="thumb">${isUp(it.img) ? upImg(it.img, it.name) : it.img ? pic(it.img, { sq: true, alt: it.name, sizes: "120px", parallax: false }) : `<div class="ph" style="--px:${30 + j * 9}%;--py:${60 - j * 7}%"></div>`}</div>
-              <div><h4>${esc(it.name)}${it.tag ? `<span class="tag">${esc(it.tag)}</span>` : ""}</h4><p>${esc(it.desc)}</p></div>
-              <span class="price">${esc(it.price)}${site.brand.whatsapp ? `<a class="dish-order" ${waAttrs(waLink(site, orderMsg(site, it, d.orderLabel || "اطلب")))} aria-label="${esc(d.orderLabel || "اطلب")} ${esc(it.name)} ع واتساب">${icon("wa")}${esc(d.orderLabel || "اطلب")}</a>` : ""}</span>
+              <div><h4>${esc(it.name)}${O(it).soldOut ? '<span class="tag so-out">نفد</span>' : it.tag ? `<span class="tag">${esc(it.tag)}</span>` : ""}</h4><p>${esc(it.desc)}</p>${chips(it)}</div>
+              <span class="price">${esc(O(it).price)}${O(it).from ? '<small class="from"> وفوق</small>' : ""}${site.brand.whatsapp ? `<a class="dish-order" ${waAttrs(waLink(site, O(it).soldOut ? askMsg(site, it) : orderMsg(site, it, d.orderLabel || "اطلب")))}${soTag(it, site, { verb: d.orderLabel || "اطلب", label: (d.orderLabel || "اطلب") + " ع واتساب" })} aria-label="${esc(d.orderLabel || "اطلب")} ${esc(it.name)} ع واتساب">${icon("wa")}${esc(O(it).soldOut ? "اسأل" : d.orderLabel || "اطلب")}</a>` : ""}</span>
             </div>`).join("")}
         </div>`).join("")}
       ${d.note ? `<p class="lead" style="margin-top:28px;font-size:15px">${esc(d.note)}</p>` : ""}
@@ -154,11 +163,12 @@
       <div class="prods" data-stagger>
         ${(d.items || []).map((it, i) => `
           <article class="prod" data-c="${esc(it.cat || "")}" data-tilt>
-            <div class="pimg">${isUp(it.img) ? upImg(it.img, it.name) : ph("", 25 + (i * 23) % 60, 30 + (i * 17) % 40)}${it.tag ? `<span class="ptag">${esc(it.tag)}</span>` : ""}</div>
+            <div class="pimg">${isUp(it.img) ? upImg(it.img, it.name) : ph("", 25 + (i * 23) % 60, 30 + (i * 17) % 40)}${O(it).soldOut ? '<span class="ptag so-out">نفدت الكمية</span>' : it.tag ? `<span class="ptag">${esc(it.tag)}</span>` : ""}</div>
             <div class="pbody">
               <h3>${esc(it.name)}</h3>
               ${it.desc ? `<p>${esc(it.desc)}</p>` : ""}
-              <div class="prow"><span class="pprice">${esc(it.price)}${it.old ? ` <s>${esc(it.old)}</s>` : ""}</span><a class="padd" ${waAttrs(waLink(site, orderMsg(site, it)))} data-order>${icon("wa")}${esc(d.addLabel || "اطلب ع واتساب")}</a></div>
+              ${chips(it)}
+              <div class="prow"><span class="pprice">${O(it).from ? "<small>من </small>" : ""}${esc(O(it).price)}${it.old && !O(it).from ? ` <s>${esc(it.old)}</s>` : ""}</span><a class="padd${O(it).soldOut ? " out" : ""}" ${waAttrs(waLink(site, O(it).soldOut ? askMsg(site, it) : orderMsg(site, it)))}${soTag(it, site, { label: d.addLabel || "اطلب ع واتساب" })} data-order>${icon("wa")}${esc(O(it).soldOut ? "اسأل عن توفره" : options(it).length ? d.chooseLabel || "اختار واطلب" : d.addLabel || "اطلب ع واتساب")}</a></div>
             </div>
           </article>`).join("")}
       </div>
