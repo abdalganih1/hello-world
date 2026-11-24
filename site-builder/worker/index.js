@@ -4,7 +4,7 @@
    - POST /api/write : نفس الشي، بس لكتابة نصوص الموقع أول مرة من فكرة الزبون
    الموديل: Z.ai مباشرة (السر ZAI_API_KEY)، واحتياط OpenRouter أو المزود القديم. بدون Workers AI. */
 
-const EDITABLE = ["hero", "marquee", "about", "services", "menu", "process", "gallery", "team", "testimonials", "pricing", "products", "craft", "showcase", "faq", "cta", "contact"];
+const EDITABLE = ["hero", "marquee", "about", "services", "menu", "process", "gallery", "team", "testimonials", "pricing", "products", "rack", "craft", "showcase", "faq", "cta", "contact"];
 // الأقسام اللي بتنحفظ بمحتوى الموقع (الذكاء الاصطناعي ما بيعدّل catalog، بس لوحة الإدارة)
 const CONTENT_TYPES = () => [...EDITABLE, "catalog"];
 const PALETTES = ["luxe", "calm", "bold", "olive", "sea", "rose", "sand", "night", "ruby"];

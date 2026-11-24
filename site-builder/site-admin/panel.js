@@ -118,7 +118,7 @@
     faq: { tab: "الأسئلة", key: "items", one: "سؤال", fields: [["q", "السؤال"], ["a", "الجواب", "area"]], blank: { q: "", a: "" } },
     testimonials: { tab: "آراء الزبائن", key: "items", one: "رأي", fields: [["name", "الاسم"], ["text", "الرأي", "area"]], blank: { name: "", text: "" } },
   };
-  const SEC_LABEL = { marquee: "الشريط المتحرك", about: "من نحنا", services: "الخدمات", menu: "المنيو", products: "المنتجات", catalog: "المنتجات", process: "خطوات العمل", gallery: "معرض الصور", team: "الفريق", testimonials: "آراء الزبائن", pricing: "الأسعار", faq: "الأسئلة الشائعة", cta: "دعوة للتواصل", contact: "التواصل والخريطة", craft: "كيف منصنعها", showcase: "عرض المختارات", studio: "جرّب قطعتك", whatsapp: "زر واتساب العائم" };
+  const SEC_LABEL = { marquee: "الشريط المتحرك", about: "من نحنا", services: "الخدمات", menu: "المنيو", products: "المنتجات", catalog: "المنتجات", process: "خطوات العمل", gallery: "معرض الصور", team: "الفريق", testimonials: "آراء الزبائن", pricing: "الأسعار", faq: "الأسئلة الشائعة", cta: "دعوة للتواصل", contact: "التواصل والخريطة", craft: "كيف منصنعها", showcase: "عرض المختارات", studio: "جرّب قطعتك", rack: "واجهة الرف", whatsapp: "زر واتساب العائم" };
 
   function tabs() {
     const t = [];
