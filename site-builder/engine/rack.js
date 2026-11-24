@@ -11,7 +11,8 @@
 
   /* ---------- نوع القطعة ولونها ---------- */
   const KINDS = [
-    ["hoodie", /هودي|هوديز|كنزة بقبعة|سويت ?شيرت|سويتر/],
+    ["hoodie", /هودي|هوديز|كنزة بقبعة/],
+    ["sweat", /سويت ?شيرت|سويتشيرت|سويتر|كنزة|كنزات|بلوفر/],
     ["jacket", /جاكيت|جاكيتات|جاكت|فارسيتي|بومبر|جلد|بليزر|سترة/],
     ["coat", /معطف|كبوت|عباية|عباءة|ترانش|بالطو|مانطو/],
     ["dress", /فستان|فساتين|جلابية|جلابيه/],
@@ -19,10 +20,10 @@
     ["pants", /بنطلون|بنطال|بناطيل|جينز|كارغو|شورت|ترينينغ|جوغر|سروال/],
     ["jersey", /فانيلة|فانيلا|رياضي|رياضية|جيرسي|قميص نادي/],
     ["shirt", /قميص|قمصان|شيميز|بلوزة|بلوز/],
-    ["tee", /تيشرت|تيشيرت|تي شيرت|تيشرتات|كنزة|بودي|بلوفر|ألبسة|توب/],
+    ["tee", /تيشرت|تيشيرت|تي شيرت|تيشرتات|بودي|ألبسة|توب/],
   ];
   const kindOf = (it) => {
-    if (it.garment && /^(tee|hoodie|jacket|coat|dress|skirt|pants|jersey|shirt)$/.test(it.garment)) return it.garment;
+    if (it.garment && /^(tee|sweat|hoodie|jacket|coat|dress|skirt|pants|jersey|shirt)$/.test(it.garment)) return it.garment;
     const t = `${it.name || ""} ${it.cat || ""}`;
     // أول كلمة بالاسم هي اللي بتحدد النوع («قميص جينز» قميص، مو بنطلون)
     let best = "tee", at = 1e9;
@@ -45,6 +46,7 @@
   /* ---------- رسم القطعة (viewBox 200x300، العلّاقة بأعلى المنتصف) ---------- */
   let uid = 0;
   function garmentSVG(kind, tone, o = {}) {
+    if (SM.rackGarment) return SM.rackGarment(kind, tone, o);
     const id = "rk" + ++uid, dark = lum(tone) < 0.42, line = dark ? "rgba(255,255,255,.16)" : "rgba(0,0,0,.13)";
     const ink = dark ? "#f4f4f1" : "#141416", acc = o.accent || "#2fdc3f", acc2 = o.accent2 || "#ff4f9a", mark = esc(o.mark || "");
     const D = shade(tone, -0.18), L = shade(tone, 0.14);
@@ -133,7 +135,8 @@
     }
     return `<svg class="rk-g" viewBox="0 0 200 300" aria-hidden="true">${defs}${body}</svg>`;
   }
-  const HANGER = `<svg class="rk-h" viewBox="0 0 200 60" aria-hidden="true"><path d="M100 30 V20 Q100 13 106 11 Q114 8 113 0" fill="none" stroke="#5b4636" stroke-width="3.4" stroke-linecap="round"/><path d="M100 26 L30 52 Q24 55 30 56 H170 Q176 55 170 52Z" fill="none" stroke="#6b4f3a" stroke-width="5" stroke-linejoin="round"/></svg>`;
+  // علّاقة خشب: خطاف معدني + جسم خشبي بتدرّج
+  const HANGER = `<svg class="rk-h" viewBox="0 0 200 60" aria-hidden="true"><defs><linearGradient id="rkw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b98a5e"/><stop offset=".5" stop-color="#8a5f3c"/><stop offset="1" stop-color="#5e3f27"/></linearGradient><linearGradient id="rkm" x1="0" x2="1"><stop offset="0" stop-color="#7d848c"/><stop offset=".5" stop-color="#e9ecef"/><stop offset="1" stop-color="#8a9199"/></linearGradient></defs><path d="M100 30 V19 C100 12 104 10 108 9 C114 7 114 1 108 1" fill="none" stroke="url(#rkm)" stroke-width="3.2" stroke-linecap="round"/><path d="M100 24 C82 30 50 42 26 50 C20 52 20 57 27 57 H173 C180 57 180 52 174 50 C150 42 118 30 100 24 Z" fill="url(#rkw)"/><path d="M36 51 H164" stroke="rgba(255,255,255,.25)" stroke-width="1"/><rect x="95" y="22" width="10" height="7" rx="2" fill="url(#rkm)"/></svg>`;
 
   /* ---------- القسم ---------- */
   const isUp = (v) => typeof v === "string" && /^(https?:\/\/|data:image\/|\/m\/)/.test(v);
@@ -144,7 +147,7 @@
   function pieceHtml(it, i, site, prods) {
     const c = site.theme.colors, img = imgOf(it), sum = SM.opts ? SM.opts.summary(it) : { price: it.price, soldOut: false };
     const art = img ? `<span class="rk-photo"><img src="${esc(img)}" alt="${esc(it.name)}" loading="${i < 6 ? "eager" : "lazy"}" decoding="async"></span>`
-      : garmentSVG(kindOf(it), toneOf(it, i, site), { accent: c.accent, accent2: c.accent2, mark: site.brand.mark, word: site.brand.name, print: [1, 2, 0, 3][i % 4], n: 7 + i * 3 });
+      : garmentSVG(kindOf(it), toneOf(it, i, site), { accent: c.accent, accent2: c.accent2, mark: site.brand.mark, word: site.brand.name, print: i % 4 === 0 ? 1 : 0, n: 7 + i * 3, sleeves: /فارسيتي|كولج|varsity/i.test(it.name || "") ? "#f1efe8" : null });
     // نافذة الخيارات بتعرض الرسمة نفسها إذا ما في صورة
     const sheetIt = img ? it : Object.assign({}, it, { img: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(art.replace('<svg class="rk-g"', '<svg xmlns="http://www.w3.org/2000/svg"')) });
     const so = SM.opts && !sum.soldOut ? SM.opts.tag(sheetIt, { site, label: prods.addLabel || "اطلب ع واتساب" }) : "";
@@ -165,6 +168,7 @@
       <a href="#" class="rk-logo" aria-label="${esc(site.brand.name)}">${logo}</a>
       <a href="#${esc(d.contactTarget || "contact")}" class="rk-link">${esc(d.contactLabel || "تواصل")}</a>
     </header>
+    <div class="rk-main">
     <div class="rk-copy">
       ${d.eyebrow ? `<span class="rk-eyebrow" data-hero-in>${esc(d.eyebrow)}</span>` : ""}
       ${d.title ? `<h1 class="rk-title" data-split="hero">${esc(d.title)}</h1>` : ""}
@@ -181,6 +185,7 @@
     <div class="rk-cta" data-hero-in>
       <a class="rk-btn" href="#${esc(d.buttonTarget || "products")}">${esc(d.button || "شوف كل القطع")}</a>
       ${d.hint ? `<small class="rk-hint">${esc(d.hintTouch && matchMedia("(pointer: coarse)").matches ? d.hintTouch : d.hint)}</small>` : ""}
+    </div>
     </div>
     ${tick ? `<div class="rk-ticker" aria-hidden="true"><div class="rk-tt">${tick}${tick}${tick}${tick}</div></div>` : ""}
   </section>`;
@@ -269,7 +274,7 @@
       const ph = el.querySelector(".pimg"); if (!ph || ph.querySelector(".has-up")) return;
       const old = ph.querySelector(".ph"); if (old) old.remove();
       const lab = ph.querySelector(".ph-label"); if (lab) lab.remove();
-      ph.insertAdjacentHTML("afterbegin", `<span class="rk-card">${HANGER}${garmentSVG(kindOf(it), toneOf(it, i, site), { accent: c.accent, accent2: c.accent2, mark: site.brand.mark, word: site.brand.name, print: [1, 2, 0, 3][i % 4], n: 7 + i * 3 })}</span>`);
+      ph.insertAdjacentHTML("afterbegin", `<span class="rk-card">${HANGER}${garmentSVG(kindOf(it), toneOf(it, i, site), { accent: c.accent, accent2: c.accent2, mark: site.brand.mark, word: site.brand.name, print: i % 4 === 0 ? 1 : 0, n: 7 + i * 3, sleeves: /فارسيتي|كولج|varsity/i.test(it.name || "") ? "#f1efe8" : null })}</span>`);
     });
   }
 
