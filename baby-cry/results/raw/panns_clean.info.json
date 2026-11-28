@@ -1,0 +1,32 @@
+[
+ {
+  "fold": 0,
+  "model": "lr_C0.03",
+  "inner_macroF1": 0.2299,
+  "T": 1.607
+ },
+ {
+  "fold": 1,
+  "model": "lr_C0.1",
+  "inner_macroF1": 0.2032,
+  "T": 2.047
+ },
+ {
+  "fold": 2,
+  "model": "lr_C1",
+  "inner_macroF1": 0.2019,
+  "T": 2.9
+ },
+ {
+  "fold": 3,
+  "model": "lr_C0.003",
+  "inner_macroF1": 0.2155,
+  "T": 0.823
+ },
+ {
+  "fold": 4,
+  "model": "lr_C0.01",
+  "inner_macroF1": 0.2116,
+  "T": 1.465
+ }
+]

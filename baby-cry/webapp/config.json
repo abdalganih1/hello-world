@@ -1,0 +1,33 @@
+{
+ "model_name": "PANNs MobileNetV1 + pca64_lr_C0.1",
+ "version": "v1-2026-11-28",
+ "classes": [
+  "belly_pain",
+  "burping",
+  "discomfort",
+  "hungry",
+  "tired"
+ ],
+ "ar": {
+  "belly_pain": "مغص / ألم بطن",
+  "burping": "بحاجة للتجشؤ",
+  "discomfort": "انزعاج (حفاض/حرارة/وضعية)",
+  "hungry": "جوع",
+  "tired": "تعب / نعاس"
+ },
+ "en": {
+  "hungry": "hunger cry",
+  "belly_pain": "colic / belly pain cry",
+  "tired": "tired / sleepy cry",
+  "discomfort": "discomfort (wet diaper, too hot or cold, bad position)",
+  "burping": "needs to burp / trapped air"
+ },
+ "cry_threshold": 0.01,
+ "uncertain_threshold": 0.5,
+ "sample_rate": 32000,
+ "window_sec": 5,
+ "eval": {
+  "reason_grouped_cv_macroF1": 0.252,
+  "cry_detector_auc": 0.982
+ }
+}

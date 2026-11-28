@@ -1,0 +1,8 @@
+data/raw/
+data/processed/
+data/embeddings/
+data/youtube_test/raw/
+models/pretrained/
+models/final/model.onnx
+build*.log
+__pycache__/

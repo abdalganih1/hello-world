@@ -1,0 +1,14 @@
+clip_id,video_url,channel_name,expert_name,expert_credentials,start_time,end_time,label,label_source_quote_or_paraphrase,label_confidence,notes
+yt01,https://www.youtube.com/watch?v=TKU1n_mcn_k,What To Expect,,editorial health media (verify on-screen expert),,,,"Title: 5 basic reasons why babies cry, what they sound like",,"CANDIDATE - timestamps/label need human review; download blocked from cloud"
+yt02,https://www.youtube.com/watch?v=ZwrgA_uxjjo,Babynama Child Care,Babynama pediatrician (verify name),pediatrician (channel claim),,,,"Title: Hunger or colic? How to tell the difference",,CANDIDATE
+yt03,https://www.youtube.com/watch?v=3G5aAQL3R_g,Emma Hubbard,Emma Hubbard,paediatric occupational therapist (channel claim),,,,"Title: Every type of baby cry explained",,CANDIDATE
+yt04,https://www.youtube.com/watch?v=TWHOFDQHOUA,Emma Hubbard,Emma Hubbard,paediatric occupational therapist (channel claim),,,,"Title: Don't mistake pain with PURPLE crying",,"CANDIDATE - pain vs colic"
+yt05,https://www.youtube.com/watch?v=E2I99Hsjo7k,CloudMom,,parenting channel (non-clinical),,,,"Title: Is my baby hungry, gassy, or tired?",,"CANDIDATE - likely low confidence (non-expert)"
+yt06,https://www.youtube.com/watch?v=LbeKZtXWvQM,Paediatrics,,unknown - verify,,,,"Title: Decoding baby cries",,CANDIDATE
+yt07,https://www.youtube.com/watch?v=YZaY-XzNyME,Ziad Bassil PED,Dr Ziad Bassil,pediatrician (channel claim),,,,"Title: Is it gas? Hunger? - infantile colic",,CANDIDATE
+yt08,https://www.youtube.com/watch?v=aD6SepjcNrw,Children's Physicians Medical Group,,pediatric group practice,,,,"Title: Colic: does my baby have it?",,"CANDIDATE - colic (belly_pain)"
+yt09,https://www.youtube.com/watch?v=Tu-HT6zmwvI,Ten Kids Two Docs,,two physicians (channel claim),,,,"Title: Infant colic: when your baby won't stop crying",,"CANDIDATE - colic"
+yt10,https://www.youtube.com/watch?v=uHymrFLe-G0,Dr. Steve Silvestro,Dr. Steve Silvestro,pediatrician,,,,"Title: Why is your baby gassy?",,"CANDIDATE - gas/burping, may have little cry audio"
+yt11,https://www.youtube.com/watch?v=TuB5rlIkY38,IntermountainParents,,hospital system (Intermountain Health),,,,"Title: Gas or reflux?",,CANDIDATE
+yt12,https://www.youtube.com/watch?v=FR1bzQ1PLWc,Mama Natural,,non-clinical; uses Dunstan Baby Language,,,,"Title: Baby cries: what your baby is trying to tell you",,"CANDIDATE - DUNSTAN (contested method) -> low"
+yt13,https://www.youtube.com/watch?v=aG8LIlpwajs,Carrerasfam,,non-clinical,,,,"Title: Decoding baby cries",,"CANDIDATE - low"

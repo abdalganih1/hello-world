@@ -1,0 +1,32 @@
+[
+ {
+  "fold": 0,
+  "model": "pca64_lr_C1",
+  "inner_macroF1": 0.2058,
+  "T": 5.379
+ },
+ {
+  "fold": 1,
+  "model": "pca64_lr_C0.01",
+  "inner_macroF1": 0.2068,
+  "T": 1.545
+ },
+ {
+  "fold": 2,
+  "model": "pca64_lr_C1",
+  "inner_macroF1": 0.18,
+  "T": 5.391
+ },
+ {
+  "fold": 3,
+  "model": "pca64_lr_C1",
+  "inner_macroF1": 0.2389,
+  "T": 4.857
+ },
+ {
+  "fold": 4,
+  "model": "pca64_lr_C0.1",
+  "inner_macroF1": 0.204,
+  "T": 3.194
+ }
+]
