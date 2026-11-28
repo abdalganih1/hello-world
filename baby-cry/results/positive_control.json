@@ -1,0 +1,8 @@
+{
+ "panns|age_0-4wk_vs_7mo+|AUC": 0.629,
+ "panns|hungry_vs_rest|AUC": 0.478,
+ "ast|age_0-4wk_vs_7mo+|AUC": 0.704,
+ "ast|hungry_vs_rest|AUC": 0.515,
+ "mobilenet|age_0-4wk_vs_7mo+|AUC": 0.68,
+ "mobilenet|hungry_vs_rest|AUC": 0.442
+}
