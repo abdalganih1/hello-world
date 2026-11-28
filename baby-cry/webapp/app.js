@@ -2,8 +2,33 @@
 const $ = (id) => document.getElementById(id);
 const SR = 32000, WIN = 5 * SR, HOP = 2.5 * SR;
 let cfg, session, busy = false;
-ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/';
+ort.env.wasm.wasmPaths = new URL('ort/', location.href).href;   // self-hosted (same origin) — Safari-safe
 ort.env.wasm.numThreads = 1;
+ort.env.wasm.proxy = false;
+const MODEL_URL = 'model.onnx?v=1';
+
+async function fetchWithRetry(url, onProgress, tries = 3) {
+  let last;
+  for (let k = 0; k < tries; k++) {
+    try {
+      // try the Cache Storage first so the 24 MB model downloads only once
+      let cache = null; try { cache = await caches.open('cry-model-v1'); } catch {}
+      let resp = cache && await cache.match(url);
+      if (!resp) {
+        resp = await fetch(url, { cache: 'no-cache' });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        if (cache) { try { await cache.put(url, resp.clone()); } catch {} }
+      }
+      const total = +resp.headers.get('content-length') || 0;
+      if (!resp.body || !resp.body.getReader) return new Uint8Array(await resp.arrayBuffer());
+      const reader = resp.body.getReader(); const parts = []; let got = 0;
+      for (;;) { const { done, value } = await reader.read(); if (done) break; parts.push(value); got += value.length; if (total) onProgress(got / total); }
+      const out = new Uint8Array(got); let o = 0; for (const p of parts) { out.set(p, o); o += p.length; }
+      return out;
+    } catch (e) { last = e; try { (await caches.open('cry-model-v1')).delete(url); } catch {} await new Promise((r) => setTimeout(r, 800 * (k + 1))); }
+  }
+  throw last;
+}
 
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
@@ -17,13 +42,26 @@ function status(t, p) {
 }
 
 async function init() {
+  let step = 'الإعدادات';
   try {
-    cfg = await (await fetch('config.json')).json();
+    if (typeof ort === 'undefined') { step = 'مكتبة التحليل'; throw new Error('ما تحمّلت ملفات المكتبة'); }
+    if (typeof WebAssembly !== 'object') { step = 'المتصفح'; throw new Error('المتصفح ما بيدعم WebAssembly — حدّث iOS/المتصفح'); }
+    cfg = await (await fetch('config.json?v=2', { cache: 'no-cache' })).json();
     $('ver').textContent = `النموذج: ${cfg.model_name} · ${cfg.version}`;
     for (const c of cfg.classes) { const o = document.createElement('option'); o.value = c; o.textContent = cfg.ar[c]; $('truth').appendChild(o); }
-    session = await ort.InferenceSession.create('model.onnx', { executionProviders: ['wasm'] });
+    step = 'تنزيل النموذج (24MB)';
+    status('جاري تنزيل النموذج (24MB، مرة وحدة بس)…', 0);
+    const bytes = await fetchWithRetry(MODEL_URL, (p) => status(`جاري تنزيل النموذج… ${Math.round(p * 100)}%`, p));
+    step = 'تشغيل محرك التحليل';
+    status('جاري تجهيز محرك التحليل…', 1);
+    session = await ort.InferenceSession.create(bytes, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' });
     status('جاهز. سجّل بكاء أو اختار ملف (يوتيوب منزّل، تسجيل، …).');
-  } catch (e) { status('تعذّر تحميل النموذج: ' + e.message); }
+  } catch (e) {
+    console.error(e);
+    status(`تعذّر التحميل بمرحلة «${step}»: ${e && e.message ? e.message : e}. جرّب تحدّث الصفحة على واي فاي، ولو بقيت المشكلة ابعتلي هالرسالة مع نوع الموبايل وإصدار iOS/أندرويد.`);
+    const b = document.createElement('button'); b.className = 'ghost'; b.style.marginTop = '8px'; b.textContent = '🔄 إعادة المحاولة'; b.onclick = () => location.reload();
+    $('status').after(b);
+  }
   $('gkey').value = store.get('gkey', '');
   $('gkey').addEventListener('change', () => store.set('gkey', $('gkey').value.trim()));
   renderLog();

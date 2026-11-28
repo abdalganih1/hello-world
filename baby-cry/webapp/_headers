@@ -1,3 +1,9 @@
 /model.onnx
   Cache-Control: public, max-age=86400
   Content-Type: application/octet-stream
+/ort/*
+  Cache-Control: public, max-age=604800
+/ort/*.wasm
+  Content-Type: application/wasm
+/ort/*.mjs
+  Content-Type: text/javascript
